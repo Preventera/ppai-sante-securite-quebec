@@ -1,14 +1,18 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RiskMatrix } from "@/components/RiskMatrix";
 import { RiskAnalytics } from "@/components/RiskAnalytics";
 import { RiskTable } from "@/components/RiskTable";
 import { PredictiveAlerts } from "@/components/PredictiveAlerts";
-import { Download, Filter, Plus, AlertTriangle } from "lucide-react";
+import { PreventiveActions } from "@/components/PreventiveActions";
+import { RolesResponsibilities } from "@/components/RolesResponsibilities";
+import { AddRiskModal } from "@/components/AddRiskModal";
+import { ExportActions } from "@/components/ExportActions";
+import { AlertTriangle, Filter, Users, Target, BarChart3 } from "lucide-react";
 
 const mockRisks = [
   {
@@ -225,9 +229,6 @@ const mockRisks = [
 
 const RiskRegistry = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedPhase, setSelectedPhase] = useState("all");
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [selectedRiskLevel, setSelectedRiskLevel] = useState("all");
 
   const summaryData = {
     totalRisks: 225,
@@ -244,34 +245,18 @@ const RiskRegistry = () => {
           <div>
             <h1 className="text-3xl font-bold text-sst-blue flex items-center gap-2">
               <AlertTriangle className="w-8 h-8" />
-              Registre des risques
+              PPAI - Registre des risques
             </h1>
             <p className="text-gray-600 mt-1">Gestion dynamique et prédictive des risques SST</p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline">
-              <Download className="w-4 h-4 mr-2" />
-              Exporter
-            </Button>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              Nouveau risque
-            </Button>
+            <ExportActions 
+              data={mockRisks} 
+              filename="registre-risques-sst" 
+              type="risks"
+            />
+            <AddRiskModal />
           </div>
-        </div>
-
-        {/* Filters and Search */}
-        <div className="flex flex-wrap gap-4 mb-4">
-          <Input
-            placeholder="Rechercher un risque..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-64"
-          />
-          <Button variant="outline">
-            <Filter className="w-4 h-4 mr-2" />
-            Filtres
-          </Button>
         </div>
 
         {/* Summary Cards */}
@@ -303,28 +288,71 @@ const RiskRegistry = () => {
         </div>
       </div>
 
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-12 gap-6 mb-6">
-        {/* Risk Matrix - Left Column */}
-        <div className="col-span-5">
-          <RiskMatrix risks={mockRisks} />
-        </div>
+      {/* Tabs Navigation */}
+      <Tabs defaultValue="overview" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="overview" className="flex items-center gap-2">
+            <BarChart3 className="w-4 h-4" />
+            Vue d'ensemble
+          </TabsTrigger>
+          <TabsTrigger value="actions" className="flex items-center gap-2">
+            <Target className="w-4 h-4" />
+            Actions préventives
+          </TabsTrigger>
+          <TabsTrigger value="responsibilities" className="flex items-center gap-2">
+            <Users className="w-4 h-4" />
+            Rôles & Responsabilités
+          </TabsTrigger>
+          <TabsTrigger value="table" className="flex items-center gap-2">
+            <Filter className="w-4 h-4" />
+            Tableau détaillé
+          </TabsTrigger>
+        </TabsList>
 
-        {/* Analytics - Right Column */}
-        <div className="col-span-7">
-          <RiskAnalytics />
-        </div>
-      </div>
+        <TabsContent value="overview" className="space-y-6">
+          {/* Filters and Search */}
+          <div className="flex flex-wrap gap-4 mb-4">
+            <Input
+              placeholder="Rechercher un risque..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-64"
+            />
+            <Button variant="outline">
+              <Filter className="w-4 h-4 mr-2" />
+              Filtres avancés
+            </Button>
+          </div>
 
-      {/* Predictive Alerts */}
-      <div className="mb-6">
-        <PredictiveAlerts />
-      </div>
+          {/* Main Content Grid */}
+          <div className="grid grid-cols-12 gap-6 mb-6">
+            {/* Risk Matrix - Left Column */}
+            <div className="col-span-5">
+              <RiskMatrix risks={mockRisks} />
+            </div>
 
-      {/* Risk Table */}
-      <div>
-        <RiskTable risks={mockRisks} searchTerm={searchTerm} />
-      </div>
+            {/* Analytics - Right Column */}
+            <div className="col-span-7">
+              <RiskAnalytics />
+            </div>
+          </div>
+
+          {/* Predictive Alerts */}
+          <PredictiveAlerts />
+        </TabsContent>
+
+        <TabsContent value="actions">
+          <PreventiveActions />
+        </TabsContent>
+
+        <TabsContent value="responsibilities">
+          <RolesResponsibilities />
+        </TabsContent>
+
+        <TabsContent value="table">
+          <RiskTable risks={mockRisks} searchTerm={searchTerm} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
