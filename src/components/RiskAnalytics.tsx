@@ -1,6 +1,6 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Area, AreaChart } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Area, AreaChart, Cell } from "recharts";
 import { Progress } from "@/components/ui/progress";
 
 const risksByCategory = [
@@ -42,7 +42,11 @@ export function RiskAnalytics() {
               <XAxis type="number" />
               <YAxis dataKey="name" type="category" width={150} fontSize={12} />
               <Tooltip />
-              <Bar dataKey="count" fill={(entry) => entry.color} />
+              <Bar dataKey="count">
+                {risksByCategory.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
