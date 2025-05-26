@@ -1,5 +1,6 @@
+
 import { useState } from "react";
-import { Home, Shield, FileText, BarChart3, Settings, AlertTriangle, Users, Calendar, Wand2, Building } from "lucide-react";
+import { Home, Shield, FileText, BarChart3, Settings, AlertTriangle, Users, Calendar, Wand2, Building, Workflow } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Sidebar,
@@ -35,6 +36,11 @@ const navigationItems = [
     title: "Générateur par Secteur",
     url: "/sector-generator",
     icon: Building,
+  },
+  {
+    title: "Pipeline Générateur PPAI",
+    url: "/pipeline-generator",
+    icon: Workflow,
   },
   {
     title: "Programmes SST",
