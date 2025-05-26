@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Home, Shield, FileText, BarChart3, Settings, AlertTriangle, Users, Calendar } from "lucide-react";
+import { Home, Shield, FileText, BarChart3, Settings, AlertTriangle, Users, Calendar, Wand2 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Sidebar,
@@ -26,6 +26,11 @@ const navigationItems = [
     title: "Registre des risques",
     url: "/risks",
     icon: AlertTriangle,
+  },
+  {
+    title: "Générateur CNESST",
+    url: "/generator",
+    icon: Wand2,
   },
   {
     title: "Programmes SST",
