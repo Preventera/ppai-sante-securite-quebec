@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import Index from "./pages/Index";
+import RiskRegistry from "./pages/RiskRegistry";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,7 +27,7 @@ const App = () => (
               </div>
               <Routes>
                 <Route path="/" element={<Index />} />
-                <Route path="/risks" element={<div className="p-6"><h1 className="text-2xl font-bold text-sst-blue">Registre des risques</h1><p className="text-gray-600 mt-2">Module en développement</p></div>} />
+                <Route path="/risks" element={<RiskRegistry />} />
                 <Route path="/programs" element={<div className="p-6"><h1 className="text-2xl font-bold text-sst-blue">Programmes SST</h1><p className="text-gray-600 mt-2">Module en développement</p></div>} />
                 <Route path="/measures" element={<div className="p-6"><h1 className="text-2xl font-bold text-sst-blue">Mesures préventives</h1><p className="text-gray-600 mt-2">Module en développement</p></div>} />
                 <Route path="/reports" element={<div className="p-6"><h1 className="text-2xl font-bold text-sst-blue">Rapports</h1><p className="text-gray-600 mt-2">Module en développement</p></div>} />
