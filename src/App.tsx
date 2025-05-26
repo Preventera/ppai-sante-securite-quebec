@@ -11,6 +11,7 @@ import RiskRegistry from "./pages/RiskRegistry";
 import ProgramGenerator from "./pages/ProgramGenerator";
 import SectorGenerator from "./pages/SectorGenerator";
 import PipelineGenerator from "./pages/PipelineGenerator";
+import KPIGenerator from "./pages/KPIGenerator";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
