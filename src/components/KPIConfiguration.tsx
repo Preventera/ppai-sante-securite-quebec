@@ -64,12 +64,28 @@ export function KPIConfiguration({ onConfigurationComplete }: KPIConfigurationPr
   };
 
   const handleSubmit = () => {
+    console.log("Attempting to submit configuration:", {
+      secteur,
+      taille,
+      selectedActivites,
+      isValid: secteur && taille && selectedActivites.length > 0
+    });
+
     if (secteur && taille && selectedActivites.length > 0) {
-      onConfigurationComplete({
+      const config = {
         secteur,
         tailleEtablissement: taille,
         groupePrioritaire: groupe,
         activitesPrincipales: selectedActivites,
+      };
+      
+      console.log("Configuration valid, calling onConfigurationComplete with:", config);
+      onConfigurationComplete(config);
+    } else {
+      console.log("Configuration incomplete:", {
+        secteur: secteur || "missing",
+        taille: taille || "missing", 
+        activitesCount: selectedActivites.length
       });
     }
   };
@@ -211,6 +227,13 @@ export function KPIConfiguration({ onConfigurationComplete }: KPIConfigurationPr
           Générer les KPI et Mapping
         </Button>
       </div>
+
+      {/* Debug info */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="text-xs text-gray-500 p-2 bg-gray-100 rounded">
+          Debug: secteur={secteur}, taille={taille}, activités={selectedActivites.length}, valid={isValid.toString()}
+        </div>
+      )}
     </div>
   );
 }
