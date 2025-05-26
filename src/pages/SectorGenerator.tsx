@@ -1,16 +1,28 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Building, Search, Filter, Download, Copy, Wand2 } from "lucide-react";
+import { Building, Search, Filter, Download, Copy, Wand2, LucideIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ExportActions } from "@/components/ExportActions";
 
+// Interface pour les secteurs
+interface SectorData {
+  groupe: number;
+  scian: string;
+  nom: string;
+  description: string;
+  risquesPrincipaux: string[];
+  obligations: string[];
+  prompts: {
+    [key: string]: string;
+  };
+}
+
 // Base de données des secteurs d'activité CNESST
-const secteursDatabase = {
+const secteursDatabase: Record<string, SectorData> = {
   "construction-residentielle": {
     groupe: 1,
     scian: "2361",
@@ -117,14 +129,14 @@ const secteursDatabase = {
   }
 };
 
-const groupeColors = {
+const groupeColors: Record<number, string> = {
   1: "bg-orange-500",
   2: "bg-blue-500", 
   3: "bg-green-500",
   4: "bg-purple-500"
 };
 
-const groupeNames = {
+const groupeNames: Record<number, string> = {
   1: "Construction",
   2: "Manufacturier",
   3: "Municipal/Services",
