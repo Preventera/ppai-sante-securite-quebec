@@ -35,6 +35,7 @@ const App = () => (
                 <Route path="/generator" element={<ProgramGenerator />} />
                 <Route path="/sector-generator" element={<SectorGenerator />} />
                 <Route path="/pipeline-generator" element={<PipelineGenerator />} />
+                <Route path="/kpi-generator" element={<KPIGenerator />} />
                 <Route path="/programs" element={<div className="p-6"><h1 className="text-2xl font-bold text-sst-blue">Programmes SST</h1><p className="text-gray-600 mt-2">Module en développement</p></div>} />
                 <Route path="/measures" element={<div className="p-6"><h1 className="text-2xl font-bold text-sst-blue">Mesures préventives</h1><p className="text-gray-600 mt-2">Module en développement</p></div>} />
                 <Route path="/reports" element={<div className="p-6"><h1 className="text-2xl font-bold text-sst-blue">Rapports</h1><p className="text-gray-600 mt-2">Module en développement</p></div>} />
