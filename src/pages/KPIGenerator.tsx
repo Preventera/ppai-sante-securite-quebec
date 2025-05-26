@@ -8,7 +8,8 @@ import { KPIDashboard } from "@/components/KPIDashboard";
 import { RiskMatrix } from "@/components/RiskMatrix";
 import { RiskHeatmap } from "@/components/RiskHeatmap";
 import { KPICalculator } from "@/components/KPICalculator";
-import { BarChart3, Target, Settings, Map, Calculator } from "lucide-react";
+import { BarChart3, Target, Settings, Map, Calculator, Info } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 interface ConfigurationData {
   secteur: string;
@@ -17,12 +18,25 @@ interface ConfigurationData {
   activitesPrincipales: string[];
 }
 
+// Données d'exemple pour démonstration
+const exampleConfiguration: ConfigurationData = {
+  secteur: "construction",
+  tailleEtablissement: "100-499",
+  groupePrioritaire: 2,
+  activitesPrincipales: ["Travaux en hauteur", "Manutention manuelle", "Soudage et coupage"]
+};
+
 const KPIGenerator = () => {
   const [configuration, setConfiguration] = useState<ConfigurationData | null>(null);
   const [activeTab, setActiveTab] = useState("config");
 
   const handleConfigurationComplete = (config: ConfigurationData) => {
     setConfiguration(config);
+    setActiveTab("dashboard");
+  };
+
+  const loadExampleData = () => {
+    setConfiguration(exampleConfiguration);
     setActiveTab("dashboard");
   };
 
@@ -39,6 +53,27 @@ const KPIGenerator = () => {
         </p>
       </div>
 
+      {/* Instructions si pas de configuration */}
+      {!configuration && (
+        <Card className="mb-6 border-l-4 border-l-blue-500">
+          <CardContent className="p-4">
+            <div className="flex items-start gap-3">
+              <Info className="w-5 h-5 text-blue-600 mt-0.5" />
+              <div className="flex-1">
+                <h3 className="font-medium text-blue-800 mb-2">Pour commencer</h3>
+                <p className="text-sm text-blue-600 mb-3">
+                  Configurez d'abord les paramètres de votre établissement dans l'onglet "Configuration" 
+                  pour activer le tableau de bord et les outils de mapping des risques.
+                </p>
+                <Button onClick={loadExampleData} variant="outline" size="sm">
+                  Ou charger un exemple de démonstration
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Configuration Status */}
       {configuration && (
         <Card className="mb-6 border-l-4 border-l-green-500">
@@ -46,9 +81,12 @@ const KPIGenerator = () => {
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="font-medium text-green-800">Configuration Active</h3>
-                <p className="text-sm text-green-600">
-                  {configuration.secteur} - Groupe {configuration.groupePrioritaire} - {configuration.tailleEtablissement}
-                </p>
+                <div className="flex items-center gap-2 mt-1">
+                  <Badge variant="outline">{configuration.secteur}</Badge>
+                  <Badge variant="outline">Groupe {configuration.groupePrioritaire}</Badge>
+                  <Badge variant="outline">{configuration.tailleEtablissement} employés</Badge>
+                  <Badge variant="outline">{configuration.activitesPrincipales.length} activités</Badge>
+                </div>
               </div>
               <Button 
                 variant="outline" 
