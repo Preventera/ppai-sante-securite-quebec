@@ -1,8 +1,8 @@
-
 import { LucideIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
+import { CSSProperties } from "react";
 
 interface DashboardKPICardProps {
   title: string;
@@ -21,6 +21,7 @@ interface DashboardKPICardProps {
   };
   color: "blue" | "green" | "red" | "orange" | "yellow";
   className?: string;
+  style?: CSSProperties;
 }
 
 const colorClasses = {
@@ -48,9 +49,10 @@ export function DashboardKPICard({
   progress,
   color,
   className,
+  style,
 }: DashboardKPICardProps) {
   return (
-    <Card className={cn("border-2 transition-all hover:shadow-lg", colorClasses[color], className)}>
+    <Card className={cn("border-2 transition-all hover:shadow-lg", colorClasses[color], className)} style={style}>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-sm font-medium text-gray-600">{title}</CardTitle>
         <div className={cn("p-2 rounded-lg", iconColorClasses[color])}>
