@@ -1,13 +1,13 @@
 
 import { DashboardKPICard } from "@/components/DashboardKPICard";
-import { Shield, AlertTriangle, CheckCircle, TrendingUp, Search, User } from "lucide-react";
+import { Shield, AlertTriangle, CheckCircle, TrendingUp, Search, User, Bell, Brain, Activity, Target } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell, Area, AreaChart } from "recharts";
 
-// Mock data for the dashboard
+// Enhanced mock data for the dashboard
 const dashboardData = {
   company: {
     name: "Entrepôts Frigorifiques Laurentides",
@@ -21,7 +21,9 @@ const dashboardData = {
     program: { status: "Actif", lastUpdate: "15 mai" },
     measures: { completed: 42, total: 62, overdue: 3, upcoming: 5 },
     incidents: { accidents: 2, nearMiss: 5, situations: 7, trend: -50 },
-    inspections: { completed: 24, target: 30, upcoming: 6, growth: 15 }
+    inspections: { completed: 24, target: 30, upcoming: 6, growth: 15 },
+    compliance: { rate: 96, budget: 7 },
+    resolution: { averageTime: 4.2, target: 5.0 }
   },
   risksByCategory: [
     { name: "Mécaniques", value: 31, color: "#ff4444" },
@@ -33,6 +35,31 @@ const dashboardData = {
     { task: "Installation garde-corps - Mezzanine", days: 3, priority: "high" },
     { task: "Formation levage sécuritaire - Entrepôt", days: 7, priority: "medium" },
     { task: "Captation poussière - Atelier", days: 14, priority: "low" }
+  ],
+  predictiveAlerts: [
+    { zone: "Entrepôt A", type: "Risque chimique", severity: "critical", probability: 85, action: "Vérifier ventilation" },
+    { zone: "Quai de chargement", type: "Accident potentiel", severity: "high", probability: 72, action: "Renforcer signalisation" },
+    { zone: "Bureau", type: "Ergonomie", severity: "medium", probability: 45, action: "Formation postures" }
+  ],
+  incidentTrend: [
+    { month: "Jan", incidents: 8, predicted: 7 },
+    { month: "Fév", incidents: 6, predicted: 6 },
+    { month: "Mar", incidents: 4, predicted: 5 },
+    { month: "Avr", incidents: 7, predicted: 6 },
+    { month: "Mai", incidents: 3, predicted: 4 },
+    { month: "Jun", incidents: null, predicted: 3 }
+  ],
+  riskIndex: {
+    current: 72,
+    target: 60,
+    trend: -8,
+    lastUpdate: "Il y a 2h"
+  },
+  heatmapData: [
+    { zone: "Entrepôt A", risk: 85, x: 20, y: 30 },
+    { zone: "Entrepôt B", risk: 45, x: 60, y: 30 },
+    { zone: "Quai", risk: 70, x: 40, y: 70 },
+    { zone: "Bureau", risk: 25, x: 80, y: 20 }
   ]
 };
 
@@ -51,6 +78,15 @@ const getPriorityLabel = (priority: string) => {
     case "medium": return "MOYEN";
     case "low": return "NORMAL";
     default: return "NORMAL";
+  }
+};
+
+const getSeverityColor = (severity: string) => {
+  switch (severity) {
+    case "critical": return "bg-red-100 border-red-300 text-red-800";
+    case "high": return "bg-orange-100 border-orange-300 text-orange-800";
+    case "medium": return "bg-yellow-100 border-yellow-300 text-yellow-800";
+    default: return "bg-gray-100 border-gray-300 text-gray-800";
   }
 };
 
@@ -122,8 +158,8 @@ const Index = () => {
       </div>
 
       <div className="p-6 space-y-6">
-        {/* KPI Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* KPI Cards - Enhanced with 6 cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
           {/* Programme de prévention */}
           <Card className="bg-white border-2 border-blue-200 hover:shadow-lg transition-all">
             <CardHeader className="pb-2">
@@ -170,6 +206,22 @@ const Index = () => {
                 <div className="text-sm text-gray-500">
                   {dashboardData.kpis.measures.overdue} mesures en retard | {dashboardData.kpis.measures.upcoming} à échéance
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Taux de conformité */}
+          <Card className="bg-white border-2 border-green-200 hover:shadow-lg transition-all">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600 uppercase">Conformité globale</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Target className="w-8 h-8 text-green-600" />
+                  <div className="text-2xl font-bold text-green-600">{dashboardData.kpis.compliance.rate}%</div>
+                </div>
+                <div className="text-sm text-gray-500">Budget SST: {dashboardData.kpis.compliance.budget}%</div>
               </div>
             </CardContent>
           </Card>
@@ -228,6 +280,157 @@ const Index = () => {
               </div>
             </CardContent>
           </Card>
+
+          {/* Temps de résolution */}
+          <Card className="bg-white border-2 border-purple-200 hover:shadow-lg transition-all">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600 uppercase">Temps de résolution</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Activity className="w-8 h-8 text-purple-600" />
+                  <div className="text-2xl font-bold text-purple-600">{dashboardData.kpis.resolution.averageTime}j</div>
+                </div>
+                <div className="text-sm text-gray-500">Objectif: {dashboardData.kpis.resolution.target}j</div>
+                <Progress 
+                  value={(dashboardData.kpis.resolution.target - dashboardData.kpis.resolution.averageTime) / dashboardData.kpis.resolution.target * 100} 
+                  className="h-2"
+                />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Section 3: Analyse Prédictive */}
+        <div className="space-y-6">
+          <div className="flex items-center space-x-2">
+            <Brain className="w-6 h-6 text-sst-blue" />
+            <h2 className="text-xl font-bold text-sst-blue">Analyse Prédictive</h2>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Alertes Préventives */}
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle className="text-lg font-semibold text-sst-blue flex items-center">
+                  <Bell className="w-5 h-5 mr-2" />
+                  Alertes Préventives
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {dashboardData.predictiveAlerts.map((alert, index) => (
+                    <div
+                      key={index}
+                      className={`p-4 rounded-lg border-2 ${getSeverityColor(alert.severity)}`}
+                    >
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="font-medium">{alert.zone}</div>
+                        <div className="text-sm font-bold">{alert.probability}%</div>
+                      </div>
+                      <div className="text-sm mb-1">{alert.type}</div>
+                      <div className="text-xs text-gray-600">{alert.action}</div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Probabilité d'incidents futurs */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg font-semibold text-sst-blue">
+                  Prédiction d'Incidents (6 mois)
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={dashboardData.incidentTrend}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="month" tick={{ fontSize: 12 }} />
+                      <YAxis tick={{ fontSize: 12 }} />
+                      <Line 
+                        type="monotone" 
+                        dataKey="incidents" 
+                        stroke="#0066cc" 
+                        strokeWidth={2}
+                        dot={{ r: 4 }}
+                        name="Réels"
+                      />
+                      <Line 
+                        type="monotone" 
+                        dataKey="predicted" 
+                        stroke="#ff8800" 
+                        strokeWidth={2}
+                        strokeDasharray="5 5"
+                        dot={{ r: 4 }}
+                        name="Prédits"
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Indice de risque dynamique */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg font-semibold text-sst-blue">
+                  Indice de Risque Dynamique
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="text-center">
+                    <div className="text-4xl font-bold text-orange-600 mb-2">
+                      {dashboardData.riskIndex.current}
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      Objectif: {dashboardData.riskIndex.target}
+                    </div>
+                  </div>
+                  
+                  <div className="relative">
+                    <div className="w-full bg-gray-200 rounded-full h-4">
+                      <div 
+                        className="bg-gradient-to-r from-green-400 to-orange-500 h-4 rounded-full transition-all duration-500"
+                        style={{ width: `${(dashboardData.riskIndex.current / 100) * 100}%` }}
+                      ></div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between text-sm">
+                    <span className={`font-medium ${dashboardData.riskIndex.trend < 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {dashboardData.riskIndex.trend < 0 ? '↓' : '↑'} {Math.abs(dashboardData.riskIndex.trend)} points
+                    </span>
+                    <span className="text-gray-500">{dashboardData.riskIndex.lastUpdate}</span>
+                  </div>
+
+                  {/* Carte de chaleur simplifiée */}
+                  <div className="mt-4">
+                    <div className="text-sm font-medium mb-2">Zones à risque:</div>
+                    <div className="grid grid-cols-2 gap-2">
+                      {dashboardData.heatmapData.map((zone, index) => (
+                        <div
+                          key={index}
+                          className={`p-2 rounded text-center text-xs font-medium ${
+                            zone.risk > 70 ? 'bg-red-100 text-red-800' :
+                            zone.risk > 40 ? 'bg-orange-100 text-orange-800' :
+                            'bg-green-100 text-green-800'
+                          }`}
+                        >
+                          <div>{zone.zone}</div>
+                          <div className="font-bold">{zone.risk}%</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
 
         {/* Charts Section */}
