@@ -620,7 +620,7 @@ Date : ${currentDate}                   Date : ${currentDate}
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Settings className="w-5 h-5 text-blue-600" />
-            Générateur Prototype APSAM
+            Générateur Prototype PPAI
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -683,7 +683,7 @@ Date : ${currentDate}                   Date : ${currentDate}
               disabled={!selectedGroup || !selectedSector || !selectedTemplate || isGenerating}
               className="flex-1"
             >
-              {isGenerating ? "Génération..." : "Générer Programme APSAM"}
+              {isGenerating ? "Génération..." : "Générer Programme Professionnel"}
             </Button>
           </div>
 
@@ -704,14 +704,14 @@ Date : ${currentDate}                   Date : ${currentDate}
       </Card>
 
       {/* Avertissement prototype */}
-      <Card className="border-orange-200 bg-orange-50">
+      <Card className="border-blue-200 bg-blue-50">
         <CardContent className="p-4">
           <div className="flex items-start gap-3">
-            <AlertTriangle className="w-5 h-5 text-orange-600 mt-0.5" />
+            <AlertTriangle className="w-5 h-5 text-blue-600 mt-0.5" />
             <div>
-              <p className="font-medium text-orange-800">Mode Prototype APSAM</p>
-              <p className="text-sm text-orange-700 mt-1">
-                Programme généré selon les standards APSAM avec structure professionnelle complète. 
+              <p className="font-medium text-blue-800">Mode Prototype PPAI</p>
+              <p className="text-sm text-blue-700 mt-1">
+                Programme généré selon les standards CNESST avec structure professionnelle complète. 
                 Contenu adapté par secteur mais nécessite personnalisation pour votre organisation spécifique.
                 Format conforme aux attentes CNESST avec sections obligatoires intégrées.
               </p>
@@ -727,7 +727,7 @@ Date : ${currentDate}                   Date : ${currentDate}
             <CardTitle className="flex items-center justify-between">
               <span className="flex items-center gap-2">
                 <FileText className="w-5 h-5" />
-                Programme APSAM Généré
+                Programme Professionnel Généré
               </span>
               <div className="flex gap-2">
                 <Button variant="outline" size="sm" onClick={copyContent}>
