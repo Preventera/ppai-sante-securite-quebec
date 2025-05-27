@@ -1,13 +1,14 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { Download, FileText, Wand2, Copy, Save } from "lucide-react";
+import { Download, FileText, Wand2, Copy, Save, Settings, Zap } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ExportActions } from "@/components/ExportActions";
+import { AIGenerationService } from "@/services/aiGenerationService";
+import { AIConfigurationModal } from "@/components/AIConfigurationModal";
 
 // Base de données des prompts structurée
 const promptsDatabase = {
@@ -137,6 +138,8 @@ export default function ProgramGenerator() {
   const [generatedPrompt, setGeneratedPrompt] = useState("");
   const [generatedContent, setGeneratedContent] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [showAIConfig, setShowAIConfig] = useState(false);
+  const [aiService] = useState(() => new AIGenerationService());
   const { toast } = useToast();
 
   // Obtenir les obligations disponibles pour le groupe sélectionné
@@ -183,10 +186,50 @@ export default function ProgramGenerator() {
       return;
     }
 
+    // Vérifier si l'IA est configurée
+    if (!aiService.hasApiKey()) {
+      setShowAIConfig(true);
+      return;
+    }
+
     setIsGenerating(true);
     
-    // Simulation de génération de contenu
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    try {
+      // Utilisation de l'IA réelle au lieu de la simulation
+      const response = await aiService.generatePreventionProgram({
+        companyName: "Organisation Example", // Ces paramètres devraient venir d'un formulaire
+        secteurScian: selectedGroup === "1" ? "2361" : "3211", // Mapping basique
+        groupePrioritaire: parseInt(selectedGroup),
+        nombreEmployes: 25,
+        activitesPrincipales: generatedPrompt,
+        typeDocument: selectedType,
+        acteurResponsable: acteurs[selectedActeur]
+      });
+
+      setGeneratedContent(response.content);
+      
+      toast({
+        title: "Succès",
+        description: `Programme généré avec l'IA ! Conformité: ${response.metadata.conformite ? '✅' : '⚠️'}`,
+      });
+    } catch (error) {
+      console.error('Erreur génération IA:', error);
+      toast({
+        title: "Erreur IA",
+        description: error instanceof Error ? error.message : "Erreur lors de la génération IA",
+        variant: "destructive"
+      });
+      
+      // Fallback vers simulation en cas d'erreur
+      await generateMockContent();
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  // Fonction de fallback pour la simulation
+  const generateMockContent = async () => {
+    await new Promise(resolve => setTimeout(resolve, 1000));
     
     const mockContent = `# Programme de Prévention - ${groupes[selectedGroup].nom}
 
@@ -212,14 +255,18 @@ ${generatedPrompt.split('\n')[0]}
 Ce programme respecte les exigences de la LSST et du RSST applicables au Groupe ${selectedGroup} CNESST.
 
 ## 6. Révision et Mise à Jour
-Révision recommandée : annuelle ou suite à modification significative des conditions de travail.`;
+Révision recommandée : annuelle ou suite à modification significative des conditions de travail.
+
+⚠️ *Contenu généré en mode simulation - Configurez l'IA pour une génération avancée*`;
 
     setGeneratedContent(mockContent);
-    setIsGenerating(false);
-    
+  };
+
+  const handleApiKeySet = (apiKey: string) => {
+    aiService.setApiKey(apiKey);
     toast({
-      title: "Succès",
-      description: "Le programme de prévention a été généré avec succès !",
+      title: "IA Configurée",
+      description: "L'intelligence artificielle est maintenant prête à générer vos programmes !",
     });
   };
 
@@ -245,7 +292,25 @@ Révision recommandée : annuelle ou suite à modification significative des con
       {/* Header */}
       <div className="text-center space-y-2">
         <h1 className="text-3xl font-bold text-sst-blue">PPAI - Générateur de Programmes de Prévention CNESST</h1>
-        <p className="text-gray-600">Générateur intelligent de programmes personnalisés selon les groupes CNESST</p>
+        <div className="flex items-center justify-center gap-4">
+          <p className="text-gray-600">Générateur intelligent de programmes personnalisés selon les groupes CNESST</p>
+          <div className="flex items-center gap-2">
+            {aiService.hasApiKey() ? (
+              <Badge className="bg-green-100 text-green-800">
+                <Zap className="w-3 h-3 mr-1" />
+                IA Activée
+              </Badge>
+            ) : (
+              <Badge variant="secondary">
+                Mode Simulation
+              </Badge>
+            )}
+            <Button variant="outline" size="sm" onClick={() => setShowAIConfig(true)}>
+              <Settings className="w-4 h-4 mr-1" />
+              Configurer IA
+            </Button>
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -351,7 +416,7 @@ Révision recommandée : annuelle ou suite à modification significative des con
                 disabled={!generatedPrompt || isGenerating}
                 className="flex-1"
               >
-                {isGenerating ? "Génération..." : "Générer le programme"}
+                {isGenerating ? "Génération..." : aiService.hasApiKey() ? "Générer avec IA" : "Générer (simulation)"}
               </Button>
               <Button variant="outline" onClick={resetForm}>
                 Réinitialiser
@@ -417,6 +482,14 @@ Révision recommandée : annuelle ou suite à modification significative des con
           </CardContent>
         </Card>
       )}
+
+      {/* Modal de configuration IA */}
+      <AIConfigurationModal
+        open={showAIConfig}
+        onOpenChange={setShowAIConfig}
+        onApiKeySet={handleApiKeySet}
+        currentApiKey={aiService.hasApiKey() ? "••••••••••••••••" : ""}
+      />
     </div>
   );
 }
