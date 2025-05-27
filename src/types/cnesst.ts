@@ -1,4 +1,3 @@
-
 export interface LesionSectorielleData {
   secteur_scian: string;
   nom_secteur: string;
@@ -8,6 +7,7 @@ export interface LesionSectorielleData {
   agent_causal_principal: string;
   siege_lesion_frequent: string;
   cout_moyen_reclamation: number;
+  _lineNumber?: number; // Pour debugging CSV parsing
 }
 
 export interface AgentCausalData {
@@ -19,6 +19,7 @@ export interface AgentCausalData {
   mesures_prevention_type: string;
   cout_prevention_moyen: number;
   efficacite_mesure: number;
+  _lineNumber?: number; // Pour debugging CSV parsing
 }
 
 export interface SiegeLesionData {
@@ -29,6 +30,7 @@ export interface SiegeLesionData {
   jours_arret_moyen: number;
   cout_medical_moyen: number;
   mesures_prevention_specifiques: string;
+  _lineNumber?: number; // Pour debugging CSV parsing
 }
 
 export interface CNESSTMetadata {
