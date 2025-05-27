@@ -8,7 +8,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Wand2, Download, Copy, Zap, Settings, Info } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { CompanyInfoForm, CompanyInfo } from "@/components/CompanyInfoForm";
-import { AIGenerationService } from "@/services/aiGenerationService";
+import { AIGenerationService, AIProvider } from "@/services/aiGenerationService";
 import { AIConfigurationModal } from "@/components/AIConfigurationModal";
 
 const templates = {
@@ -196,11 +196,11 @@ Date de mise en œuvre : ${companyInfo.implementationDate || 'À définir'}
     setGeneratedContent(mockContent);
   };
 
-  const handleApiKeySet = (apiKey: string) => {
-    aiService.setApiKey(apiKey);
+  const handleConfigSet = (config: { provider: AIProvider; apiKey: string }) => {
+    aiService.setConfig(config);
     toast({
       title: "IA Configurée",
-      description: "L'intelligence artificielle est maintenant prête à générer vos programmes !",
+      description: `${aiService.getProviderName()} est maintenant prêt à générer vos programmes !`,
     });
   };
 
@@ -220,7 +220,7 @@ Date de mise en œuvre : ${companyInfo.implementationDate || 'À définir'}
         <AlertDescription className="flex items-center justify-between">
           <span>
             {aiService.hasApiKey() 
-              ? `✅ IA activée - Génération avancée disponible ${cnessData ? '(avec données CNESST)' : ''}`
+              ? `✅ IA activée - ${aiService.getProviderName()} ${cnessData ? '(avec données CNESST)' : ''}`
               : "⚠️ Mode simulation - Configurez l'IA pour une génération optimale"
             }
           </span>
@@ -284,7 +284,7 @@ Date de mise en œuvre : ${companyInfo.implementationDate || 'À définir'}
             {isGenerating 
               ? "Génération en cours..." 
               : aiService.hasApiKey() 
-                ? `Générer avec IA ${cnessData ? '(enrichi CNESST)' : ''}` 
+                ? `Générer avec ${aiService.getProviderName()} ${cnessData ? '(enrichi CNESST)' : ''}` 
                 : "Générer (simulation)"
             }
           </Button>
@@ -323,8 +323,8 @@ Date de mise en œuvre : ${companyInfo.implementationDate || 'À définir'}
       <AIConfigurationModal
         open={showAIConfig}
         onOpenChange={setShowAIConfig}
-        onApiKeySet={handleApiKeySet}
-        currentApiKey={aiService.hasApiKey() ? "••••••••••••••••" : ""}
+        onConfigSet={handleConfigSet}
+        currentConfig={aiService.getConfig()}
       />
     </div>
   );
