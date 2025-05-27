@@ -8,7 +8,8 @@ import { KPIDashboard } from "@/components/KPIDashboard";
 import { RiskMatrix } from "@/components/RiskMatrix";
 import { RiskHeatmap } from "@/components/RiskHeatmap";
 import { KPICalculator } from "@/components/KPICalculator";
-import { BarChart3, Target, Settings, Map, Calculator, Info } from "lucide-react";
+import { PredictiveEngine } from "@/components/PredictiveEngine";
+import { BarChart3, Target, Settings, Map, Calculator, Brain, Info } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface ConfigurationData {
@@ -49,7 +50,7 @@ const KPIGenerator = () => {
           Générateur de KPI et Mapping des Risques SSE
         </h1>
         <p className="text-gray-600 mt-1">
-          Système intelligent de génération automatique conforme CNESST
+          Système intelligent de génération automatique conforme CNESST avec moteur prédictif IA
         </p>
       </div>
 
@@ -103,7 +104,7 @@ const KPIGenerator = () => {
 
       {/* Main Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="config" className="flex items-center gap-2">
             <Settings className="w-4 h-4" />
             Configuration
@@ -115,6 +116,13 @@ const KPIGenerator = () => {
           >
             <BarChart3 className="w-4 h-4" />
             Tableau de Bord
+          </TabsTrigger>
+          <TabsTrigger 
+            value="predictive" 
+            className="flex items-center gap-2"
+          >
+            <Brain className="w-4 h-4" />
+            Moteur Prédictif IA
           </TabsTrigger>
           <TabsTrigger 
             value="matrix" 
@@ -148,6 +156,10 @@ const KPIGenerator = () => {
 
         <TabsContent value="dashboard">
           {configuration && <KPIDashboard configuration={configuration} />}
+        </TabsContent>
+
+        <TabsContent value="predictive">
+          <PredictiveEngine />
         </TabsContent>
 
         <TabsContent value="matrix">

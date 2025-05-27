@@ -1,0 +1,599 @@
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Brain, AlertTriangle, Target, Zap, TrendingUp, Clock, Info } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { AIAlgorithmsInfo } from "@/components/AIAlgorithmsInfo";
+
+interface PredictionInput {
+  equipement: string;
+  tache: string;
+  quart: string;
+  departement: string;
+  typeRisque: string;
+  experienceAnnees: number;
+  age: number;
+  temperature: number;
+  formationRecente: boolean;
+  antecedentsIncidents: number;
+  heureTravail: number;
+  scoreFatigue: number;
+}
+
+interface PredictionResult {
+  gravitePredite: number;
+  probabiliteIncident: number;
+  classeNeuralNet: number;
+  clusterProfil: number;
+  anomalieDetectee: boolean;
+  priorite: "CRITIQUE" | "ÉLEVÉE" | "MODÉRÉE";
+  couleur: "🔴" | "🟠" | "🟡";
+}
+
+interface ActionPlan {
+  dateCreation: string;
+  priorite: string;
+  contexte: {
+    equipement: string;
+    tache: string;
+    typeRisque: string;
+  };
+  predictions: {
+    gravite: number;
+    probabiliteIncident: string;
+    anomalie: boolean;
+  };
+  mesuresCorrectices: string[];
+  responsable: string;
+  echeance: string;
+  suiviRequis: string;
+}
+
+const equipements = ["Convoyeur C-7", "Presse H-22", "Scie S-15", "Four F-8", "Robot R-3", "Chariot C-12"];
+const taches = ["Maintenance", "Production", "Nettoyage", "Inspection", "Réglage", "Transport"];
+const quarts = ["Jour", "Soir", "Nuit"];
+const departements = ["Production", "Maintenance", "Logistique", "Qualité"];
+const typesRisque = ["Mécanique", "Ergonomique", "Chimique", "Physique", "Psychosocial"];
+
+export function PredictiveEngine() {
+  const [input, setInput] = useState<PredictionInput>({
+    equipement: "",
+    tache: "",
+    quart: "",
+    departement: "",
+    typeRisque: "",
+    experienceAnnees: 0,
+    age: 0,
+    temperature: 20,
+    formationRecente: false,
+    antecedentsIncidents: 0,
+    heureTravail: 8,
+    scoreFatigue: 0,
+  });
+
+  const [prediction, setPrediction] = useState<PredictionResult | null>(null);
+  const [actionPlan, setActionPlan] = useState<ActionPlan | null>(null);
+  const [gptPrompt, setGptPrompt] = useState<string>("");
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const { toast } = useToast();
+
+  // Simulation du moteur prédictif (remplace l'appel Python)
+  const simulatePrediction = (inputData: PredictionInput): PredictionResult => {
+    // Simulation basée sur la logique de votre moteur Python
+    let baseGravity = 1;
+    
+    // Facteurs augmentant la gravité
+    if (inputData.quart === "Nuit") baseGravity += 0.5;
+    if (inputData.experienceAnnees < 2) baseGravity += 1.0;
+    if (!inputData.formationRecente) baseGravity += 0.8;
+    if (inputData.antecedentsIncidents > 2) baseGravity += 0.6;
+    if (inputData.scoreFatigue > 0.7) baseGravity += 0.4;
+    if (["Mécanique", "Chimique"].includes(inputData.typeRisque)) baseGravity += 0.7;
+    if (inputData.tache === "Maintenance") baseGravity += 0.3;
+
+    const gravitePredite = Math.min(5, Math.max(1, Math.round(baseGravity + Math.random() * 0.3)));
+    const probabiliteIncident = Math.min(0.95, (gravitePredite/5) * 0.8 + inputData.scoreFatigue * 0.2);
+    
+    let priorite: "CRITIQUE" | "ÉLEVÉE" | "MODÉRÉE";
+    let couleur: "🔴" | "🟠" | "🟡";
+    
+    if (gravitePredite >= 4 || probabiliteIncident > 0.7) {
+      priorite = "CRITIQUE";
+      couleur = "🔴";
+    } else if (gravitePredite >= 3 || probabiliteIncident > 0.5) {
+      priorite = "ÉLEVÉE";
+      couleur = "🟠";
+    } else {
+      priorite = "MODÉRÉE";
+      couleur = "🟡";
+    }
+
+    return {
+      gravitePredite,
+      probabiliteIncident,
+      classeNeuralNet: Math.floor(Math.random() * 5) + 1,
+      clusterProfil: Math.floor(Math.random() * 5) + 1,
+      anomalieDetectee: Math.random() > 0.9,
+      priorite,
+      couleur
+    };
+  };
+
+  const generateActionPlan = (inputData: PredictionInput, predictions: PredictionResult): ActionPlan => {
+    const now = new Date();
+    let echeance: Date;
+    let responsable: string;
+
+    if (predictions.priorite === "CRITIQUE") {
+      echeance = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 1 jour
+      responsable = "Coordonnateur SST + Superviseur";
+    } else if (predictions.priorite === "ÉLEVÉE") {
+      echeance = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 jours
+      responsable = "Superviseur";
+    } else {
+      echeance = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 jours
+      responsable = "Responsable Département";
+    }
+
+    const mesures: string[] = [];
+    
+    // Mesures spécifiques selon le type de risque
+    if (inputData.typeRisque === "Mécanique") {
+      mesures.push("Vérification des protecteurs de machine");
+      mesures.push("Révision procédure de verrouillage");
+    } else if (inputData.typeRisque === "Ergonomique") {
+      mesures.push("Évaluation ergonomique du poste");
+      mesures.push("Formation gestes et postures");
+    } else if (inputData.typeRisque === "Chimique") {
+      mesures.push("Contrôle système de ventilation");
+      mesures.push("Vérification EPI chimiques");
+    }
+
+    // Mesures générales selon le profil
+    if (inputData.experienceAnnees < 2) {
+      mesures.push("Formation complémentaire sécurité");
+      mesures.push("Supervision renforcée 30 jours");
+    }
+
+    if (!inputData.formationRecente) {
+      mesures.push("Recyclage formation SST obligatoire");
+    }
+
+    if (predictions.anomalieDetectee) {
+      mesures.push("Investigation approfondie du contexte");
+    }
+
+    return {
+      dateCreation: now.toISOString().split('T')[0],
+      priorite: predictions.priorite,
+      contexte: {
+        equipement: inputData.equipement,
+        tache: inputData.tache,
+        typeRisque: inputData.typeRisque
+      },
+      predictions: {
+        gravite: predictions.gravitePredite,
+        probabiliteIncident: `${(predictions.probabiliteIncident * 100).toFixed(1)}%`,
+        anomalie: predictions.anomalieDetectee
+      },
+      mesuresCorrectices: mesures,
+      responsable,
+      echeance: echeance.toLocaleDateString('fr-CA'),
+      suiviRequis: predictions.priorite === "CRITIQUE" ? "Hebdomadaire" : "Mensuel"
+    };
+  };
+
+  const generateGPTPrompt = (inputData: PredictionInput, predictions: PredictionResult): string => {
+    return `Tu es l'Assistant IA du système PPAI (Prevention Program AI), expert en santé et sécurité au travail conforme aux normes CNESST/LMRSST.
+
+📋 ANALYSE PRÉDICTIVE - ${predictions.couleur} PRIORITÉ ${predictions.priorite}
+
+🏭 CONTEXTE OPÉRATIONNEL:
+- Équipement: ${inputData.equipement}
+- Tâche: ${inputData.tache} 
+- Quart: ${inputData.quart}
+- Type de risque: ${inputData.typeRisque}
+- Département: ${inputData.departement}
+
+👤 PROFIL TRAVAILLEUR:
+- Expérience: ${inputData.experienceAnnees} ans
+- Formation récente: ${inputData.formationRecente ? '✅' : '❌'}
+- Antécédents incidents: ${inputData.antecedentsIncidents}
+- Score fatigue: ${inputData.scoreFatigue}/1.0
+
+🤖 PRÉDICTIONS IA:
+- Gravité prédite: ${predictions.gravitePredite}/5
+- Probabilité incident: ${(predictions.probabiliteIncident * 100).toFixed(1)}%
+- Classification neuronale: Classe ${predictions.classeNeuralNet}
+- Profil de risque: Cluster ${predictions.clusterProfil}
+- Anomalie détectée: ${predictions.anomalieDetectee ? '⚠️ OUI' : '✅ Non'}
+
+🎯 MISSION:
+Génère une recommandation opérationnelle immédiate incluant:
+1. Mesures correctives urgentes (si priorité CRITIQUE/ÉLEVÉE)
+2. Actions préventives spécifiques à ce profil de risque
+3. Formations ou supervisions recommandées
+4. Échéancier de mise en œuvre (format: JJ/MM/AAAA)
+5. Responsable suggéré (Coordonnateur SST, Superviseur, etc.)
+
+Réponds en français, format structuré avec bullets points, max 150 mots, orientation PPAI action immédiate.`;
+  };
+
+  const handleAnalyze = async () => {
+    // Validation des données requises
+    if (!input.equipement || !input.tache || !input.quart || !input.typeRisque) {
+      toast({
+        title: "Données incomplètes",
+        description: "Veuillez remplir tous les champs obligatoires",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsAnalyzing(true);
+    
+    // Simulation du délai d'analyse
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    try {
+      const predictions = simulatePrediction(input);
+      const plan = generateActionPlan(input, predictions);
+      const prompt = generateGPTPrompt(input, predictions);
+
+      setPrediction(predictions);
+      setActionPlan(plan);
+      setGptPrompt(prompt);
+
+      toast({
+        title: "Analyse terminée",
+        description: `Prédiction générée avec priorité ${predictions.priorite}`,
+      });
+    } catch (error) {
+      toast({
+        title: "Erreur d'analyse",
+        description: "Une erreur est survenue lors de l'analyse prédictive",
+        variant: "destructive"
+      });
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Brain className="w-6 h-6 text-purple-600" />
+            Moteur Prédicteur IA PPAI
+          </CardTitle>
+          <p className="text-sm text-gray-600">
+            Système d'intelligence artificielle prédictive intégré - 6 algorithmes avancés
+          </p>
+        </CardHeader>
+      </Card>
+
+      {/* Main Tabs */}
+      <Tabs defaultValue="analysis" className="space-y-4">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="analysis">Analyse Prédictive</TabsTrigger>
+          <TabsTrigger value="algorithms">Algorithmes IA</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="analysis" className="space-y-6">
+          {/* Input Form */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Données d'entrée pour analyse prédictive</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div>
+                  <Label htmlFor="equipement">Équipement *</Label>
+                  <Select value={input.equipement} onValueChange={(value) => setInput({...input, equipement: value})}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Sélectionner" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {equipements.map(eq => (
+                        <SelectItem key={eq} value={eq}>{eq}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="tache">Tâche *</Label>
+                  <Select value={input.tache} onValueChange={(value) => setInput({...input, tache: value})}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Sélectionner" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {taches.map(tache => (
+                        <SelectItem key={tache} value={tache}>{tache}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="quart">Quart *</Label>
+                  <Select value={input.quart} onValueChange={(value) => setInput({...input, quart: value})}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Sélectionner" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {quarts.map(quart => (
+                        <SelectItem key={quart} value={quart}>{quart}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="typeRisque">Type de risque *</Label>
+                  <Select value={input.typeRisque} onValueChange={(value) => setInput({...input, typeRisque: value})}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Sélectionner" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {typesRisque.map(type => (
+                        <SelectItem key={type} value={type}>{type}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="departement">Département</Label>
+                  <Select value={input.departement} onValueChange={(value) => setInput({...input, departement: value})}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Sélectionner" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {departements.map(dept => (
+                        <SelectItem key={dept} value={dept}>{dept}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="experienceAnnees">Expérience (années)</Label>
+                  <Input
+                    type="number"
+                    value={input.experienceAnnees}
+                    onChange={(e) => setInput({...input, experienceAnnees: parseFloat(e.target.value) || 0})}
+                    placeholder="ex: 2.5"
+                    step="0.1"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="age">Âge</Label>
+                  <Input
+                    type="number"
+                    value={input.age}
+                    onChange={(e) => setInput({...input, age: parseInt(e.target.value) || 0})}
+                    placeholder="ex: 35"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="temperature">Température (°C)</Label>
+                  <Input
+                    type="number"
+                    value={input.temperature}
+                    onChange={(e) => setInput({...input, temperature: parseFloat(e.target.value) || 20})}
+                    placeholder="ex: -5"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="antecedentsIncidents">Antécédents incidents</Label>
+                  <Input
+                    type="number"
+                    value={input.antecedentsIncidents}
+                    onChange={(e) => setInput({...input, antecedentsIncidents: parseInt(e.target.value) || 0})}
+                    placeholder="ex: 2"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="heureTravail">Heure de travail (0-23)</Label>
+                  <Input
+                    type="number"
+                    value={input.heureTravail}
+                    onChange={(e) => setInput({...input, heureTravail: parseInt(e.target.value) || 8})}
+                    placeholder="ex: 14"
+                    min="0"
+                    max="23"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="scoreFatigue">Score fatigue (0-1)</Label>
+                  <Input
+                    type="number"
+                    value={input.scoreFatigue}
+                    onChange={(e) => setInput({...input, scoreFatigue: parseFloat(e.target.value) || 0})}
+                    placeholder="ex: 0.8"
+                    min="0"
+                    max="1"
+                    step="0.1"
+                  />
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="formationRecente"
+                    checked={input.formationRecente}
+                    onChange={(e) => setInput({...input, formationRecente: e.target.checked})}
+                    className="w-4 h-4"
+                  />
+                  <Label htmlFor="formationRecente">Formation récente</Label>
+                </div>
+              </div>
+
+              <Button onClick={handleAnalyze} disabled={isAnalyzing} className="w-full">
+                {isAnalyzing ? (
+                  <>
+                    <Brain className="w-4 h-4 mr-2 animate-spin" />
+                    Analyse en cours...
+                  </>
+                ) : (
+                  <>
+                    <Zap className="w-4 h-4 mr-2" />
+                    Lancer l'analyse prédictive
+                  </>
+                )}
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Results */}
+          {prediction && (
+            <>
+              {/* Prediction Results */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5 text-blue-600" />
+                    Résultats de prédiction IA
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-red-600">{prediction.gravitePredite}/5</div>
+                      <div className="text-sm text-gray-600">Gravité prédite</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-orange-600">
+                        {(prediction.probabiliteIncident * 100).toFixed(1)}%
+                      </div>
+                      <div className="text-sm text-gray-600">Probabilité incident</div>
+                    </div>
+                    <div className="text-center">
+                      <Badge 
+                        className={
+                          prediction.priorite === "CRITIQUE" ? "bg-red-100 text-red-800" :
+                          prediction.priorite === "ÉLEVÉE" ? "bg-orange-100 text-orange-800" :
+                          "bg-yellow-100 text-yellow-800"
+                        }
+                      >
+                        {prediction.couleur} {prediction.priorite}
+                      </Badge>
+                      <div className="text-sm text-gray-600 mt-1">Niveau de priorité</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-blue-600">Classe {prediction.classeNeuralNet}</div>
+                      <div className="text-sm text-gray-600">Classification IA</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-purple-600">Cluster {prediction.clusterProfil}</div>
+                      <div className="text-sm text-gray-600">Profil de risque</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold">
+                        {prediction.anomalieDetectee ? "⚠️" : "✅"}
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        {prediction.anomalieDetectee ? "Anomalie détectée" : "Situation normale"}
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Action Plan */}
+              {actionPlan && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Target className="w-5 h-5 text-green-600" />
+                      Plan d'action automatique
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div>
+                        <Label className="text-sm font-medium">Priorité</Label>
+                        <div className="font-semibold">{actionPlan.priorite}</div>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium">Responsable</Label>
+                        <div className="font-semibold">{actionPlan.responsable}</div>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium">Échéance</Label>
+                        <div className="font-semibold flex items-center gap-1">
+                          <Clock className="w-4 h-4" />
+                          {actionPlan.echeance}
+                        </div>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium">Suivi</Label>
+                        <div className="font-semibold">{actionPlan.suiviRequis}</div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label className="text-sm font-medium">Mesures correctives</Label>
+                      <ul className="mt-2 space-y-1">
+                        {actionPlan.mesuresCorrectices.map((mesure, index) => (
+                          <li key={index} className="flex items-start gap-2">
+                            <span className="font-medium text-blue-600">{index + 1}.</span>
+                            <span>{mesure}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* GPT Prompt */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Brain className="w-5 h-5 text-purple-600" />
+                    Prompt GPT généré
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Textarea
+                    value={gptPrompt}
+                    readOnly
+                    className="min-h-[300px] font-mono text-sm"
+                  />
+                  <Button 
+                    onClick={() => navigator.clipboard.writeText(gptPrompt)}
+                    className="mt-2"
+                    variant="outline"
+                  >
+                    Copier le prompt
+                  </Button>
+                </CardContent>
+              </Card>
+            </>
+          )}
+        </TabsContent>
+
+        <TabsContent value="algorithms">
+          <AIAlgorithmsInfo />
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}
