@@ -23,34 +23,68 @@ export function CNESSTDataUploader({ onDataParsed, supportedFormats, maxFileSize
   const [parsedData, setParsedData] = useState<CNESSTMetadata | null>(null);
   const [previewData, setPreviewData] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState("upload");
+  const [processingStatus, setProcessingStatus] = useState<string>("");
   const { toast } = useToast();
 
-  const parseCSVData = useCallback((csvText: string, filename: string) => {
+  // Fonction pour permettre au UI de respirer pendant les opérations lourdes
+  const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+  const parseCSVData = useCallback(async (csvText: string, filename: string) => {
     try {
+      setProcessingStatus("Analyse du fichier CSV...");
+      await sleep(50); // Permettre au UI de se mettre à jour
+
       const lines = csvText.trim().split('\n');
       if (lines.length < 2) {
         throw new Error("Le fichier CSV doit contenir au moins une ligne d'en-têtes et une ligne de données");
       }
 
+      setProcessingStatus("Extraction des en-têtes...");
+      await sleep(50);
+
       const headers = lines[0].split(',').map(h => h.replace(/["\r]/g, '').trim());
-      const data = lines.slice(1).map((line, index) => {
-        const values = line.split(',').map(v => v.replace(/["\r]/g, '').trim());
-        const row: any = {};
-        headers.forEach((header, headerIndex) => {
-          const value = values[headerIndex] || '';
-          // Conversion automatique des nombres
-          if (!isNaN(Number(value)) && value !== '') {
-            row[header] = Number(value);
-          } else {
-            row[header] = value;
+      
+      setProcessingStatus("Traitement des données...");
+      await sleep(100);
+
+      const data = [];
+      const batchSize = 100; // Traiter par batches pour éviter le gel
+      
+      for (let i = 1; i < lines.length; i += batchSize) {
+        const batch = lines.slice(i, Math.min(i + batchSize, lines.length));
+        
+        for (let j = 0; j < batch.length; j++) {
+          const line = batch[j];
+          const values = line.split(',').map(v => v.replace(/["\r]/g, '').trim());
+          const row: any = {};
+          
+          headers.forEach((header, headerIndex) => {
+            const value = values[headerIndex] || '';
+            // Conversion automatique des nombres
+            if (!isNaN(Number(value)) && value !== '') {
+              row[header] = Number(value);
+            } else {
+              row[header] = value;
+            }
+          });
+          
+          row._lineNumber = i + j + 1; // Ligne réelle dans le CSV
+          
+          // Filtrer les lignes vides
+          if (Object.values(row).some(val => val !== '' && val !== undefined && val !== null)) {
+            data.push(row);
           }
-        });
-        row._lineNumber = index + 2; // +2 car on commence à la ligne 2 (après headers)
-        return row;
-      }).filter(row => {
-        // Filtrer les lignes vides
-        return Object.values(row).some(val => val !== '' && val !== undefined && val !== null);
-      });
+        }
+        
+        // Permettre au UI de respirer entre les batches
+        if (i % 500 === 0) {
+          setProcessingStatus(`Traitement: ${Math.min(i + batchSize, lines.length)}/${lines.length} lignes`);
+          await sleep(10);
+        }
+      }
+
+      setProcessingStatus("Détection du type de fichier...");
+      await sleep(50);
 
       // Détection intelligente du type de fichier
       let fileType = 'unknown';
@@ -66,6 +100,8 @@ export function CNESSTDataUploader({ onDataParsed, supportedFormats, maxFileSize
         fileType = 'sieges_lesions';
       }
 
+      console.log(`Fichier détecté comme: ${fileType}, ${data.length} lignes traitées`);
+
       return { 
         type: fileType, 
         data, 
@@ -74,61 +110,80 @@ export function CNESSTDataUploader({ onDataParsed, supportedFormats, maxFileSize
         filename: filename.replace('.csv', '')
       };
     } catch (error) {
+      console.error('Erreur parsing CSV:', error);
       throw new Error(`Erreur de parsing CSV: ${error instanceof Error ? error.message : 'Format invalide'}`);
     }
   }, []);
 
-  const validateCNESSTData = useCallback((metadata: Partial<CNESSTMetadata>, parsedInfo: any): ValidationResult => {
+  const validateCNESSTData = useCallback(async (metadata: Partial<CNESSTMetadata>, parsedInfo: any): Promise<ValidationResult> => {
     const errors: string[] = [];
     const warnings: string[] = [];
     let dataQualityScore = 1.0;
 
+    setProcessingStatus("Validation des données...");
+    await sleep(50);
+
     // Validation spécifique selon le type de données
     if (parsedInfo.type === 'lesions_sectorielles' && metadata.lesionsSecorielles) {
-      metadata.lesionsSecorielles.forEach((lesion, index) => {
+      for (let i = 0; i < metadata.lesionsSecorielles.length; i++) {
+        const lesion = metadata.lesionsSecorielles[i];
+        
         if (!lesion.secteur_scian || lesion.secteur_scian === '') {
-          errors.push(`Ligne ${lesion._lineNumber || index + 1}: Code SCIAN manquant`);
+          errors.push(`Ligne ${lesion._lineNumber || i + 1}: Code SCIAN manquant`);
           dataQualityScore -= 0.1;
         }
         if (!lesion.taux_frequence || lesion.taux_frequence <= 0) {
-          errors.push(`Ligne ${lesion._lineNumber || index + 1}: Taux de fréquence invalide`);
+          errors.push(`Ligne ${lesion._lineNumber || i + 1}: Taux de fréquence invalide`);
           dataQualityScore -= 0.1;
         }
         if (lesion.taux_frequence && lesion.taux_frequence > 20) {
-          warnings.push(`Ligne ${lesion._lineNumber || index + 1}: Taux de fréquence élevé (${lesion.taux_frequence})`);
+          warnings.push(`Ligne ${lesion._lineNumber || i + 1}: Taux de fréquence élevé (${lesion.taux_frequence})`);
           dataQualityScore -= 0.02;
         }
-      });
+        
+        // Permettre au UI de respirer toutes les 50 validations
+        if (i % 50 === 0) {
+          await sleep(5);
+        }
+      }
     }
 
     if (parsedInfo.type === 'agents_causals' && metadata.agentCausals) {
-      metadata.agentCausals.forEach((agent, index) => {
+      for (let i = 0; i < metadata.agentCausals.length; i++) {
+        const agent = metadata.agentCausals[i];
+        
         if (!agent.agent_causal || agent.agent_causal === '') {
-          errors.push(`Ligne ${agent._lineNumber || index + 1}: Agent causal manquant`);
+          errors.push(`Ligne ${agent._lineNumber || i + 1}: Agent causal manquant`);
           dataQualityScore -= 0.1;
         }
         if (agent.probabilite_occurrence !== undefined && (agent.probabilite_occurrence < 0 || agent.probabilite_occurrence > 1)) {
-          errors.push(`Ligne ${agent._lineNumber || index + 1}: Probabilité d'occurrence doit être entre 0 et 1`);
+          errors.push(`Ligne ${agent._lineNumber || i + 1}: Probabilité d'occurrence doit être entre 0 et 1`);
           dataQualityScore -= 0.1;
         }
         if (agent.efficacite_mesure !== undefined && (agent.efficacite_mesure < 0 || agent.efficacite_mesure > 1)) {
-          warnings.push(`Ligne ${agent._lineNumber || index + 1}: Efficacité de mesure suspecte (${agent.efficacite_mesure})`);
+          warnings.push(`Ligne ${agent._lineNumber || i + 1}: Efficacité de mesure suspecte (${agent.efficacite_mesure})`);
           dataQualityScore -= 0.05;
         }
-      });
+        
+        if (i % 50 === 0) await sleep(5);
+      }
     }
 
     if (parsedInfo.type === 'sieges_lesions' && metadata.siegesLesions) {
-      metadata.siegesLesions.forEach((siege, index) => {
+      for (let i = 0; i < metadata.siegesLesions.length; i++) {
+        const siege = metadata.siegesLesions[i];
+        
         if (!siege.siege_lesion || siege.siege_lesion === '') {
-          errors.push(`Ligne ${siege._lineNumber || index + 1}: Siège de lésion manquant`);
+          errors.push(`Ligne ${siege._lineNumber || i + 1}: Siège de lésion manquant`);
           dataQualityScore -= 0.1;
         }
         if (siege.frequence_relative !== undefined && (siege.frequence_relative < 0 || siege.frequence_relative > 1)) {
-          warnings.push(`Ligne ${siege._lineNumber || index + 1}: Fréquence relative suspecte (${siege.frequence_relative})`);
+          warnings.push(`Ligne ${siege._lineNumber || i + 1}: Fréquence relative suspecte (${siege.frequence_relative})`);
           dataQualityScore -= 0.05;
         }
-      });
+        
+        if (i % 50 === 0) await sleep(5);
+      }
     }
 
     return {
@@ -139,7 +194,10 @@ export function CNESSTDataUploader({ onDataParsed, supportedFormats, maxFileSize
     };
   }, []);
 
-  const generateAIRecommendations = useCallback((metadata: Partial<CNESSTMetadata>) => {
+  const generateAIRecommendations = useCallback(async (metadata: Partial<CNESSTMetadata>) => {
+    setProcessingStatus("Génération des recommandations IA...");
+    await sleep(100);
+
     const recommendations = [];
     
     if (metadata.lesionsSecorielles && metadata.lesionsSecorielles.length > 0) {
@@ -184,20 +242,27 @@ export function CNESSTDataUploader({ onDataParsed, supportedFormats, maxFileSize
     setValidationResult(null);
     setParsedData(null);
     setPreviewData([]);
+    setProcessingStatus("Lecture du fichier...");
 
     try {
+      console.log("Début traitement fichier:", file.name);
+      
       const text = await file.text();
-      setUploadProgress(30);
-
-      const parsed = parseCSVData(text, file.name);
-      setUploadProgress(60);
+      setUploadProgress(20);
+      
+      console.log("Fichier lu, début parsing...");
+      const parsed = await parseCSVData(text, file.name);
+      setUploadProgress(50);
+      
+      console.log("Parsing terminé, type détecté:", parsed.type);
       
       // Aperçu des données
       setPreviewData(parsed.data.slice(0, 5)); // Premières 5 lignes pour l'aperçu
       setActiveTab("preview");
+      setUploadProgress(60);
 
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setUploadProgress(80);
+      setProcessingStatus("Préparation des métadonnées...");
+      await sleep(200);
 
       const partialMetadata: Partial<CNESSTMetadata> = {};
       
@@ -211,8 +276,13 @@ export function CNESSTDataUploader({ onDataParsed, supportedFormats, maxFileSize
         throw new Error(`Type de fichier non reconnu. Vérifiez que votre CSV contient les colonnes appropriées.`);
       }
 
-      const validation = validateCNESSTData(partialMetadata, parsed);
-      const recommendations = generateAIRecommendations(partialMetadata);
+      setUploadProgress(70);
+      
+      const validation = await validateCNESSTData(partialMetadata, parsed);
+      setUploadProgress(85);
+      
+      const recommendations = await generateAIRecommendations(partialMetadata);
+      setUploadProgress(95);
 
       const fullMetadata: CNESSTMetadata = {
         lesionsSecorielles: partialMetadata.lesionsSecorielles || [],
@@ -225,6 +295,9 @@ export function CNESSTDataUploader({ onDataParsed, supportedFormats, maxFileSize
       setUploadProgress(100);
       setValidationResult(validation);
       setParsedData(fullMetadata);
+      setProcessingStatus("Traitement terminé !");
+
+      console.log("Traitement complété avec succès");
 
       toast({
         title: "Données CNESST analysées",
@@ -232,7 +305,7 @@ export function CNESSTDataUploader({ onDataParsed, supportedFormats, maxFileSize
       });
 
     } catch (error) {
-      console.error('Erreur parsing CSV:', error);
+      console.error('Erreur traitement fichier:', error);
       toast({
         title: "Erreur de traitement",
         description: error instanceof Error ? error.message : "Format de fichier non supporté",
@@ -244,28 +317,42 @@ export function CNESSTDataUploader({ onDataParsed, supportedFormats, maxFileSize
         warnings: [],
         dataQualityScore: 0
       });
+      setProcessingStatus("Erreur de traitement");
     } finally {
       setIsUploading(false);
+      // Reset du input file pour permettre le re-upload du même fichier
+      event.target.value = '';
     }
   }, [maxFileSize, parseCSVData, validateCNESSTData, generateAIRecommendations, toast]);
 
-  const handleLoadExampleData = () => {
-    const exampleData = CNESSTDataProcessor.getDefaultCNESSTData();
-    setParsedData(exampleData);
-    setValidationResult(exampleData.validationStatus);
-    setActiveTab("preview");
+  const handleLoadExampleData = async () => {
+    setIsUploading(true);
+    setProcessingStatus("Chargement des données d'exemple...");
     
-    // Simuler un aperçu des données d'exemple
-    setPreviewData(exampleData.lesionsSecorielles.slice(0, 3));
-    
-    toast({
-      title: "Données d'exemple chargées",
-      description: "Données CNESST de démonstration intégrées",
-    });
+    try {
+      await sleep(500); // Simuler un délai de chargement
+      
+      const exampleData = CNESSTDataProcessor.getDefaultCNESSTData();
+      setParsedData(exampleData);
+      setValidationResult(exampleData.validationStatus);
+      setActiveTab("preview");
+      
+      // Simuler un aperçu des données d'exemple
+      setPreviewData(exampleData.lesionsSecorielles.slice(0, 3));
+      
+      toast({
+        title: "Données d'exemple chargées",
+        description: "Données CNESST de démonstration intégrées",
+      });
+    } finally {
+      setIsUploading(false);
+      setProcessingStatus("");
+    }
   };
 
   const handleIntegration = () => {
     if (parsedData) {
+      console.log("Intégration des données CNESST:", parsedData);
       onDataParsed(parsedData);
       toast({
         title: "Intégration réussie",
@@ -339,17 +426,17 @@ export function CNESSTDataUploader({ onDataParsed, supportedFormats, maxFileSize
 
               {/* Bouton données d'exemple */}
               <div className="text-center">
-                <Button variant="outline" onClick={handleLoadExampleData}>
+                <Button variant="outline" onClick={handleLoadExampleData} disabled={isUploading}>
                   <Download className="w-4 h-4 mr-2" />
                   Ou charger des données d'exemple
                 </Button>
               </div>
 
-              {/* Progress */}
+              {/* Progress avec status */}
               {isUploading && (
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span>Analyse du fichier CSV...</span>
+                    <span>{processingStatus}</span>
                     <span>{uploadProgress}%</span>
                   </div>
                   <Progress value={uploadProgress} />
