@@ -12,6 +12,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Brain, AlertTriangle, Target, Zap, TrendingUp, Clock, Info } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { AIAlgorithmsInfo } from "@/components/AIAlgorithmsInfo";
+import { CNESSTMetadata } from "@/types/cnesst";
+
+interface PredictiveEngineProps {
+  cnessData?: CNESSTMetadata | null;
+}
 
 interface PredictionInput {
   equipement: string;
@@ -63,7 +68,7 @@ const quarts = ["Jour", "Soir", "Nuit"];
 const departements = ["Production", "Maintenance", "Logistique", "Qualité"];
 const typesRisque = ["Mécanique", "Ergonomique", "Chimique", "Physique", "Psychosocial"];
 
-export function PredictiveEngine() {
+export function PredictiveEngine({ cnessData }: PredictiveEngineProps) {
   const [input, setInput] = useState<PredictionInput>({
     equipement: "",
     tache: "",
@@ -85,12 +90,24 @@ export function PredictiveEngine() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const { toast } = useToast();
 
-  // Simulation du moteur prédictif (remplace l'appel Python)
+  // Simulation du moteur prédictif enrichie avec données CNESST
   const simulatePrediction = (inputData: PredictionInput): PredictionResult => {
-    // Simulation basée sur la logique de votre moteur Python
     let baseGravity = 1;
     
-    // Facteurs augmentant la gravité
+    // Enrichissement avec données CNESST si disponibles
+    if (cnessData) {
+      const relevantAgent = cnessData.agentCausals.find(agent => 
+        agent.categorie_risque.toLowerCase() === inputData.typeRisque.toLowerCase()
+      );
+      
+      if (relevantAgent) {
+        // Ajustement basé sur les données réelles CNESST
+        baseGravity = relevantAgent.gravite_potentielle;
+        console.log(`Utilisation données CNESST pour ${inputData.typeRisque}: gravité de base = ${baseGravity}`);
+      }
+    }
+    
+    // Facteurs augmentant la gravité (logique existante)
     if (inputData.quart === "Nuit") baseGravity += 0.5;
     if (inputData.experienceAnnees < 2) baseGravity += 1.0;
     if (!inputData.formationRecente) baseGravity += 0.8;
@@ -100,7 +117,22 @@ export function PredictiveEngine() {
     if (inputData.tache === "Maintenance") baseGravity += 0.3;
 
     const gravitePredite = Math.min(5, Math.max(1, Math.round(baseGravity + Math.random() * 0.3)));
-    const probabiliteIncident = Math.min(0.95, (gravitePredite/5) * 0.8 + inputData.scoreFatigue * 0.2);
+    
+    // Calcul probabilité enrichi avec CNESST
+    let probabiliteIncident = (gravitePredite/5) * 0.8 + inputData.scoreFatigue * 0.2;
+    
+    if (cnessData) {
+      const relevantAgent = cnessData.agentCausals.find(agent => 
+        agent.categorie_risque.toLowerCase() === inputData.typeRisque.toLowerCase()
+      );
+      
+      if (relevantAgent) {
+        // Ajustement de la probabilité basé sur les données CNESST
+        probabiliteIncident = (probabiliteIncident + relevantAgent.probabilite_occurrence) / 2;
+      }
+    }
+    
+    probabiliteIncident = Math.min(0.95, probabiliteIncident);
     
     let priorite: "CRITIQUE" | "ÉLEVÉE" | "MODÉRÉE";
     let couleur: "🔴" | "🟠" | "🟡";
@@ -145,7 +177,19 @@ export function PredictiveEngine() {
 
     const mesures: string[] = [];
     
-    // Mesures spécifiques selon le type de risque
+    // Mesures enrichies avec données CNESST
+    if (cnessData) {
+      const relevantAgent = cnessData.agentCausals.find(agent => 
+        agent.categorie_risque.toLowerCase() === inputData.typeRisque.toLowerCase()
+      );
+      
+      if (relevantAgent) {
+        mesures.push(`Mesure CNESST recommandée: ${relevantAgent.mesures_prevention_type}`);
+        mesures.push(`Efficacité prouvée: ${(relevantAgent.efficacite_mesure * 100).toFixed(0)}%`);
+      }
+    }
+    
+    // Mesures spécifiques selon le type de risque (logique existante)
     if (inputData.typeRisque === "Mécanique") {
       mesures.push("Vérification des protecteurs de machine");
       mesures.push("Révision procédure de verrouillage");
@@ -157,7 +201,7 @@ export function PredictiveEngine() {
       mesures.push("Vérification EPI chimiques");
     }
 
-    // Mesures générales selon le profil
+    // Mesures générales selon le profil (logique existante)
     if (inputData.experienceAnnees < 2) {
       mesures.push("Formation complémentaire sécurité");
       mesures.push("Supervision renforcée 30 jours");
@@ -192,9 +236,27 @@ export function PredictiveEngine() {
   };
 
   const generateGPTPrompt = (inputData: PredictionInput, predictions: PredictionResult): string => {
+    let cnessContext = "";
+    
+    if (cnessData) {
+      const relevantAgent = cnessData.agentCausals.find(agent => 
+        agent.categorie_risque.toLowerCase() === inputData.typeRisque.toLowerCase()
+      );
+      
+      if (relevantAgent) {
+        cnessContext = `\n📊 DONNÉES CNESST INTÉGRÉES:
+- Agent causal: ${relevantAgent.agent_causal}
+- Probabilité occurrence CNESST: ${(relevantAgent.probabilite_occurrence * 100).toFixed(1)}%
+- Gravité potentielle CNESST: ${relevantAgent.gravite_potentielle}/5
+- Mesures préventives recommandées: ${relevantAgent.mesures_prevention_type}
+- Efficacité mesures: ${(relevantAgent.efficacite_mesure * 100).toFixed(0)}%
+- Coût prévention moyen: ${relevantAgent.cout_prevention_moyen.toLocaleString()}$`;
+      }
+    }
+
     return `Tu es l'Assistant IA du système PPAI (Prevention Program AI), expert en santé et sécurité au travail conforme aux normes CNESST/LMRSST.
 
-📋 ANALYSE PRÉDICTIVE - ${predictions.couleur} PRIORITÉ ${predictions.priorite}
+📋 ANALYSE PRÉDICTIVE ENRICHIE CNESST - ${predictions.couleur} PRIORITÉ ${predictions.priorite}
 
 🏭 CONTEXTE OPÉRATIONNEL:
 - Équipement: ${inputData.equipement}
@@ -209,12 +271,12 @@ export function PredictiveEngine() {
 - Antécédents incidents: ${inputData.antecedentsIncidents}
 - Score fatigue: ${inputData.scoreFatigue}/1.0
 
-🤖 PRÉDICTIONS IA:
+🤖 PRÉDICTIONS IA ENRICHIES:
 - Gravité prédite: ${predictions.gravitePredite}/5
 - Probabilité incident: ${(predictions.probabiliteIncident * 100).toFixed(1)}%
 - Classification neuronale: Classe ${predictions.classeNeuralNet}
 - Profil de risque: Cluster ${predictions.clusterProfil}
-- Anomalie détectée: ${predictions.anomalieDetectee ? '⚠️ OUI' : '✅ Non'}
+- Anomalie détectée: ${predictions.anomalieDetectee ? '⚠️ OUI' : '✅ Non'}${cnessContext}
 
 🎯 MISSION:
 Génère une recommandation opérationnelle immédiate incluant:
@@ -224,7 +286,7 @@ Génère une recommandation opérationnelle immédiate incluant:
 4. Échéancier de mise en œuvre (format: JJ/MM/AAAA)
 5. Responsable suggéré (Coordonnateur SST, Superviseur, etc.)
 
-Réponds en français, format structuré avec bullets points, max 150 mots, orientation PPAI action immédiate.`;
+Réponds en français, format structuré avec bullets points, max 150 mots, orientation PPAI action immédiate enrichie CNESST.`;
   };
 
   const handleAnalyze = async () => {
@@ -254,7 +316,7 @@ Réponds en français, format structuré avec bullets points, max 150 mots, orie
 
       toast({
         title: "Analyse terminée",
-        description: `Prédiction générée avec priorité ${predictions.priorite}`,
+        description: `Prédiction générée avec priorité ${predictions.priorite} ${cnessData ? '(enrichie CNESST)' : ''}`,
       });
     } catch (error) {
       toast({
@@ -269,18 +331,53 @@ Réponds en français, format structuré avec bullets points, max 150 mots, orie
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Header with CNESST Integration Status */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Brain className="w-6 h-6 text-purple-600" />
-            Moteur Prédicteur IA PPAI
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Brain className="w-6 h-6 text-purple-600" />
+              Moteur Prédicteur IA PPAI
+            </div>
+            {cnessData && (
+              <Badge className="bg-purple-100 text-purple-800">
+                ✅ Enrichi avec données CNESST
+              </Badge>
+            )}
           </CardTitle>
           <p className="text-sm text-gray-600">
             Système d'intelligence artificielle prédictive intégré - 6 algorithmes avancés
+            {cnessData && " - Enrichi avec métadonnées sectorielles CNESST"}
           </p>
         </CardHeader>
       </Card>
+
+      {/* CNESST Data Summary if available */}
+      {cnessData && (
+        <Card className="border-l-4 border-l-purple-500">
+          <CardContent className="p-4">
+            <h3 className="font-medium text-purple-800 mb-2">Données CNESST intégrées</h3>
+            <div className="grid grid-cols-4 gap-4 text-sm">
+              <div>
+                <span className="text-gray-600">Secteurs analysés:</span>
+                <div className="font-medium">{cnessData.lesionsSecorielles.length}</div>
+              </div>
+              <div>
+                <span className="text-gray-600">Agents causals:</span>
+                <div className="font-medium">{cnessData.agentCausals.length}</div>
+              </div>
+              <div>
+                <span className="text-gray-600">Sièges lésions:</span>
+                <div className="font-medium">{cnessData.siegesLesions.length}</div>
+              </div>
+              <div>
+                <span className="text-gray-600">Qualité données:</span>
+                <div className="font-medium">{(cnessData.validationStatus.dataQualityScore * 100).toFixed(0)}%</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Main Tabs */}
       <Tabs defaultValue="analysis" className="space-y-4">
@@ -290,12 +387,16 @@ Réponds en français, format structuré avec bullets points, max 150 mots, orie
         </TabsList>
 
         <TabsContent value="analysis" className="space-y-6">
-          {/* Input Form */}
+          {/* Input Form - keep existing structure but add CNESST context */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Données d'entrée pour analyse prédictive</CardTitle>
+              <CardTitle className="text-lg">
+                Données d'entrée pour analyse prédictive
+                {cnessData && <Badge className="ml-2 bg-green-100 text-green-800">Enrichi CNESST</Badge>}
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              {/* ... keep existing code (form fields) the same */}
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 <div>
                   <Label htmlFor="equipement">Équipement *</Label>
@@ -454,22 +555,22 @@ Réponds en français, format structuré avec bullets points, max 150 mots, orie
                 ) : (
                   <>
                     <Zap className="w-4 h-4 mr-2" />
-                    Lancer l'analyse prédictive
+                    Lancer l'analyse prédictive {cnessData ? '(enrichie CNESST)' : ''}
                   </>
                 )}
               </Button>
             </CardContent>
           </Card>
 
-          {/* Results */}
+          {/* Results - keep existing structure */}
           {prediction && (
             <>
-              {/* Prediction Results */}
+              {/* ... keep existing code (prediction results display) the same */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <TrendingUp className="w-5 h-5 text-blue-600" />
-                    Résultats de prédiction IA
+                    Résultats de prédiction IA {cnessData && "(enrichie CNESST)"}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -516,13 +617,13 @@ Réponds en français, format structuré avec bullets points, max 150 mots, orie
                 </CardContent>
               </Card>
 
-              {/* Action Plan */}
+              {/* ... keep existing code (action plan and GPT prompt display) the same */}
               {actionPlan && (
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <Target className="w-5 h-5 text-green-600" />
-                      Plan d'action automatique
+                      Plan d'action automatique {cnessData && "(enrichi CNESST)"}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
@@ -563,12 +664,11 @@ Réponds en français, format structuré avec bullets points, max 150 mots, orie
                 </Card>
               )}
 
-              {/* GPT Prompt */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Brain className="w-5 h-5 text-purple-600" />
-                    Prompt GPT généré
+                    Prompt GPT généré {cnessData && "(enrichi CNESST)"}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,8 +8,12 @@ import { RiskMatrix } from "@/components/RiskMatrix";
 import { RiskHeatmap } from "@/components/RiskHeatmap";
 import { KPICalculator } from "@/components/KPICalculator";
 import { PredictiveEngine } from "@/components/PredictiveEngine";
-import { BarChart3, Target, Settings, Map, Calculator, Brain, Info } from "lucide-react";
+import { CNESSTDataUploader } from "@/components/CNESSTDataUploader";
+import { CNESSTIntegrationDashboard } from "@/components/CNESSTIntegrationDashboard";
+import { BarChart3, Target, Settings, Map, Calculator, Brain, Info, Upload } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { CNESSTMetadata } from "@/types/cnesst";
+import { CNESSTDataProcessor } from "@/utils/cnessDataProcessor";
 
 interface ConfigurationData {
   secteur: string;
@@ -30,15 +33,26 @@ const exampleConfiguration: ConfigurationData = {
 const KPIGenerator = () => {
   const [configuration, setConfiguration] = useState<ConfigurationData | null>(null);
   const [activeTab, setActiveTab] = useState("config");
+  const [cnessData, setCnessData] = useState<CNESSTMetadata | null>(null);
 
   const handleConfigurationComplete = (config: ConfigurationData) => {
     setConfiguration(config);
+    // Charger les données CNESST par défaut si pas encore chargées
+    if (!cnessData) {
+      setCnessData(CNESSTDataProcessor.getDefaultCNESSTData());
+    }
     setActiveTab("dashboard");
   };
 
   const loadExampleData = () => {
     setConfiguration(exampleConfiguration);
+    setCnessData(CNESSTDataProcessor.getDefaultCNESSTData());
     setActiveTab("dashboard");
+  };
+
+  const handleCNESSTDataParsed = (data: CNESSTMetadata) => {
+    setCnessData(data);
+    console.log("Données CNESST intégrées:", data);
   };
 
   return (
@@ -54,6 +68,33 @@ const KPIGenerator = () => {
         </p>
       </div>
 
+      {/* CNESST Integration Status */}
+      {cnessData && (
+        <Card className="mb-6 border-l-4 border-l-purple-500">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-medium text-purple-800">Métadonnées CNESST Intégrées</h3>
+                <div className="flex items-center gap-2 mt-1">
+                  <Badge variant="outline">{cnessData.lesionsSecorielles.length} secteurs</Badge>
+                  <Badge variant="outline">{cnessData.agentCausals.length} agents causals</Badge>
+                  <Badge variant="outline">{cnessData.siegesLesions.length} sièges lésions</Badge>
+                  <Badge variant="outline">Qualité: {(cnessData.validationStatus.dataQualityScore * 100).toFixed(0)}%</Badge>
+                </div>
+              </div>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setActiveTab("cnesst-upload")}
+              >
+                <Upload className="w-4 h-4 mr-2" />
+                Gérer
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Instructions si pas de configuration */}
       {!configuration && (
         <Card className="mb-6 border-l-4 border-l-blue-500">
@@ -67,7 +108,7 @@ const KPIGenerator = () => {
                   pour activer le tableau de bord et les outils de mapping des risques.
                 </p>
                 <Button onClick={loadExampleData} variant="outline" size="sm">
-                  Ou charger un exemple de démonstration
+                  Ou charger un exemple de démonstration avec données CNESST
                 </Button>
               </div>
             </div>
@@ -104,10 +145,14 @@ const KPIGenerator = () => {
 
       {/* Main Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-8">
           <TabsTrigger value="config" className="flex items-center gap-2">
             <Settings className="w-4 h-4" />
             Configuration
+          </TabsTrigger>
+          <TabsTrigger value="cnesst-upload" className="flex items-center gap-2">
+            <Upload className="w-4 h-4" />
+            Données CNESST
           </TabsTrigger>
           <TabsTrigger 
             value="dashboard" 
@@ -116,6 +161,14 @@ const KPIGenerator = () => {
           >
             <BarChart3 className="w-4 h-4" />
             Tableau de Bord
+          </TabsTrigger>
+          <TabsTrigger 
+            value="cnesst-dashboard" 
+            disabled={!configuration || !cnessData}
+            className="flex items-center gap-2"
+          >
+            <Brain className="w-4 h-4" />
+            Dashboard CNESST
           </TabsTrigger>
           <TabsTrigger 
             value="predictive" 
@@ -154,12 +207,29 @@ const KPIGenerator = () => {
           <KPIConfiguration onConfigurationComplete={handleConfigurationComplete} />
         </TabsContent>
 
+        <TabsContent value="cnesst-upload">
+          <CNESSTDataUploader 
+            onDataParsed={handleCNESSTDataParsed}
+            supportedFormats={['csv', 'xlsx', 'json']}
+            maxFileSize={50 * 1024 * 1024}
+          />
+        </TabsContent>
+
         <TabsContent value="dashboard">
           {configuration && <KPIDashboard configuration={configuration} />}
         </TabsContent>
 
+        <TabsContent value="cnesst-dashboard">
+          {configuration && cnessData && (
+            <CNESSTIntegrationDashboard 
+              etablissementData={configuration}
+              cnessMetadata={cnessData}
+            />
+          )}
+        </TabsContent>
+
         <TabsContent value="predictive">
-          <PredictiveEngine />
+          <PredictiveEngine cnessData={cnessData} />
         </TabsContent>
 
         <TabsContent value="matrix">
