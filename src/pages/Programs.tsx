@@ -1,254 +1,125 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Wand2, 
-  Settings, 
-  FileText, 
-  CheckCircle, 
-  AlertTriangle,
-  Users,
-  Building,
-  Calendar,
-  Shield
-} from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import { Wand2, FileText, Database, Zap, Info } from "lucide-react";
 import { PrototypeGenerator } from "@/components/PrototypeGenerator";
-import { AutomatedGenerator } from "@/components/AutomatedGenerator";
+import { SectorRiskImporter } from "@/components/SectorRiskImporter";
+import { RiskRegistryIntegration } from "@/components/RiskRegistryIntegration";
 
-export default function Programs() {
-  const [activeMode, setActiveMode] = useState<"prototype" | "automated">("prototype");
-  const [selectedGroup, setSelectedGroup] = useState("1"); // Add selectedGroup state
+const Programs = () => {
+  const [selectedGroup, setSelectedGroup] = useState("1");
+  const [registryRisks, setRegistryRisks] = useState([]);
+  const [useRiskRegistry, setUseRiskRegistry] = useState(false);
+  const [selectedRegistryRisks, setSelectedRegistryRisks] = useState([]);
 
-  const modes = {
-    prototype: {
-      title: "Mode Prototype",
-      description: "Générateur basé sur des templates prédéfinis et prompts structurés",
-      icon: Settings,
-      color: "bg-blue-500",
-      features: [
-        "Templates prédéfinis par groupe CNESST",
-        "Prompts structurés par secteur",
-        "Génération rapide simulée",
-        "Export basique",
-        "Validation manuelle"
-      ],
-      pros: [
-        "Rapide à utiliser",
-        "Interface simple",
-        "Pas de coûts IA",
-        "Démo fonctionnelle"
-      ],
-      cons: [
-        "Contenu générique",
-        "Pas d'IA réelle",
-        "Conformité non vérifiée",
-        "Templates fixes"
-      ]
-    },
-    automated: {
-      title: "Mode Automatisé",
-      description: "Système IA complet avec validation juridique et conformité CNESST",
-      icon: Wand2,
-      color: "bg-green-500",
-      features: [
-        "Génération IA avec OpenAI/Claude",
-        "Validation juridique automatique",
-        "Score de conformité CNESST",
-        "Templates dynamiques adaptatifs",
-        "Références légales intégrées"
-      ],
-      pros: [
-        "Contenu personnalisé",
-        "Conformité vérifiée",
-        "IA générative réelle",
-        "Évolutif et adaptatif"
-      ],
-      cons: [
-        "Requiert intégration Supabase",
-        "Coûts API IA",
-        "Plus complexe",
-        "Configuration avancée"
-      ]
-    }
+  const handleRisksImported = (risks) => {
+    setRegistryRisks(risks);
+    console.log('Risques sectoriels importés:', risks.length);
+  };
+
+  const handleRisksSelected = (risks) => {
+    setSelectedRegistryRisks(risks);
+    console.log('Risques sélectionnés pour génération:', risks.length);
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
-      {/* Header */}
-      <div className="text-center space-y-2">
-        <h1 className="text-3xl font-bold text-sst-blue">Programmes de Prévention SST</h1>
-        <p className="text-gray-600">Génération intelligente de programmes conformes CNESST</p>
-      </div>
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-sst-blue flex items-center gap-2">
+            <Wand2 className="w-8 h-8" />
+            PPAI - Générateur de Programmes SST
+          </h1>
+          <p className="text-gray-600 mt-1">
+            Génération intelligente de programmes de prévention avec intégration du registre des risques
+          </p>
+        </div>
 
-      {/* Sélecteur de mode */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Shield className="w-5 h-5 text-sst-blue" />
-            Choisissez votre mode de génération
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {Object.entries(modes).map(([key, mode]) => {
-              const Icon = mode.icon;
-              const isActive = activeMode === key;
-              
-              return (
-                <div
-                  key={key}
-                  className={`border-2 rounded-lg p-6 cursor-pointer transition-all ${
-                    isActive 
-                      ? 'border-sst-blue bg-blue-50' 
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                  onClick={() => setActiveMode(key as "prototype" | "automated")}
-                >
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className={`w-10 h-10 rounded-lg ${mode.color} flex items-center justify-center`}>
-                      <Icon className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-lg">{mode.title}</h3>
-                      <p className="text-sm text-gray-600">{mode.description}</p>
-                    </div>
-                    {isActive && (
-                      <Badge className="ml-auto bg-sst-blue">Actif</Badge>
-                    )}
-                  </div>
-
-                  <div className="space-y-4">
-                    <div>
-                      <h4 className="font-medium text-green-700 mb-2">✅ Fonctionnalités</h4>
-                      <ul className="text-sm space-y-1">
-                        {mode.features.map((feature, idx) => (
-                          <li key={idx} className="flex items-start gap-2">
-                            <CheckCircle className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-                            {feature}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <h4 className="font-medium text-green-700 mb-2">Avantages</h4>
-                        <ul className="text-sm space-y-1">
-                          {mode.pros.map((pro, idx) => (
-                            <li key={idx} className="text-green-600">+ {pro}</li>
-                          ))}
-                        </ul>
-                      </div>
-                      <div>
-                        <h4 className="font-medium text-orange-700 mb-2">Limites</h4>
-                        <ul className="text-sm space-y-1">
-                          {mode.cons.map((con, idx) => (
-                            <li key={idx} className="text-orange-600">- {con}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="mt-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-            <div className="flex items-start gap-3">
-              <AlertTriangle className="w-5 h-5 text-yellow-600 mt-0.5" />
+        {/* Configuration globale */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Database className="w-5 h-5 text-blue-600" />
+              Configuration Avancée
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium text-yellow-800">Information importante</p>
-                <p className="text-sm text-yellow-700 mt-1">
-                  Le mode automatisé nécessite une connexion Supabase pour l'IA, la base de données et la validation juridique. 
-                  Le mode prototype est entièrement fonctionnel sans dépendances externes.
+                <h4 className="font-medium">Intégration Registre des Risques</h4>
+                <p className="text-sm text-gray-600">
+                  Utiliser les données du registre pour personnaliser les programmes générés
                 </p>
               </div>
+              <div className="flex items-center gap-2">
+                <Switch
+                  checked={useRiskRegistry}
+                  onCheckedChange={setUseRiskRegistry}
+                />
+                {useRiskRegistry && registryRisks.length > 0 && (
+                  <Badge className="bg-green-100 text-green-800">
+                    <Zap className="w-3 h-3 mr-1" />
+                    {registryRisks.length} risques disponibles
+                  </Badge>
+                )}
+              </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
 
-      {/* Sélecteur de groupe CNESST */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Groupe prioritaire CNESST</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-2">
-            {["1", "2", "3", "4"].map((group) => (
-              <Button
-                key={group}
-                variant={selectedGroup === group ? "default" : "outline"}
-                onClick={() => setSelectedGroup(group)}
-              >
-                Groupe {group}
-              </Button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+            {useRiskRegistry && (
+              <Alert>
+                <Info className="w-4 h-4" />
+                <AlertDescription>
+                  Avec l'intégration activée, l'IA Claude analysera vos risques réels pour générer des programmes 
+                  spécifiquement adaptés à votre contexte. Les risques critiques seront automatiquement priorisés.
+                </AlertDescription>
+              </Alert>
+            )}
+          </CardContent>
+        </Card>
 
-      {/* Interface de génération */}
-      <div className="space-y-6">
-        {activeMode === "prototype" && (
-          <PrototypeGenerator selectedGroup={selectedGroup} />
-        )}
-        {activeMode === "automated" && <AutomatedGenerator />}
-      </div>
+        <Tabs defaultValue="generator" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="generator" className="flex items-center gap-2">
+              <FileText className="w-4 h-4" />
+              Générateur de Programmes
+            </TabsTrigger>
+            <TabsTrigger value="sector-risks" className="flex items-center gap-2">
+              <Database className="w-4 h-4" />
+              Risques Sectoriels
+            </TabsTrigger>
+            <TabsTrigger value="registry-integration" className="flex items-center gap-2">
+              <Zap className="w-4 h-4" />
+              Intégration Registre
+            </TabsTrigger>
+          </TabsList>
 
-      {/* Statistiques rapides */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <FileText className="w-8 h-8 text-blue-600" />
-              <div>
-                <p className="text-2xl font-bold">156</p>
-                <p className="text-sm text-gray-600">Programmes générés</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <CheckCircle className="w-8 h-8 text-green-600" />
-              <div>
-                <p className="text-2xl font-bold">89%</p>
-                <p className="text-sm text-gray-600">Conformité moyenne</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <Building className="w-8 h-8 text-purple-600" />
-              <div>
-                <p className="text-2xl font-bold">12</p>
-                <p className="text-sm text-gray-600">Secteurs couverts</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <Users className="w-8 h-8 text-orange-600" />
-              <div>
-                <p className="text-2xl font-bold">45</p>
-                <p className="text-sm text-gray-600">Organisations</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+          <TabsContent value="generator">
+            <PrototypeGenerator 
+              selectedGroup={selectedGroup}
+              registryRisks={useRiskRegistry ? selectedRegistryRisks : undefined}
+            />
+          </TabsContent>
+
+          <TabsContent value="sector-risks">
+            <SectorRiskImporter onRisksImported={handleRisksImported} />
+          </TabsContent>
+
+          <TabsContent value="registry-integration">
+            <RiskRegistryIntegration
+              risks={registryRisks}
+              onRisksSelected={handleRisksSelected}
+              isEnabled={useRiskRegistry}
+            />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
-}
+};
+
+export default Programs;

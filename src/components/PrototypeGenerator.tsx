@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Wand2, Download, Copy, Zap, Settings, Info } from "lucide-react";
+import { Wand2, Download, Copy, Zap, Settings, Info, Database } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { CompanyInfoForm, CompanyInfo } from "@/components/CompanyInfoForm";
 import { AIGenerationService, AIProvider } from "@/services/aiGenerationService";
@@ -37,9 +37,10 @@ const templates = {
 interface PrototypeGeneratorProps {
   selectedGroup: string;
   cnessData?: any;
+  registryRisks?: any[]; // Nouveau prop pour les risques du registre
 }
 
-export function PrototypeGenerator({ selectedGroup, cnessData }: PrototypeGeneratorProps) {
+export function PrototypeGenerator({ selectedGroup, cnessData, registryRisks }: PrototypeGeneratorProps) {
   const [selectedTemplate, setSelectedTemplate] = useState("");
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo>({
     companyName: "",
@@ -95,7 +96,7 @@ export function PrototypeGenerator({ selectedGroup, cnessData }: PrototypeGenera
     try {
       const template = templates[selectedTemplate];
       
-      // Utilisation de l'IA réelle avec enrichissement CNESST
+      // Utilisation de l'IA réelle avec enrichissement CNESST ET registre des risques
       const response = await aiService.generatePreventionProgram({
         companyName: companyInfo.companyName,
         secteurScian: companyInfo.scianCode || "2361",
@@ -104,7 +105,8 @@ export function PrototypeGenerator({ selectedGroup, cnessData }: PrototypeGenera
         activitesPrincipales: companyInfo.scianDescription || template.description,
         typeDocument: template.title,
         acteurResponsable: companyInfo.responsibleTitle || "Coordonnateur SST",
-        cnessData: cnessData
+        cnessData: cnessData,
+        registryRisks: registryRisks // Nouveau paramètre
       });
 
       // Enrichissement du contenu avec les informations de l'entreprise
@@ -114,7 +116,7 @@ export function PrototypeGenerator({ selectedGroup, cnessData }: PrototypeGenera
       
       toast({
         title: "Succès",
-        description: `${template.title} généré avec l'IA ! ${cnessData ? '(Enrichi CNESST)' : ''}`,
+        description: `${template.title} généré avec l'IA ! ${cnessData ? '(Enrichi CNESST)' : ''} ${registryRisks?.length ? `(${registryRisks.length} risques intégrés)` : ''}`,
       });
     } catch (error) {
       console.error('Erreur génération IA:', error);
@@ -220,7 +222,7 @@ Date de mise en œuvre : ${companyInfo.implementationDate || 'À définir'}
         <AlertDescription className="flex items-center justify-between">
           <span>
             {aiService.hasApiKey() 
-              ? `✅ IA activée - ${aiService.getProviderName()} ${cnessData ? '(avec données CNESST)' : ''}`
+              ? `✅ IA activée - ${aiService.getProviderName()} ${cnessData ? '(avec données CNESST)' : ''} ${registryRisks?.length ? `(${registryRisks.length} risques registre)` : ''}`
               : "⚠️ Mode simulation - Configurez l'IA pour une génération optimale"
             }
           </span>
@@ -230,6 +232,23 @@ Date de mise en œuvre : ${companyInfo.implementationDate || 'À définir'}
           </Button>
         </AlertDescription>
       </Alert>
+
+      {/* Affichage des risques intégrés si disponibles */}
+      {registryRisks && registryRisks.length > 0 && (
+        <Alert>
+          <Database className="w-4 h-4" />
+          <AlertDescription>
+            <strong>Registre des risques intégré:</strong> {registryRisks.length} risques seront analysés par l'IA pour personnaliser votre programme.
+            <div className="mt-2 flex flex-wrap gap-1">
+              {registryRisks.filter(r => r.initialRisk >= 15).map((risk, index) => (
+                <Badge key={index} className="bg-red-100 text-red-800 text-xs">
+                  {risk.name || risk.description?.substring(0, 30)}...
+                </Badge>
+              ))}
+            </div>
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Informations de l'entreprise */}
       <CompanyInfoForm
@@ -248,6 +267,12 @@ Date de mise en œuvre : ${companyInfo.implementationDate || 'À définir'}
               <Badge className="bg-green-100 text-green-800">
                 <Zap className="w-3 h-3 mr-1" />
                 IA Activée
+              </Badge>
+            )}
+            {registryRisks && registryRisks.length > 0 && (
+              <Badge className="bg-blue-100 text-blue-800">
+                <Database className="w-3 h-3 mr-1" />
+                Registre Intégré
               </Badge>
             )}
           </CardTitle>
@@ -284,7 +309,7 @@ Date de mise en œuvre : ${companyInfo.implementationDate || 'À définir'}
             {isGenerating 
               ? "Génération en cours..." 
               : aiService.hasApiKey() 
-                ? `Générer avec ${aiService.getProviderName()} ${cnessData ? '(enrichi CNESST)' : ''}` 
+                ? `Générer avec ${aiService.getProviderName()} ${cnessData ? '(enrichi CNESST)' : ''} ${registryRisks?.length ? `(${registryRisks.length} risques)` : ''}` 
                 : "Générer (simulation)"
             }
           </Button>
