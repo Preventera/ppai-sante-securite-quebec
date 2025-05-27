@@ -1,4 +1,6 @@
 
+import { supabase } from "@/integrations/supabase/client";
+
 interface ProgramGenerationParams {
   companyName: string;
   secteurScian: string;
@@ -9,6 +11,7 @@ interface ProgramGenerationParams {
   acteurResponsable: string;
   risquesIdentifies?: string[];
   cnessData?: any;
+  customPrompt?: string;
 }
 
 interface AIGenerationResponse {
@@ -18,6 +21,9 @@ interface AIGenerationResponse {
     groupe: number;
     conformite: boolean;
     referencesLegales: string[];
+    generatedAt?: string;
+    model?: string;
+    tokens?: number;
   };
 }
 
@@ -34,198 +40,49 @@ export class AIGenerationService {
   constructor() {
     const savedConfig = localStorage.getItem('ai_config');
     this.config = savedConfig ? JSON.parse(savedConfig) : {
-      provider: 'openai',
-      apiKey: ''
+      provider: 'claude',
+      apiKey: 'configured-in-supabase'
     };
   }
 
   async generatePreventionProgram(params: ProgramGenerationParams): Promise<AIGenerationResponse> {
-    if (!this.config.apiKey) {
-      throw new Error('Clé API requise. Veuillez la configurer dans les paramètres.');
+    try {
+      console.log('Génération via Supabase Edge Function...');
+      
+      const { data, error } = await supabase.functions.invoke('generate-prevention-program', {
+        body: params
+      });
+
+      if (error) {
+        console.error('Erreur Edge Function:', error);
+        throw new Error(`Erreur Edge Function: ${error.message}`);
+      }
+
+      if (!data || !data.content) {
+        throw new Error('Aucun contenu généré par l\'IA');
+      }
+
+      console.log('Programme généré avec succès:', {
+        conformite: data.metadata?.conformite,
+        references: data.metadata?.referencesLegales?.length || 0,
+        tokens: data.metadata?.tokens || 0
+      });
+
+      return data;
+
+    } catch (error) {
+      console.error('Erreur génération IA:', error);
+      
+      // Message d'erreur plus informatif
+      if (error instanceof Error) {
+        if (error.message.includes('ANTHROPIC_API_KEY')) {
+          throw new Error('❌ Clé API Claude non configurée dans Supabase.\n\n🔧 Pour résoudre:\n1. Allez dans votre tableau de bord Supabase\n2. Ajoutez votre ANTHROPIC_API_KEY dans les secrets\n3. Redémarrez la génération');
+        }
+        throw error;
+      }
+      
+      throw new Error('Erreur inconnue lors de la génération IA');
     }
-
-    // IMPORTANT: Les APIs IA ne peuvent pas être appelées directement depuis le navigateur
-    // en production à cause des restrictions CORS. Cette implémentation ne fonctionnera
-    // que si vous avez configuré un proxy ou utilisez un environnement de développement
-    // avec CORS désactivé.
-    
-    throw new Error(`❌ Erreur CORS: Les APIs ${this.config.provider} ne peuvent pas être appelées directement depuis le navigateur.
-
-🔧 Solutions recommandées:
-1. Utilisez le mode simulation (aucune configuration requise)
-2. Connectez Supabase pour créer un backend sécurisé
-3. Configurez un serveur proxy pour les appels API
-
-💡 Pour l'instant, essayez le mode simulation qui fonctionne parfaitement !`);
-  }
-
-  private async generateWithOpenAI(prompt: string): Promise<string> {
-    // Cette méthode ne fonctionnera pas en production à cause des CORS
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${this.config.apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o',
-        messages: [
-          {
-            role: 'system',
-            content: this.getSystemPrompt()
-          },
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
-        temperature: 0.3,
-        max_tokens: 4000
-      })
-    });
-
-    if (!response.ok) {
-      throw new Error(`Erreur API OpenAI: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data.choices[0].message.content;
-  }
-
-  private async generateWithClaude(prompt: string): Promise<string> {
-    // Cette méthode ne fonctionnera pas en production à cause des CORS
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'x-api-key': this.config.apiKey,
-        'Content-Type': 'application/json',
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: 'claude-3-5-sonnet-20241022',
-        max_tokens: 4000,
-        temperature: 0.3,
-        system: this.getSystemPrompt(),
-        messages: [
-          {
-            role: 'user',
-            content: prompt
-          }
-        ]
-      })
-    });
-
-    if (!response.ok) {
-      throw new Error(`Erreur API Claude: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data.content[0].text;
-  }
-
-  private getSystemPrompt(): string {
-    return `Tu es PPAI, un expert en santé-sécurité au travail spécialisé dans les normes québécoises CNESST/LMRSST.
-
-EXIGENCES OBLIGATOIRES basées sur la LSST :
-1. Identification des principales sources de risques (Art. 59)
-2. Mesures pour éliminer/contrôler les risques selon la hiérarchie de prévention (Art. 51)
-3. Mesures pour garantir la durabilité des correctifs
-4. Échéancier et modalités de réalisation avec responsables désignés
-5. Mesures de surveillance et d'entretien
-6. Formation et information des travailleurs
-7. Identification des équipements de protection individuelle
-8. Participation des travailleurs (comité SST)
-9. Service de premiers soins
-10. Surveillance de la santé des travailleurs
-
-HIÉRARCHIE DE PRÉVENTION (Art. 51 LSST) :
-1. Élimination du danger à la source
-2. Substitution par quelque chose de moins dangereux
-3. Contrôles techniques (ventilation, protection collective)
-4. Mesures administratives (procédures, formation)
-5. Équipements de protection individuelle (en dernier recours)
-
-FORMAT REQUIS :
-- Structure claire avec sections numérotées
-- Mesures concrètes et applicables
-- Références légales précises (LSST, RSST)
-- Échéanciers réalistes avec responsables nommés
-- Indicateurs de suivi mesurables
-
-Génère UNIQUEMENT du contenu conforme aux exigences CNESST/LMRSST.`;
-  }
-
-  private buildStructuredPrompt(params: ProgramGenerationParams): string {
-    let cnessContext = '';
-    if (params.cnessData) {
-      cnessContext = `\n📊 DONNÉES CNESST DISPONIBLES:
-- Secteur d'activité avec statistiques d'incidents
-- Agents causals spécifiques au secteur
-- Mesures préventives recommandées avec efficacité prouvée
-- Intégrer ces données dans les recommandations`;
-    }
-
-    return `Génère un ${params.typeDocument} complet pour :
-
-**CONTEXTE ENTREPRISE :**
-- Nom : ${params.companyName}
-- Secteur SCIAN : ${params.secteurScian}
-- Groupe prioritaire CNESST : ${params.groupePrioritaire}
-- Nombre d'employés : ${params.nombreEmployes}
-- Activités principales : ${params.activitesPrincipales}
-- Acteur responsable : ${params.acteurResponsable}
-${params.risquesIdentifies ? `- Risques identifiés : ${params.risquesIdentifies.join(', ')}` : ''}${cnessContext}
-
-**SPÉCIFICITÉS SECTORIELLES :**
-Adapte le contenu aux risques typiques du secteur ${params.secteurScian} et respecte les obligations du groupe ${params.groupePrioritaire} CNESST.
-
-**STRUCTURE ATTENDUE :**
-1. IDENTIFICATION DES PRINCIPALES SOURCES DE RISQUES
-2. MESURES DE PRÉVENTION (hiérarchie Art. 51)
-3. ÉCHÉANCIER ET RESPONSABILITÉS
-4. FORMATION ET INFORMATION
-5. ÉQUIPEMENTS DE PROTECTION
-6. SURVEILLANCE ET ENTRETIEN
-7. PARTICIPATION DES TRAVAILLEURS
-8. PREMIERS SOINS
-9. SURVEILLANCE MÉDICALE
-10. RÉVISION ET MISE À JOUR
-
-Génère un document professionnel, détaillé et conforme CNESST.`;
-  }
-
-  private validateBasicCompliance(content: string): boolean {
-    const requiredElements = [
-      'identification',
-      'risques',
-      'prévention',
-      'mesures',
-      'responsable',
-      'échéancier',
-      'formation',
-      'surveillance'
-    ];
-
-    return requiredElements.every(element => 
-      content.toLowerCase().includes(element)
-    );
-  }
-
-  private extractLegalReferences(content: string): string[] {
-    const references: string[] = [];
-    const lsstRegex = /LSST\s+(Art\.|Article)\s*(\d+)/gi;
-    const rsstRegex = /RSST\s+(Art\.|Article)\s*(\d+)/gi;
-    
-    let match;
-    while ((match = lsstRegex.exec(content)) !== null) {
-      references.push(`LSST Art. ${match[2]}`);
-    }
-    
-    while ((match = rsstRegex.exec(content)) !== null) {
-      references.push(`RSST Art. ${match[2]}`);
-    }
-    
-    return [...new Set(references)];
   }
 
   setConfig(config: AIConfig): void {
@@ -238,10 +95,11 @@ Génère un document professionnel, détaillé et conforme CNESST.`;
   }
 
   hasApiKey(): boolean {
-    return !!this.config.apiKey;
+    // Avec Supabase, on considère toujours que l'API est disponible
+    return true;
   }
 
   getProviderName(): string {
-    return this.config.provider === 'openai' ? 'OpenAI GPT-4' : 'Claude 3.5 Sonnet';
+    return 'Claude 3.5 Sonnet (Supabase)';
   }
 }
