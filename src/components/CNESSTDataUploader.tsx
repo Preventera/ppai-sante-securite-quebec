@@ -5,7 +5,7 @@ import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Upload, FileText, CheckCircle, AlertTriangle, Brain, Download, Eye } from "lucide-react";
+import { Upload, FileText, CheckCircle, AlertTriangle, Brain, Download, Eye, Play, Pause, RotateCcw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { CNESSTMetadata, ValidationResult } from "@/types/cnesst";
 import { CNESSTDataProcessor } from "@/utils/cnessDataProcessor";
@@ -24,6 +24,9 @@ export function CNESSTDataUploader({ onDataParsed, supportedFormats, maxFileSize
   const [previewData, setPreviewData] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState("upload");
   const [processingStatus, setProcessingStatus] = useState<string>("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isPaused, setIsPaused] = useState(false);
+  const [rawParsedInfo, setRawParsedInfo] = useState<any>(null);
   const { toast } = useToast();
 
   // Fonction pour permettre au UI de respirer pendant les opérations lourdes
@@ -32,7 +35,7 @@ export function CNESSTDataUploader({ onDataParsed, supportedFormats, maxFileSize
   const parseCSVData = useCallback(async (csvText: string, filename: string) => {
     try {
       setProcessingStatus("Analyse du fichier CSV...");
-      await sleep(50); // Permettre au UI de se mettre à jour
+      await sleep(50);
 
       const lines = csvText.trim().split('\n');
       if (lines.length < 2) {
@@ -48,9 +51,19 @@ export function CNESSTDataUploader({ onDataParsed, supportedFormats, maxFileSize
       await sleep(100);
 
       const data = [];
-      const batchSize = 100; // Traiter par batches pour éviter le gel
+      const batchSize = 100;
       
       for (let i = 1; i < lines.length; i += batchSize) {
+        if (isPaused) {
+          await new Promise(resolve => {
+            const checkPause = () => {
+              if (!isPaused) resolve(undefined);
+              else setTimeout(checkPause, 100);
+            };
+            checkPause();
+          });
+        }
+
         const batch = lines.slice(i, Math.min(i + batchSize, lines.length));
         
         for (let j = 0; j < batch.length; j++) {
@@ -60,7 +73,6 @@ export function CNESSTDataUploader({ onDataParsed, supportedFormats, maxFileSize
           
           headers.forEach((header, headerIndex) => {
             const value = values[headerIndex] || '';
-            // Conversion automatique des nombres
             if (!isNaN(Number(value)) && value !== '') {
               row[header] = Number(value);
             } else {
@@ -68,17 +80,16 @@ export function CNESSTDataUploader({ onDataParsed, supportedFormats, maxFileSize
             }
           });
           
-          row._lineNumber = i + j + 1; // Ligne réelle dans le CSV
+          row._lineNumber = i + j + 1;
           
-          // Filtrer les lignes vides
           if (Object.values(row).some(val => val !== '' && val !== undefined && val !== null)) {
             data.push(row);
           }
         }
         
-        // Permettre au UI de respirer entre les batches
         if (i % 500 === 0) {
           setProcessingStatus(`Traitement: ${Math.min(i + batchSize, lines.length)}/${lines.length} lignes`);
+          setUploadProgress(20 + (i / lines.length) * 30);
           await sleep(10);
         }
       }
@@ -86,7 +97,6 @@ export function CNESSTDataUploader({ onDataParsed, supportedFormats, maxFileSize
       setProcessingStatus("Détection du type de fichier...");
       await sleep(50);
 
-      // Détection intelligente du type de fichier
       let fileType = 'unknown';
       
       if (headers.some(h => h.toLowerCase().includes('secteur')) && 
@@ -113,7 +123,7 @@ export function CNESSTDataUploader({ onDataParsed, supportedFormats, maxFileSize
       console.error('Erreur parsing CSV:', error);
       throw new Error(`Erreur de parsing CSV: ${error instanceof Error ? error.message : 'Format invalide'}`);
     }
-  }, []);
+  }, [isPaused]);
 
   const validateCNESSTData = useCallback(async (metadata: Partial<CNESSTMetadata>, parsedInfo: any): Promise<ValidationResult> => {
     const errors: string[] = [];
@@ -141,7 +151,6 @@ export function CNESSTDataUploader({ onDataParsed, supportedFormats, maxFileSize
           dataQualityScore -= 0.02;
         }
         
-        // Permettre au UI de respirer toutes les 50 validations
         if (i % 50 === 0) {
           await sleep(5);
         }
@@ -224,7 +233,7 @@ export function CNESSTDataUploader({ onDataParsed, supportedFormats, maxFileSize
     return recommendations;
   }, []);
 
-  const handleFileUpload = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -237,27 +246,44 @@ export function CNESSTDataUploader({ onDataParsed, supportedFormats, maxFileSize
       return;
     }
 
-    setIsUploading(true);
-    setUploadProgress(0);
+    setSelectedFile(file);
+    setProcessingStatus(`Fichier sélectionné: ${file.name} (${(file.size / (1024 * 1024)).toFixed(2)} MB)`);
+    
+    toast({
+      title: "Fichier sélectionné",
+      description: `${file.name} prêt pour le traitement`,
+    });
+
+    // Reset previous state
     setValidationResult(null);
     setParsedData(null);
     setPreviewData([]);
-    setProcessingStatus("Lecture du fichier...");
+    setUploadProgress(0);
+    setRawParsedInfo(null);
+  }, [maxFileSize, toast]);
+
+  const handleStartProcessing = useCallback(async () => {
+    if (!selectedFile) return;
+
+    setIsUploading(true);
+    setUploadProgress(0);
+    setIsPaused(false);
+    setProcessingStatus("Début du traitement...");
 
     try {
-      console.log("Début traitement fichier:", file.name);
+      console.log("Début traitement fichier:", selectedFile.name);
       
-      const text = await file.text();
+      const text = await selectedFile.text();
       setUploadProgress(20);
       
       console.log("Fichier lu, début parsing...");
-      const parsed = await parseCSVData(text, file.name);
+      const parsed = await parseCSVData(text, selectedFile.name);
       setUploadProgress(50);
+      setRawParsedInfo(parsed);
       
       console.log("Parsing terminé, type détecté:", parsed.type);
       
-      // Aperçu des données
-      setPreviewData(parsed.data.slice(0, 5)); // Premières 5 lignes pour l'aperçu
+      setPreviewData(parsed.data.slice(0, 5));
       setActiveTab("preview");
       setUploadProgress(60);
 
@@ -320,24 +346,39 @@ export function CNESSTDataUploader({ onDataParsed, supportedFormats, maxFileSize
       setProcessingStatus("Erreur de traitement");
     } finally {
       setIsUploading(false);
-      // Reset du input file pour permettre le re-upload du même fichier
-      event.target.value = '';
     }
-  }, [maxFileSize, parseCSVData, validateCNESSTData, generateAIRecommendations, toast]);
+  }, [selectedFile, parseCSVData, validateCNESSTData, generateAIRecommendations, toast]);
+
+  const handlePauseResume = () => {
+    setIsPaused(!isPaused);
+    setProcessingStatus(isPaused ? "Reprise du traitement..." : "Traitement en pause...");
+  };
+
+  const handleReset = () => {
+    setSelectedFile(null);
+    setIsUploading(false);
+    setUploadProgress(0);
+    setValidationResult(null);
+    setParsedData(null);
+    setPreviewData([]);
+    setProcessingStatus("");
+    setIsPaused(false);
+    setRawParsedInfo(null);
+    setActiveTab("upload");
+  };
 
   const handleLoadExampleData = async () => {
     setIsUploading(true);
     setProcessingStatus("Chargement des données d'exemple...");
     
     try {
-      await sleep(500); // Simuler un délai de chargement
+      await sleep(500);
       
       const exampleData = CNESSTDataProcessor.getDefaultCNESSTData();
       setParsedData(exampleData);
       setValidationResult(exampleData.validationStatus);
       setActiveTab("preview");
       
-      // Simuler un aperçu des données d'exemple
       setPreviewData(exampleData.lesionsSecorielles.slice(0, 3));
       
       toast({
@@ -367,10 +408,10 @@ export function CNESSTDataUploader({ onDataParsed, supportedFormats, maxFileSize
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Upload className="w-6 h-6 text-blue-600" />
-            Intégration Simplifiée - Métadonnées CNESST
+            Intégration Contrôlée - Métadonnées CNESST
           </CardTitle>
           <p className="text-sm text-gray-600">
-            Uploadez vos fichiers CSV de lésions professionnelles pour enrichir les prédictions IA
+            Uploadez vos fichiers CSV de lésions professionnelles avec contrôle total du processus
           </p>
         </CardHeader>
         <CardContent>
@@ -402,7 +443,7 @@ export function CNESSTDataUploader({ onDataParsed, supportedFormats, maxFileSize
                 <input
                   type="file"
                   accept=".csv"
-                  onChange={handleFileUpload}
+                  onChange={handleFileSelect}
                   disabled={isUploading}
                   className="hidden"
                   id="cnesst-upload"
@@ -413,16 +454,91 @@ export function CNESSTDataUploader({ onDataParsed, supportedFormats, maxFileSize
                 >
                   <FileText className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                   <h3 className="text-xl font-medium text-gray-900 mb-2">
-                    Déposez votre fichier CSV CNESST ici
+                    Sélectionnez votre fichier CSV CNESST
                   </h3>
                   <p className="text-gray-500 mb-4">
                     Format CSV uniquement • Max {Math.round(maxFileSize / (1024 * 1024))}MB
                   </p>
                   <Button disabled={isUploading} size="lg">
-                    {isUploading ? 'Traitement...' : 'Sélectionner le fichier CSV'}
+                    {isUploading ? 'En cours...' : 'Parcourir les fichiers'}
                   </Button>
                 </label>
               </div>
+
+              {/* Fichier sélectionné */}
+              {selectedFile && (
+                <Card className="border-l-4 border-l-blue-500">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="font-medium">Fichier sélectionné</h4>
+                        <p className="text-sm text-gray-600">{selectedFile.name}</p>
+                        <p className="text-xs text-gray-500">
+                          Taille: {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
+                        </p>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={handleStartProcessing}
+                          disabled={isUploading}
+                          className="flex items-center gap-2"
+                        >
+                          <Play className="w-4 h-4" />
+                          Commencer le traitement
+                        </Button>
+                        <Button
+                          onClick={handleReset}
+                          variant="outline"
+                          disabled={isUploading}
+                        >
+                          <RotateCcw className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Contrôles de traitement */}
+              {isUploading && (
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium">Traitement en cours</span>
+                        <div className="flex gap-2">
+                          <Button
+                            onClick={handlePauseResume}
+                            variant="outline"
+                            size="sm"
+                          >
+                            {isPaused ? <Play className="w-4 h-4" /> : <Pause className="w-4 h-4" />}
+                            {isPaused ? 'Reprendre' : 'Pause'}
+                          </Button>
+                          <Button
+                            onClick={handleReset}
+                            variant="destructive"
+                            size="sm"
+                          >
+                            Annuler
+                          </Button>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span>{processingStatus}</span>
+                          <span>{uploadProgress}%</span>
+                        </div>
+                        <Progress value={uploadProgress} />
+                        {isPaused && (
+                          <p className="text-sm text-orange-600">⏸️ Traitement en pause</p>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Bouton données d'exemple */}
               <div className="text-center">
@@ -431,17 +547,6 @@ export function CNESSTDataUploader({ onDataParsed, supportedFormats, maxFileSize
                   Ou charger des données d'exemple
                 </Button>
               </div>
-
-              {/* Progress avec status */}
-              {isUploading && (
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>{processingStatus}</span>
-                    <span>{uploadProgress}%</span>
-                  </div>
-                  <Progress value={uploadProgress} />
-                </div>
-              )}
             </TabsContent>
 
             <TabsContent value="preview" className="space-y-4">
