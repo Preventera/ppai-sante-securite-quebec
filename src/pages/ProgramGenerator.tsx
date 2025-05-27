@@ -4,7 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { Download, FileText, Wand2, Copy, Save, Settings, Zap } from "lucide-react";
+import { Download, FileText, Wand2, Copy, Save, Settings, Zap, Bot } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ExportActions } from "@/components/ExportActions";
 import { AIGenerationService } from "@/services/aiGenerationService";
@@ -186,7 +186,6 @@ export default function ProgramGenerator() {
       return;
     }
 
-    // Vérifier si l'IA est configurée
     if (!aiService.hasApiKey()) {
       setShowAIConfig(true);
       return;
@@ -195,10 +194,9 @@ export default function ProgramGenerator() {
     setIsGenerating(true);
     
     try {
-      // Utilisation de l'IA réelle au lieu de la simulation
       const response = await aiService.generatePreventionProgram({
-        companyName: "Organisation Example", // Ces paramètres devraient venir d'un formulaire
-        secteurScian: selectedGroup === "1" ? "2361" : "3211", // Mapping basique
+        companyName: "Organisation Example",
+        secteurScian: selectedGroup === "1" ? "2361" : "3211",
         groupePrioritaire: parseInt(selectedGroup),
         nombreEmployes: 25,
         activitesPrincipales: generatedPrompt,
@@ -210,7 +208,7 @@ export default function ProgramGenerator() {
       
       toast({
         title: "Succès",
-        description: `Programme généré avec l'IA ! Conformité: ${response.metadata.conformite ? '✅' : '⚠️'}`,
+        description: `Programme généré avec ${aiService.getProviderName()} ! Conformité: ${response.metadata.conformite ? '✅' : '⚠️'}`,
       });
     } catch (error) {
       console.error('Erreur génération IA:', error);
@@ -220,7 +218,6 @@ export default function ProgramGenerator() {
         variant: "destructive"
       });
       
-      // Fallback vers simulation en cas d'erreur
       await generateMockContent();
     } finally {
       setIsGenerating(false);
@@ -262,11 +259,11 @@ Révision recommandée : annuelle ou suite à modification significative des con
     setGeneratedContent(mockContent);
   };
 
-  const handleApiKeySet = (apiKey: string) => {
-    aiService.setApiKey(apiKey);
+  const handleConfigSet = (config: { provider: any; apiKey: string }) => {
+    aiService.setConfig(config);
     toast({
       title: "IA Configurée",
-      description: "L'intelligence artificielle est maintenant prête à générer vos programmes !",
+      description: `${aiService.getProviderName()} est maintenant prêt à générer vos programmes !`,
     });
   };
 
@@ -297,8 +294,8 @@ Révision recommandée : annuelle ou suite à modification significative des con
           <div className="flex items-center gap-2">
             {aiService.hasApiKey() ? (
               <Badge className="bg-green-100 text-green-800">
-                <Zap className="w-3 h-3 mr-1" />
-                IA Activée
+                <Bot className="w-3 h-3 mr-1" />
+                {aiService.getProviderName()}
               </Badge>
             ) : (
               <Badge variant="secondary">
@@ -416,7 +413,7 @@ Révision recommandée : annuelle ou suite à modification significative des con
                 disabled={!generatedPrompt || isGenerating}
                 className="flex-1"
               >
-                {isGenerating ? "Génération..." : aiService.hasApiKey() ? "Générer avec IA" : "Générer (simulation)"}
+                {isGenerating ? "Génération..." : aiService.hasApiKey() ? `Générer avec ${aiService.getProviderName()}` : "Générer (simulation)"}
               </Button>
               <Button variant="outline" onClick={resetForm}>
                 Réinitialiser
@@ -487,8 +484,8 @@ Révision recommandée : annuelle ou suite à modification significative des con
       <AIConfigurationModal
         open={showAIConfig}
         onOpenChange={setShowAIConfig}
-        onApiKeySet={handleApiKeySet}
-        currentApiKey={aiService.hasApiKey() ? "••••••••••••••••" : ""}
+        onConfigSet={handleConfigSet}
+        currentConfig={aiService.getConfig()}
       />
     </div>
   );

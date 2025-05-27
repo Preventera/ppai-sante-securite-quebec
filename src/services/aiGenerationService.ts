@@ -1,4 +1,3 @@
-
 interface ProgramGenerationParams {
   companyName: string;
   secteurScian: string;
@@ -21,66 +20,115 @@ interface AIGenerationResponse {
   };
 }
 
+export type AIProvider = 'openai' | 'claude';
+
+interface AIConfig {
+  provider: AIProvider;
+  apiKey: string;
+}
+
 export class AIGenerationService {
-  private apiKey: string;
+  private config: AIConfig;
   
   constructor() {
-    // Pour l'instant, nous utiliserons une clé temporaire ou localStorage
-    // En production, cela devrait venir de variables d'environnement sécurisées
-    this.apiKey = localStorage.getItem('openai_api_key') || '';
+    const savedConfig = localStorage.getItem('ai_config');
+    this.config = savedConfig ? JSON.parse(savedConfig) : {
+      provider: 'openai',
+      apiKey: ''
+    };
   }
 
   async generatePreventionProgram(params: ProgramGenerationParams): Promise<AIGenerationResponse> {
-    if (!this.apiKey) {
-      throw new Error('Clé API OpenAI requise. Veuillez la configurer dans les paramètres.');
+    if (!this.config.apiKey) {
+      throw new Error('Clé API requise. Veuillez la configurer dans les paramètres.');
     }
 
     const prompt = this.buildStructuredPrompt(params);
     
     try {
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'gpt-4-turbo-preview',
-          messages: [
-            {
-              role: 'system',
-              content: this.getSystemPrompt()
-            },
-            {
-              role: 'user',
-              content: prompt
-            }
-          ],
-          temperature: 0.3,
-          max_tokens: 4000
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error(`Erreur API OpenAI: ${response.status}`);
+      let response;
+      
+      if (this.config.provider === 'openai') {
+        response = await this.generateWithOpenAI(prompt);
+      } else {
+        response = await this.generateWithClaude(prompt);
       }
 
-      const data = await response.json();
-      const generatedContent = data.choices[0].message.content;
-
       return {
-        content: generatedContent,
+        content: response,
         metadata: {
           secteur: params.secteurScian,
           groupe: params.groupePrioritaire,
-          conformite: this.validateBasicCompliance(generatedContent),
-          referencesLegales: this.extractLegalReferences(generatedContent)
+          conformite: this.validateBasicCompliance(response),
+          referencesLegales: this.extractLegalReferences(response)
         }
       };
     } catch (error) {
       console.error('Erreur génération IA:', error);
-      throw new Error('Impossible de générer le programme. Vérifiez votre connexion et votre clé API.');
+      throw new Error(`Impossible de générer le programme avec ${this.config.provider}. Vérifiez votre connexion et votre clé API.`);
     }
+  }
+
+  private async generateWithOpenAI(prompt: string): Promise<string> {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${this.config.apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o',
+        messages: [
+          {
+            role: 'system',
+            content: this.getSystemPrompt()
+          },
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+        temperature: 0.3,
+        max_tokens: 4000
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Erreur API OpenAI: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.choices[0].message.content;
+  }
+
+  private async generateWithClaude(prompt: string): Promise<string> {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': this.config.apiKey,
+        'Content-Type': 'application/json',
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: 'claude-3-5-sonnet-20241022',
+        max_tokens: 4000,
+        temperature: 0.3,
+        system: this.getSystemPrompt(),
+        messages: [
+          {
+            role: 'user',
+            content: prompt
+          }
+        ]
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Erreur API Claude: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.content[0].text;
   }
 
   private getSystemPrompt(): string {
@@ -185,15 +233,23 @@ Génère un document professionnel, détaillé et conforme CNESST.`;
       references.push(`RSST Art. ${match[2]}`);
     }
     
-    return [...new Set(references)]; // Éliminer les doublons
+    return [...new Set(references)];
   }
 
-  setApiKey(apiKey: string): void {
-    this.apiKey = apiKey;
-    localStorage.setItem('openai_api_key', apiKey);
+  setConfig(config: AIConfig): void {
+    this.config = config;
+    localStorage.setItem('ai_config', JSON.stringify(config));
+  }
+
+  getConfig(): AIConfig {
+    return this.config;
   }
 
   hasApiKey(): boolean {
-    return !!this.apiKey;
+    return !!this.config.apiKey;
+  }
+
+  getProviderName(): string {
+    return this.config.provider === 'openai' ? 'OpenAI GPT-4' : 'Claude 3.5 Sonnet';
   }
 }
