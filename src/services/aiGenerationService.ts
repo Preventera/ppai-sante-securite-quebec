@@ -1,3 +1,4 @@
+
 interface ProgramGenerationParams {
   companyName: string;
   secteurScian: string;
@@ -43,33 +44,23 @@ export class AIGenerationService {
       throw new Error('Clé API requise. Veuillez la configurer dans les paramètres.');
     }
 
-    const prompt = this.buildStructuredPrompt(params);
+    // IMPORTANT: Les APIs IA ne peuvent pas être appelées directement depuis le navigateur
+    // en production à cause des restrictions CORS. Cette implémentation ne fonctionnera
+    // que si vous avez configuré un proxy ou utilisez un environnement de développement
+    // avec CORS désactivé.
     
-    try {
-      let response;
-      
-      if (this.config.provider === 'openai') {
-        response = await this.generateWithOpenAI(prompt);
-      } else {
-        response = await this.generateWithClaude(prompt);
-      }
+    throw new Error(`❌ Erreur CORS: Les APIs ${this.config.provider} ne peuvent pas être appelées directement depuis le navigateur.
 
-      return {
-        content: response,
-        metadata: {
-          secteur: params.secteurScian,
-          groupe: params.groupePrioritaire,
-          conformite: this.validateBasicCompliance(response),
-          referencesLegales: this.extractLegalReferences(response)
-        }
-      };
-    } catch (error) {
-      console.error('Erreur génération IA:', error);
-      throw new Error(`Impossible de générer le programme avec ${this.config.provider}. Vérifiez votre connexion et votre clé API.`);
-    }
+🔧 Solutions recommandées:
+1. Utilisez le mode simulation (aucune configuration requise)
+2. Connectez Supabase pour créer un backend sécurisé
+3. Configurez un serveur proxy pour les appels API
+
+💡 Pour l'instant, essayez le mode simulation qui fonctionne parfaitement !`);
   }
 
   private async generateWithOpenAI(prompt: string): Promise<string> {
+    // Cette méthode ne fonctionnera pas en production à cause des CORS
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -102,6 +93,7 @@ export class AIGenerationService {
   }
 
   private async generateWithClaude(prompt: string): Promise<string> {
+    // Cette méthode ne fonctionnera pas en production à cause des CORS
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
