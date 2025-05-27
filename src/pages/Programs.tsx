@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -20,6 +19,7 @@ import { AutomatedGenerator } from "@/components/AutomatedGenerator";
 
 export default function Programs() {
   const [activeMode, setActiveMode] = useState<"prototype" | "automated">("prototype");
+  const [selectedGroup, setSelectedGroup] = useState("1"); // Add selectedGroup state
 
   const modes = {
     prototype: {
@@ -171,9 +171,31 @@ export default function Programs() {
         </CardContent>
       </Card>
 
+      {/* Sélecteur de groupe CNESST */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Groupe prioritaire CNESST</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex gap-2">
+            {["1", "2", "3", "4"].map((group) => (
+              <Button
+                key={group}
+                variant={selectedGroup === group ? "default" : "outline"}
+                onClick={() => setSelectedGroup(group)}
+              >
+                Groupe {group}
+              </Button>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Interface de génération */}
       <div className="space-y-6">
-        {activeMode === "prototype" && <PrototypeGenerator />}
+        {activeMode === "prototype" && (
+          <PrototypeGenerator selectedGroup={selectedGroup} />
+        )}
         {activeMode === "automated" && <AutomatedGenerator />}
       </div>
 
