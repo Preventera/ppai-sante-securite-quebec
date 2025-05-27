@@ -12,6 +12,7 @@ import ProgramGenerator from "./pages/ProgramGenerator";
 import SectorGenerator from "./pages/SectorGenerator";
 import PipelineGenerator from "./pages/PipelineGenerator";
 import KPIGenerator from "./pages/KPIGenerator";
+import Programs from "./pages/Programs";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,7 +37,7 @@ const App = () => (
                 <Route path="/sector-generator" element={<SectorGenerator />} />
                 <Route path="/pipeline-generator" element={<PipelineGenerator />} />
                 <Route path="/kpi-generator" element={<KPIGenerator />} />
-                <Route path="/programs" element={<div className="p-6"><h1 className="text-2xl font-bold text-sst-blue">Programmes SST</h1><p className="text-gray-600 mt-2">Module en développement</p></div>} />
+                <Route path="/programs" element={<Programs />} />
                 <Route path="/measures" element={<div className="p-6"><h1 className="text-2xl font-bold text-sst-blue">Mesures préventives</h1><p className="text-gray-600 mt-2">Module en développement</p></div>} />
                 <Route path="/reports" element={<div className="p-6"><h1 className="text-2xl font-bold text-sst-blue">Rapports</h1><p className="text-gray-600 mt-2">Module en développement</p></div>} />
                 <Route path="/calendar" element={<div className="p-6"><h1 className="text-2xl font-bold text-sst-blue">Calendrier</h1><p className="text-gray-600 mt-2">Module en développement</p></div>} />
