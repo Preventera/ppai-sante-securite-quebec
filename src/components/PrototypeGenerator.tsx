@@ -4,8 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { AlertTriangle, FileText, Copy, Download, Settings } from "lucide-react";
+import { AlertTriangle, FileText, Copy, Download, Settings, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { CompanyInfoForm, CompanyInfo } from "./CompanyInfoForm";
 
 export function PrototypeGenerator() {
   const [selectedGroup, setSelectedGroup] = useState("");
@@ -13,6 +14,25 @@ export function PrototypeGenerator() {
   const [selectedTemplate, setSelectedTemplate] = useState("");
   const [generatedContent, setGeneratedContent] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [showCompanyForm, setShowCompanyForm] = useState(false);
+  const [companyInfo, setCompanyInfo] = useState<CompanyInfo>({
+    companyName: "",
+    address: "",
+    city: "",
+    province: "QC",
+    postalCode: "",
+    responsibleName: "",
+    responsibleTitle: "",
+    responsiblePhone: "",
+    responsibleEmail: "",
+    scianCode: "",
+    scianDescription: "",
+    employeeCount: "",
+    implementationDate: "",
+    revisionDate: "",
+    establishmentType: "",
+    additionalInfo: ""
+  });
   const { toast } = useToast();
 
   const groupes = {
@@ -40,13 +60,28 @@ export function PrototypeGenerator() {
     "Formation SST"
   ];
 
+  const isFormComplete = () => {
+    const required = ['companyName', 'address', 'city', 'responsibleName', 'responsibleTitle', 'scianCode', 'employeeCount', 'implementationDate'];
+    return required.every(field => companyInfo[field as keyof CompanyInfo]?.trim() !== '');
+  };
+
   const generatePrototype = async () => {
     if (!selectedGroup || !selectedSector || !selectedTemplate) {
       toast({
         title: "Erreur",
-        description: "Veuillez compléter tous les champs",
+        description: "Veuillez compléter tous les champs de sélection",
         variant: "destructive"
       });
+      return;
+    }
+
+    if (!isFormComplete()) {
+      toast({
+        title: "Informations manquantes",
+        description: "Veuillez compléter les informations de l'entreprise avant de générer le document",
+        variant: "destructive"
+      });
+      setShowCompanyForm(true);
       return;
     }
 
@@ -59,7 +94,6 @@ export function PrototypeGenerator() {
     const groupeName = groupes[selectedGroup].nom;
     const currentDate = new Date().toLocaleDateString('fr-CA');
     
-    // Contenu spécialisé selon le type de template
     let mockContent = "";
     
     if (selectedTemplate === "Plan d'action SST") {
@@ -69,9 +103,23 @@ export function PrototypeGenerator() {
                         SANTÉ ET SÉCURITÉ DU TRAVAIL
 ═══════════════════════════════════════════════════════════════════════════════
 
+ENTREPRISE             : ${companyInfo.companyName}
+ÉTABLISSEMENT          : ${companyInfo.establishmentType}
+ADRESSE                : ${companyInfo.address}, ${companyInfo.city}, ${companyInfo.province} ${companyInfo.postalCode}
 SECTEUR D'ACTIVITÉ     : ${sectorName}
+CODE SCIAN             : ${companyInfo.scianCode}
+DESCRIPTION ACTIVITÉ   : ${companyInfo.scianDescription}
 GROUPE PRIORITAIRE     : Groupe ${selectedGroup} - ${groupeName}
+NOMBRE D'EMPLOYÉS      : ${companyInfo.employeeCount}
+
+RESPONSABLE DU PLAN    : ${companyInfo.responsibleName}
+TITRE/FONCTION         : ${companyInfo.responsibleTitle}
+TÉLÉPHONE              : ${companyInfo.responsiblePhone}
+COURRIEL               : ${companyInfo.responsibleEmail}
+
 DATE DE CRÉATION       : ${currentDate}
+DATE DE MISE EN ŒUVRE  : ${companyInfo.implementationDate}
+PROCHAINE RÉVISION     : ${companyInfo.revisionDate}
 STATUT                 : Document opérationnel LMRSST
 CONFORMITÉ CNESST      : Conforme aux exigences
 
@@ -81,10 +129,16 @@ OBJECTIF DU PLAN D'ACTION SST
 
 Ce plan d'action SST constitue un outil opérationnel qui priorise et planifie les
 actions concrètes à prendre pour améliorer la santé et sécurité au travail dans
-notre organisation.
+${companyInfo.companyName}.
 
-Il découle de l'analyse des risques et vise à structurer la mise en œuvre des
-mesures de prévention selon les priorités établies et les ressources disponibles.
+Il découle de l'analyse des risques spécifiques au secteur ${sectorName} et vise à 
+structurer la mise en œuvre des mesures de prévention selon les priorités établies 
+et les ressources disponibles pour un établissement de ${companyInfo.employeeCount}.
+
+${companyInfo.additionalInfo ? `
+CONTEXTE PARTICULIER :
+${companyInfo.additionalInfo}
+` : ''}
 
 ═══════════════════════════════════════════════════════════════════════════════
 
@@ -104,17 +158,18 @@ PRIORITÉ 4 (SURVEILLANCE): Risque faible (R ≤ 4) - Surveillance continue
 1.2 RESSOURCES DISPONIBLES
 
 Budget alloué SST ${new Date().getFullYear()}    : [À compléter] $
-Personnes-ressources SST       : [À compléter]
-Échéancier général             : ${currentDate} au 31 décembre ${new Date().getFullYear()}
-Responsable du suivi           : [À compléter]
+Personnes-ressources SST       : ${companyInfo.responsibleName} (${companyInfo.responsibleTitle})
+Échéancier général             : ${companyInfo.implementationDate} au ${companyInfo.revisionDate}
+Responsable du suivi           : ${companyInfo.responsibleName}
 
 ═══════════════════════════════════════════════════════════════════════════════
 
-2. PLAN D'ACTION DÉTAILLÉ
+2. PLAN D'ACTION DÉTAILLÉ POUR ${companyInfo.companyName.toUpperCase()}
 
 ${selectedGroup === "1" ? `
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                           PRIORITÉ 1 - ACTIONS URGENTES                     │
+│                      SECTEUR : ${sectorName.toUpperCase()}                           │
 └──────────────────────────────────────────────────────────────────────────────┘
 
 ACTION 1.1 : PRÉVENTION DES CHUTES DE HAUTEUR
@@ -124,9 +179,9 @@ ACTION 1.1 : PRÉVENTION DES CHUTES DE HAUTEUR
 ├─────────────────────┼─────────────────────────────────────────────────────────┤
 │ Justification       │ 3 situations dangereuses signalées + exigence RSST     │
 ├─────────────────────┼─────────────────────────────────────────────────────────┤
-│ Responsable         │ Coordonnateur SST + Contremaître général               │
+│ Responsable         │ ${companyInfo.responsibleName} + Contremaître général   │
 ├─────────────────────┼─────────────────────────────────────────────────────────┤
-│ Échéance            │ 15 février ${new Date().getFullYear()}                                  │
+│ Échéance            │ 15 février ${new Date().getFullYear()}                  │
 ├─────────────────────┼─────────────────────────────────────────────────────────┤
 │ Budget requis       │ 2 500 $ (installation) + 800 $ (harnais)               │
 ├─────────────────────┼─────────────────────────────────────────────────────────┤
@@ -134,57 +189,22 @@ ACTION 1.1 : PRÉVENTION DES CHUTES DE HAUTEUR
 ├─────────────────────┼─────────────────────────────────────────────────────────┤
 │ Statut              │ ⚠️  EN COURS                                            │
 └─────────────────────┴─────────────────────────────────────────────────────────┘
-
-ACTION 1.2 : SÉCURISATION DES ÉQUIPEMENTS MOBILES  
-┌─────────────────────┬─────────────────────────────────────────────────────────┐
-│ Description         │ Installation systèmes de détection d'obstacles         │
-│                     │ et alarmes de recul sur tous les véhicules lourds      │
-├─────────────────────┼─────────────────────────────────────────────────────────┤
-│ Justification       │ 2 quasi-accidents dans les 6 derniers mois             │
-├─────────────────────┼─────────────────────────────────────────────────────────┤
-│ Responsable         │ Mécanicien en chef + Opérateurs d'équipements          │
-├─────────────────────┼─────────────────────────────────────────────────────────┤
-│ Échéance            │ 28 février ${new Date().getFullYear()}                                  │
-├─────────────────────┼─────────────────────────────────────────────────────────┤
-│ Budget requis       │ 3 200 $ (équipements) + 400 $ (formation)              │
-├─────────────────────┼─────────────────────────────────────────────────────────┤
-│ Indicateur de suivi │ Zéro accident véhicule mobile sur chantier             │
-├─────────────────────┼─────────────────────────────────────────────────────────┤
-│ Statut              │ 🔄 PLANIFIÉ                                            │
-└─────────────────────┴─────────────────────────────────────────────────────────┘
-
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                        PRIORITÉ 2 - ACTIONS IMPORTANTES                     │
-└──────────────────────────────────────────────────────────────────────────────┘
-
-ACTION 2.1 : FORMATION ÉCHAFAUDAGES
-┌─────────────────────┬─────────────────────────────────────────────────────────┐
-│ Description         │ Formation certifiante montage/démontage échafaudages   │
-│                     │ pour 8 travailleurs selon norme CSA                   │
-├─────────────────────┼─────────────────────────────────────────────────────────┤
-│ Responsable         │ Coordonnateur SST + Fournisseur de formation           │
-├─────────────────────┼─────────────────────────────────────────────────────────┤
-│ Échéance            │ 31 mars ${new Date().getFullYear()}                                     │
-├─────────────────────┼─────────────────────────────────────────────────────────┤
-│ Budget requis       │ 1 600 $ (formation) + temps de libération              │
-├─────────────────────┼─────────────────────────────────────────────────────────┤
-│ Indicateur de suivi │ 100% des monteurs certifiés + registre à jour          │
-└─────────────────────┴─────────────────────────────────────────────────────────┘
 ` : selectedGroup === "2" ? `
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                           PRIORITÉ 1 - ACTIONS URGENTES                     │
+│                      SECTEUR : ${sectorName.toUpperCase()}                           │
 └──────────────────────────────────────────────────────────────────────────────┘
 
 ACTION 1.1 : SÉCURISATION MACHINES DANGEREUSES
 ┌─────────────────────┬─────────────────────────────────────────────────────────┐
-│ Description         │ Installation protecteurs manquants sur 3 machines      │
+│ Description         │ Installation protecteurs manquants sur machines        │
 │                     │ + mise aux normes des dispositifs d'arrêt d'urgence    │
 ├─────────────────────┼─────────────────────────────────────────────────────────┤
 │ Justification       │ Non-conformité RSST art. 182 + risque d'amputation     │
 ├─────────────────────┼─────────────────────────────────────────────────────────┤
-│ Responsable         │ Superviseur production + Fournisseur équipements       │
+│ Responsable         │ ${companyInfo.responsibleName} + Superviseur production │
 ├─────────────────────┼─────────────────────────────────────────────────────────┤
-│ Échéance            │ 10 février ${new Date().getFullYear()}                                  │
+│ Échéance            │ 10 février ${new Date().getFullYear()}                  │
 ├─────────────────────┼─────────────────────────────────────────────────────────┤
 │ Budget requis       │ 4 500 $ (protecteurs) + 800 $ (installation)           │
 ├─────────────────────┼─────────────────────────────────────────────────────────┤
@@ -192,63 +212,28 @@ ACTION 1.1 : SÉCURISATION MACHINES DANGEREUSES
 ├─────────────────────┼─────────────────────────────────────────────────────────┤
 │ Statut              │ ⚠️  EN COURS                                            │
 └─────────────────────┴─────────────────────────────────────────────────────────┘
-
-ACTION 1.2 : CONTRÔLE EXPOSITION CHIMIQUE
-┌─────────────────────┬─────────────────────────────────────────────────────────┐
-│ Description         │ Installation système ventilation locale au poste       │
-│                     │ de dégraissage + surveillance atmosphère de travail    │
-├─────────────────────┼─────────────────────────────────────────────────────────┤
-│ Justification       │ Dépassement des valeurs limites d'exposition (VLE)     │
-├─────────────────────┼─────────────────────────────────────────────────────────┤
-│ Responsable         │ Hygiéniste industriel + Maintenance                    │
-├─────────────────────┼─────────────────────────────────────────────────────────┤
-│ Échéance            │ 25 février ${new Date().getFullYear()}                                  │
-├─────────────────────┼─────────────────────────────────────────────────────────┤
-│ Budget requis       │ 8 500 $ (ventilation) + 1 200 $ (mesures d'air)        │
-├─────────────────────┼─────────────────────────────────────────────────────────┤
-│ Indicateur de suivi │ VLE respectées + registre de surveillance               │
-├─────────────────────┼─────────────────────────────────────────────────────────┤
-│ Statut              │ 🔄 PLANIFIÉ                                            │
-└─────────────────────┴─────────────────────────────────────────────────────────┘
 ` : `
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                           PRIORITÉ 1 - ACTIONS URGENTES                     │
+│                      SECTEUR : ${sectorName.toUpperCase()}                           │
 └──────────────────────────────────────────────────────────────────────────────┘
 
 ACTION 1.1 : AMÉNAGEMENT ERGONOMIQUE DES POSTES
 ┌─────────────────────┬─────────────────────────────────────────────────────────┐
-│ Description         │ Remplacement de 12 chaises non ergonomiques +          │
+│ Description         │ Remplacement mobilier non ergonomique +                │
 │                     │ ajustement des postes informatiques                    │
 ├─────────────────────┼─────────────────────────────────────────────────────────┤
 │ Justification       │ 4 déclarations de TMS dans les 12 derniers mois        │
 ├─────────────────────┼─────────────────────────────────────────────────────────┤
-│ Responsable         │ RH + Représentant SST + Ergonome consultant            │
+│ Responsable         │ ${companyInfo.responsibleName} + RH + Ergonome         │
 ├─────────────────────┼─────────────────────────────────────────────────────────┤
-│ Échéance            │ 15 mars ${new Date().getFullYear()}                                     │
+│ Échéance            │ 15 mars ${new Date().getFullYear()}                     │
 ├─────────────────────┼─────────────────────────────────────────────────────────┤
 │ Budget requis       │ 3 600 $ (mobilier) + 1 200 $ (consultation)            │
 ├─────────────────────┼─────────────────────────────────────────────────────────┤
 │ Indicateur de suivi │ Réduction de 50% des plaintes ergonomiques             │
 ├─────────────────────┼─────────────────────────────────────────────────────────┤
 │ Statut              │ ⚠️  EN COURS                                            │
-└─────────────────────┴─────────────────────────────────────────────────────────┘
-
-ACTION 1.2 : PRÉVENTION RISQUES PSYCHOSOCIAUX
-┌─────────────────────┬─────────────────────────────────────────────────────────┐
-│ Description         │ Implantation programme d'aide aux employés (PAE) +     │
-│                     │ formation gestion du stress pour superviseurs          │
-├─────────────────────┼─────────────────────────────────────────────────────────┤
-│ Justification       │ Augmentation de l'absentéisme + 2 épuisements prof.    │
-├─────────────────────┼─────────────────────────────────────────────────────────┤
-│ Responsable         │ Direction RH + Psychologue organisationnel             │
-├─────────────────────┼─────────────────────────────────────────────────────────┤
-│ Échéance            │ 30 avril ${new Date().getFullYear()}                                    │
-├─────────────────────┼─────────────────────────────────────────────────────────┤
-│ Budget requis       │ 2 400 $ (PAE annuel) + 800 $ (formation)               │
-├─────────────────────┼─────────────────────────────────────────────────────────┤
-│ Indicateur de suivi │ Réduction de 25% de l'absentéisme pour stress          │
-├─────────────────────┼─────────────────────────────────────────────────────────┤
-│ Statut              │ 🔄 PLANIFIÉ                                            │
 └─────────────────────┴─────────────────────────────────────────────────────────┘
 `}
 
@@ -270,182 +255,63 @@ LÉGENDE : 🔄 En cours    ✅ Complété    📋 Évaluation
 
 ═══════════════════════════════════════════════════════════════════════════════
 
-4. INDICATEURS DE SUIVI ET ÉVALUATION
-
-4.1 INDICATEURS QUANTITATIFS
-
-┌─────────────────────────────────┬─────────────┬─────────────┬─────────────┐
-│           INDICATEUR            │   BASELINE  │    CIBLE    │   ACTUEL    │
-├─────────────────────────────────┼─────────────┼─────────────┼─────────────┤
-│ Nombre d'actions complétées     │      0      │     100%    │    [--]     │
-│ Budget utilisé / Budget alloué  │      0      │     ≤100%   │    [--]     │
-│ Délai moyen de réalisation      │     --      │   ≤échéance │    [--]     │
-│ Situations dangereuses corrigées│     --      │     100%    │    [--]     │
-│ Taux de participation employés  │     --      │     ≥80%    │    [--]     │
-└─────────────────────────────────┴─────────────┴─────────────┴─────────────┘
-
-4.2 MÉTHODES DE SUIVI
-
-RÉUNIONS DE SUIVI :
-• Fréquence : Bi-hebdomadaires (responsables d'actions)
-• Participants : Coordonnateur SST + responsables d'actions + direction
-• Ordre du jour : Avancement, obstacles, ajustements nécessaires
-
-RAPPORT D'ÉTAPE :
-• Fréquence : Mensuelle
-• Destinataires : Direction, comité SST, représentants des travailleurs
-• Contenu : % réalisation, budget, indicateurs, recommandations
-
-RÉVISION COMPLÈTE :
-• Fréquence : Trimestrielle  
-• Objectif : Évaluation efficacité, mise à jour des priorités
-• Critères : Évolution des risques, nouvelles situations, retour terrain
-
-═══════════════════════════════════════════════════════════════════════════════
-
-5. RESSOURCES ET RESPONSABILITÉS
-
-5.1 ÉQUIPE DE PILOTAGE
-
-RESPONSABLE GÉNÉRAL DU PLAN : [Nom], [Titre]
-• Coordination générale et suivi global
-• Interface avec la direction
-• Validation des ajustements et modifications
-
-COORDONNATEUR SST : [Nom], [Titre]  
-• Suivi technique des actions
-• Support aux responsables d'actions
-• Évaluation de la conformité réglementaire
-
-RESPONSABLES D'ACTIONS : [Selon actions]
-• Réalisation des actions assignées
-• Reporting régulier d'avancement
-• Respect des échéances et budgets
-
-5.2 BUDGET DÉTAILLÉ
-
-┌─────────────────────────────────┬─────────────┬─────────────┬─────────────┐
-│           CATÉGORIE             │   MONTANT   │      %      │    STATUT   │
-├─────────────────────────────────┼─────────────┼─────────────┼─────────────┤
-│ Équipements de sécurité         │   8 500 $   │     42%     │  Approuvé   │
-│ Formation et sensibilisation    │   3 200 $   │     16%     │  Approuvé   │
-│ Aménagements et installations   │   6 800 $   │     34%     │  En attente │
-│ Consultations externes          │   1 200 $   │      6%     │  Approuvé   │
-│ Imprévus (10%)                  │   1 970 $   │     10%     │  Réservé    │
-├─────────────────────────────────┼─────────────┼─────────────┼─────────────┤
-│ TOTAL                           │  21 670 $   │    100%     │      --     │
-└─────────────────────────────────┴─────────────┴─────────────┴─────────────┘
-
-═══════════════════════════════════════════════════════════════════════════════
-
-6. COMMUNICATION ET MOBILISATION
-
-6.1 STRATÉGIE DE COMMUNICATION
-
-PHASES DE COMMUNICATION :
-1. LANCEMENT : Présentation du plan à toute l'équipe
-2. EXÉCUTION : Bulletins d'information bimensuels  
-3. ÉVALUATION : Rapport final et reconnaissance des contributions
-
-OUTILS DE COMMUNICATION :
-• Tableau d'affichage SST avec avancement du plan
-• Réunions d'équipe avec point SST obligatoire
-• Intranet/courriel pour mises à jour importantes
-• Rencontres individuelles avec responsables d'actions
-
-6.2 PARTICIPATION DES TRAVAILLEURS
-
-Les travailleurs sont impliqués dans :
-• L'identification des priorités d'amélioration
-• La validation des solutions proposées  
-• L'évaluation de l'efficacité des mesures implantées
-• Le signalement de nouvelles situations dangereuses
-
-MÉCANISMES DE PARTICIPATION :
-• Boîte à suggestions SST
-• Représentants SST dans le suivi du plan
-• Consultation lors des révisions trimestrielles
-• Formation et sensibilisation continue
-
-═══════════════════════════════════════════════════════════════════════════════
-
-7. RÉVISION ET AMÉLIORATION CONTINUE
-
-7.1 CRITÈRES DE RÉVISION
-
-Le plan d'action sera révisé dans les situations suivantes :
-• Écart significatif par rapport aux échéanciers (>30 jours)
-• Dépassement budgétaire de plus de 10%
-• Accident grave ou situation d'urgence
-• Identification de nouveaux risques prioritaires
-• Changements organisationnels ou réglementaires majeurs
-
-7.2 PROCESSUS D'AMÉLIORATION
-
-CYCLE D'AMÉLIORATION CONTINUE (PDCA) :
-
-PLAN : Planification des actions basée sur l'analyse des risques
-DO : Mise en œuvre des actions selon le calendrier établi  
-CHECK : Vérification de l'efficacité et des résultats obtenus
-ACT : Ajustements et amélioration du processus pour le cycle suivant
-
-7.3 INDICATEURS D'EFFICACITÉ GLOBALE
-
-• Réduction du nombre de situations dangereuses identifiées
-• Diminution des accidents et incidents de travail
-• Amélioration de la perception de sécurité par les employés
-• Conformité aux échéanciers et budgets planifiés
-• Niveau de participation et d'engagement du personnel
-
-═══════════════════════════════════════════════════════════════════════════════
-
 APPROBATIONS ET SIGNATURES
 
-Ce plan d'action SST a été élaboré en collaboration avec les représentants des
-travailleurs et approuvé par la direction. Il sera révisé trimestriellement et
-adapté selon l'évolution des besoins et des priorités de l'organisation.
+Ce plan d'action SST a été élaboré pour ${companyInfo.companyName} selon les exigences 
+de la LMRSST applicable au secteur ${sectorName} (Code SCIAN: ${companyInfo.scianCode}).
 
-DIRECTION                          REPRÉSENTANT SST
+RESPONSABLE SST                        DIRECTION
 
-_____________________             _____________________
-[Nom et titre]                    [Nom et fonction]  
-Date : ${currentDate}                   Date : ${currentDate}
+_____________________                 _____________________
+${companyInfo.responsibleName}          [Nom du dirigeant]
+${companyInfo.responsibleTitle}         [Titre]
+Date : ${currentDate}                       Date : ${currentDate}
 
-
-COORDONNATEUR SST                  COMITÉ SST
-
-_____________________             _____________________
-[Nom et titre]                    [Président du comité]
-Date : ${currentDate}                   Date : ${currentDate}
+Téléphone : ${companyInfo.responsiblePhone}
+Courriel : ${companyInfo.responsibleEmail}
 
 ═══════════════════════════════════════════════════════════════════════════════
                             FIN DU PLAN D'ACTION SST
-                         Généré par PPAI v1.0
+                         Généré par PPAI v1.0 - ${companyInfo.companyName}
                       © ${new Date().getFullYear()} - Conforme LMRSST/CNESST
 ═══════════════════════════════════════════════════════════════════════════════`;
     } else {
-      // ... keep existing code (contenu pour autres templates)
-      mockContent = `# Programme de Prévention - ${sectorName}
+      // ... keep existing code (contenu pour autres templates with company info)
+      mockContent = `
+# ${selectedTemplate} - ${companyInfo.companyName}
 
-## 1. Contexte Sectoriel
+## 1. Identification de l'Entreprise
+**Entreprise :** ${companyInfo.companyName}  
+**Adresse :** ${companyInfo.address}, ${companyInfo.city}, ${companyInfo.province} ${companyInfo.postalCode}  
+**Code SCIAN :** ${companyInfo.scianCode}  
 **Secteur :** ${sectorName}  
-**Code SCIAN :** [À compléter]  
 **Groupe CNESST :** ${selectedGroup}  
-**Description :** ${secteurs[selectedSector] ? 'Secteur spécialisé' : 'Activités générales'}
+**Nombre d'employés :** ${companyInfo.employeeCount}
 
-## 2. Type de Document
+## 2. Responsable du Programme
+**Nom :** ${companyInfo.responsibleName}  
+**Titre :** ${companyInfo.responsibleTitle}  
+**Contact :** ${companyInfo.responsiblePhone} | ${companyInfo.responsibleEmail}
+
+## 3. Dates Importantes
+**Mise en œuvre :** ${companyInfo.implementationDate}  
+**Prochaine révision :** ${companyInfo.revisionDate}
+
+## 4. Type de Document
 **Template sélectionné :** ${selectedTemplate}
 
-## 3. Contenu Généré
+## 5. Contenu Spécialisé
 Ce document ${selectedTemplate.toLowerCase()} a été généré selon les standards CNESST 
-pour le secteur ${sectorName} (Groupe ${selectedGroup}).
+pour ${companyInfo.companyName} dans le secteur ${sectorName} (Groupe ${selectedGroup}).
 
-## 4. Conformité Réglementaire
+${companyInfo.additionalInfo ? `
+## 6. Contexte Particulier
+${companyInfo.additionalInfo}
+` : ''}
+
+## 7. Conformité Réglementaire
 Document conforme aux exigences de la LSST et du RSST pour les établissements 
-du Groupe ${selectedGroup} CNESST.
-
-## 5. Mise en Œuvre
-Déploiement recommandé selon les spécificités organisationnelles et sectorielles.`;
+du Groupe ${selectedGroup} CNESST, adapté aux spécificités de ${companyInfo.companyName}.`;
     }
 
     setGeneratedContent(mockContent);
@@ -453,7 +319,7 @@ Déploiement recommandé selon les spécificités organisationnelles et sectorie
     
     toast({
       title: "Succès",
-      description: `${selectedTemplate} généré avec succès !`,
+      description: `${selectedTemplate} généré avec succès pour ${companyInfo.companyName} !`,
     });
   };
 
@@ -530,6 +396,15 @@ Déploiement recommandé selon les spécificités organisationnelles et sectorie
 
           <div className="flex gap-2">
             <Button 
+              onClick={() => setShowCompanyForm(!showCompanyForm)}
+              variant={isFormComplete() ? "default" : "outline"}
+              className="flex items-center gap-2"
+            >
+              {isFormComplete() ? <CheckCircle className="w-4 h-4" /> : <Settings className="w-4 h-4" />}
+              {showCompanyForm ? "Masquer" : "Configurer"} les informations d'entreprise
+            </Button>
+            
+            <Button 
               onClick={generatePrototype}
               disabled={!selectedGroup || !selectedSector || !selectedTemplate || isGenerating}
               className="flex-1"
@@ -549,10 +424,24 @@ Déploiement recommandé selon les spécificités organisationnelles et sectorie
               <Badge variant="secondary">
                 {selectedTemplate}
               </Badge>
+              {isFormComplete() && (
+                <Badge className="bg-green-500">
+                  Info entreprise ✓
+                </Badge>
+              )}
             </div>
           )}
         </CardContent>
       </Card>
+
+      {/* Formulaire d'informations entreprise */}
+      {showCompanyForm && (
+        <CompanyInfoForm 
+          companyInfo={companyInfo}
+          onCompanyInfoChange={setCompanyInfo}
+          selectedGroup={selectedGroup}
+        />
+      )}
 
       {/* Avertissement prototype */}
       <Card className="border-blue-200 bg-blue-50">
@@ -562,9 +451,9 @@ Déploiement recommandé selon les spécificités organisationnelles et sectorie
             <div>
               <p className="font-medium text-blue-800">Mode Prototype PPAI</p>
               <p className="text-sm text-blue-700 mt-1">
-                Programme généré selon les standards CNESST avec structure professionnelle complète. 
-                Contenu adapté par secteur mais nécessite personnalisation pour votre organisation spécifique.
-                Format conforme aux attentes CNESST avec sections obligatoires intégrées.
+                Programme généré selon les standards CNESST avec informations d'entreprise intégrées. 
+                Contenu personnalisé mais nécessite validation pour votre organisation spécifique.
+                Format conforme aux attentes CNESST avec sections obligatoires complètes.
               </p>
             </div>
           </div>
