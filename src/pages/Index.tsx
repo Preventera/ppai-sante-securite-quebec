@@ -1,4 +1,4 @@
-
+import D3TestComponent from '../components/charts/d3/d3-test-component';
 import { DashboardKPICard } from "@/components/DashboardKPICard";
 import { Shield, AlertTriangle, CheckCircle, TrendingUp, Search, User, Bell, Brain, Activity, Target } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -91,6 +91,8 @@ const getSeverityColor = (severity: string) => {
 };
 
 const Index = () => {
+  console.log("Rendu du composant Index");
+  
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header Navigation */}
@@ -158,6 +160,29 @@ const Index = () => {
       </div>
 
       <div className="p-6 space-y-6">
+        {/* SECTION DE TEST D3.js - AJOUTÉE ICI */}
+        <div className="bg-white border-2 border-blue-300 rounded-lg shadow-lg p-4">
+          <h2 className="text-xl font-bold text-sst-blue mb-4 flex items-center">
+            <Activity className="w-6 h-6 mr-2" />
+            Test du Composant D3.js
+          </h2>
+          
+          {/* Point d'arrêt automatique pour le débogage */}
+          {/* eslint-disable-next-line no-debugger */}
+          <D3TestComponent 
+            initialData={[25, 40, 65, 30, 55, 70, 45]} 
+            title="Visualisation de test" 
+          />
+          
+          <div className="mt-4 p-3 bg-gray-50 border rounded text-sm">
+            <p className="text-gray-700">
+              Ce composant affiche un graphique à barres interactif utilisant D3.js. 
+              Vous pouvez changer la couleur des barres, générer de nouvelles données aléatoires 
+              et modifier la vitesse d'animation.
+            </p>
+          </div>
+        </div>
+
         {/* KPI Cards - Enhanced with 6 cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
           {/* Programme de prévention */}
@@ -302,6 +327,7 @@ const Index = () => {
           </Card>
         </div>
 
+        {/* Le reste du code reste inchangé */}
         {/* Section 3: Analyse Prédictive */}
         <div className="space-y-6">
           <div className="flex items-center space-x-2">
