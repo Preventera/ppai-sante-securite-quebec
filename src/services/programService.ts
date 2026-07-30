@@ -1,6 +1,7 @@
 import { supabase } from '@/integrations/supabase/client'
 import { getBackendMode } from '@/lib/backend'
 import { readCollection, writeCollection, generateId } from '@/lib/localStore'
+import { requireOrganizationId } from '@/lib/organization'
 
 /**
  * Persistance des programmes de prévention générés.
@@ -118,9 +119,12 @@ export const programService = {
       return program
     }
 
+    const organizationId = await requireOrganizationId()
+
     const { data, error } = await supabase
       .from('prevention_programs')
       .insert({
+        organization_id: organizationId,
         title: input.title,
         description: input.description ?? null,
         document_type: input.documentType,

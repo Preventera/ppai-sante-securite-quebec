@@ -67,6 +67,10 @@ echo "VITE_DEMO_MODE=true" >> .env.local
 
 2. Renseigner `VITE_SUPABASE_URL` et `VITE_SUPABASE_ANON_KEY` dans `.env.local`.
 
+   Dès que le backend répond, l'application exige une **connexion** : la page
+   `/auth` permet de créer un compte en indiquant le nom de l'entreprise, ce qui
+   crée l'organisation propriétaire des données.
+
 3. Pour la génération par Claude, déployer la fonction et son secret :
 
    ```bash
@@ -78,13 +82,34 @@ echo "VITE_DEMO_MODE=true" >> .env.local
    provenance réelle est indiquée sur chaque programme (« Claude » ou
    « Moteur local »).
 
-### Sécurité — à traiter avant toute mise en production
+### Sécurité et cloisonnement multi-entreprises
 
-Le MVP n'a pas d'authentification. Les politiques RLS de la migration
-(`demo_full_access`) ouvrent la lecture **et l'écriture** au rôle `anon`,
-c'est-à-dire à quiconque possède la clé publique du projet. Elles doivent être
-remplacées par des politiques fondées sur `auth.uid()` et le rattachement de
-l'utilisateur à son organisation.
+La migration `20241001000003_multitenant_rls.sql` remplace les politiques
+permissives initiales par un cloisonnement strict :
+
+- Chaque compte est rattaché à une **organisation** via la table `profiles`.
+  À l'inscription, un déclencheur crée l'organisation et le profil de façon
+  atomique ; le premier compte en est administrateur.
+- Les politiques RLS de `risks`, `prevention_programs`, `establishments` et
+  `agent_executions` filtrent sur `auth_organization_id()`. Une entreprise ne
+  peut ni lire, ni modifier, ni supprimer les données d'une autre.
+- Le rôle `anon` **n'a plus aucun privilège** : sans session, toute requête est
+  refusée au niveau des privilèges de table, avant même le RLS.
+- `auth_organization_id()` est `SECURITY DEFINER` avec `search_path` figé, afin
+  d'éviter la récursion infinie d'une politique de `profiles` qui interrogerait
+  `profiles`.
+- L'unicité du code de risque est passée de globale à locale
+  (`UNIQUE (organization_id, code)`) : deux entreprises peuvent chacune posséder
+  un risque `RC4-001`.
+
+Ces politiques ont été vérifiées sur PostgreSQL 16 avec deux organisations
+distinctes : lecture croisée, modification, suppression, insertion avec
+`organization_id` forcé et déplacement d'une ligne vers une autre organisation
+sont tous refusés.
+
+> **Confirmation des courriels** — activez-la dans Supabase (*Authentication >
+> Providers > Email*) avant toute mise en production, sinon n'importe qui peut
+> créer un compte avec une adresse qu'il ne contrôle pas.
 
 ## Mettre la démo en ligne (Netlify)
 
