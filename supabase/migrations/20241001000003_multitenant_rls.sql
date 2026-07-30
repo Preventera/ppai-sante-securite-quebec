@@ -121,6 +121,57 @@ CREATE TRIGGER on_auth_user_created
     FOR EACH ROW EXECUTE FUNCTION handle_new_user();
 
 -- ------------------------------------------------------------
+-- Reprise des comptes existants
+--
+-- Le déclencheur ci-dessus ne s'applique qu'aux nouvelles inscriptions. Les
+-- comptes créés avant cette migration n'auraient aucun profil, donc aucune
+-- organisation, et se verraient refuser l'accès à toutes les données.
+--
+-- Chaque compte existant reçoit sa PROPRE organisation. C'est le choix
+-- prudent : regrouper automatiquement des comptes par domaine de courriel
+-- ferait cohabiter dans une même organisation des personnes sans lien entre
+-- elles (cas des adresses gmail.com, par exemple). Pour réunir des collègues
+-- a posteriori, il suffit d'aligner leur `organization_id` :
+--
+--   UPDATE profiles SET organization_id = '<organisation cible>'
+--   WHERE id IN ('<uuid>', '<uuid>');
+-- ------------------------------------------------------------
+
+DO $$
+DECLARE
+    u RECORD;
+    new_org_id UUID;
+BEGIN
+    FOR u IN
+        SELECT au.id, au.email, au.raw_user_meta_data
+        FROM auth.users au
+        LEFT JOIN profiles p ON p.id = au.id
+        WHERE p.id IS NULL
+    LOOP
+        INSERT INTO organizations (name, sector, size_category)
+        VALUES (
+            COALESCE(
+                NULLIF(TRIM(u.raw_user_meta_data ->> 'organization_name'), ''),
+                'Organisation de ' || COALESCE(u.email, u.id::text)
+            ),
+            'non précisé',
+            'PME'
+        )
+        RETURNING id INTO new_org_id;
+
+        INSERT INTO profiles (id, organization_id, full_name, role)
+        VALUES (
+            u.id,
+            new_org_id,
+            NULLIF(TRIM(u.raw_user_meta_data ->> 'full_name'), ''),
+            'admin'
+        );
+
+        RAISE NOTICE 'Profil créé pour le compte existant % (organisation %)', u.email, new_org_id;
+    END LOOP;
+END $$;
+
+-- ------------------------------------------------------------
 -- Purge des données de démonstration non rattachées
 --
 -- Le seed de la migration précédente n'appartient à aucune organisation :
