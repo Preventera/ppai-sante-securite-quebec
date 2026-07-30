@@ -232,7 +232,8 @@ export function CompanyInfoForm({ companyInfo, onCompanyInfoChange, selectedGrou
             <div className="space-y-2">
               <Label htmlFor="employeeCount">Nombre d'employés *</Label>
               <Select value={companyInfo.employeeCount} onValueChange={(value) => handleInputChange('employeeCount', value)}>
-                <SelectTrigger>
+                {/* L'id porte sur le déclencheur, sinon le Label ne référence aucun élément. */}
+                <SelectTrigger id="employeeCount">
                   <SelectValue placeholder="Sélectionner la tranche" />
                 </SelectTrigger>
                 <SelectContent>
