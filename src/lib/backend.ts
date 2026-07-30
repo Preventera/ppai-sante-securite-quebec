@@ -34,9 +34,18 @@ async function probe(): Promise<BackendMode> {
   }
 
   try {
-    // La table `risks` est le socle du registre : si elle répond, le schéma est en place.
+    // La sonde interrogeait la table `risks`. Depuis le cloisonnement RLS, le
+    // rôle anonyme n'a plus aucun privilège : la requête renvoyait 401 avant
+    // toute connexion, l'application retombait en mode démonstration et
+    // n'affichait donc jamais l'écran de connexion — un blocage circulaire.
+    //
+    // On interroge désormais le point de santé du service d'authentification,
+    // accessible sans privilège de table. Il répond à la seule question utile
+    // ici : le projet Supabase est-il joignable ?
     const result = await withTimeout(
-      supabase.from('risks').select('id', { count: 'exact', head: true }),
+      fetch(`${supabaseConfig.url}/auth/v1/health`, {
+        headers: { apikey: supabaseConfig.anonKey }
+      }),
       PROBE_TIMEOUT_MS
     )
 
@@ -45,9 +54,9 @@ async function probe(): Promise<BackendMode> {
       return 'demo'
     }
 
-    if (result.error) {
+    if (!result.ok) {
       console.info(
-        `[PPAI] Schéma Supabase indisponible (${result.error.message}) — mode démonstration activé.`
+        `[PPAI] Backend Supabase indisponible (HTTP ${result.status}) — mode démonstration activé.`
       )
       return 'demo'
     }

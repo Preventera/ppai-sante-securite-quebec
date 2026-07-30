@@ -76,7 +76,7 @@ const RiskRegistry = () => {
               <AlertTriangle className="w-8 h-8" />
               PPAI - Registre des risques
             </h1>
-            <p className="text-gray-600 mt-1 flex items-center gap-2 flex-wrap">
+            <div className="text-gray-600 mt-1 flex items-center gap-2 flex-wrap">
               Gestion dynamique et prédictive des risques SST
               <BackendModeBadge />
               {risks.length > 0 && (
@@ -84,7 +84,7 @@ const RiskRegistry = () => {
                   {risks.length} risque(s) au registre
                 </span>
               )}
-            </p>
+            </div>
           </div>
           <div className="flex gap-2 items-center">
             {backendMode === "demo" && risks.length > 0 && (
