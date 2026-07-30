@@ -8,9 +8,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Upload, FileText, Database, Settings, CheckCircle, AlertCircle } from "lucide-react";
+import { Upload, FileText, Database, Settings, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
+import { parseCsv, guessMapping, rowsToRiskInputs } from "@/utils/csvImport";
+import { RiskInput } from "@/services/riskService";
+import { useRiskMutations } from "@/hooks/useRisks";
+import { BackendModeBadge } from "@/components/BackendModeBadge";
 
 interface PipelineConfig {
   site: string;
@@ -25,7 +29,13 @@ interface UploadedFile {
   file: File;
   type: string;
   size: string;
+  /** Colonnes réellement lues dans l'en-tête du fichier. */
   columns?: string[];
+  rowCount?: number;
+  /** Risques prêts à être importés, issus de la cartographie des colonnes. */
+  importable?: RiskInput[];
+  skippedRows?: number;
+  parseError?: string;
 }
 
 const secteursActivite = [
@@ -52,7 +62,14 @@ export default function PipelineGenerator() {
   const [dragActive, setDragActive] = useState(false);
   const [apiConnected, setApiConnected] = useState(false);
   const [configCompleted, setConfigCompleted] = useState(false);
+  const [isParsing, setIsParsing] = useState(false);
   const { toast } = useToast();
+  const { importRisks } = useRiskMutations();
+
+  const detectedRiskCount = uploadedFiles.reduce(
+    (sum, file) => sum + (file.importable?.length ?? 0),
+    0
+  );
 
   const form = useForm<PipelineConfig>({
     defaultValues: {
@@ -91,36 +108,87 @@ export default function PipelineGenerator() {
     }
   };
 
-  const processFiles = (files: File[]) => {
-    const validTypes = ['.xlsx', '.xls', '.csv', '.json', '.xml'];
+  /**
+   * Lit réellement chaque fichier : l'en-tête est analysé, les colonnes sont
+   * rapprochées des champs du registre et les lignes converties en risques.
+   */
+  const processFiles = async (files: File[]) => {
+    const textTypes = ['.csv', '.tsv', '.txt'];
+    const knownTypes = [...textTypes, '.xlsx', '.xls', '.json', '.xml'];
     const newFiles: UploadedFile[] = [];
 
-    files.forEach(file => {
-      const extension = '.' + file.name.split('.').pop()?.toLowerCase();
-      if (validTypes.includes(extension)) {
-        newFiles.push({
-          file,
-          type: extension,
-          size: formatFileSize(file.size),
-          columns: mockDetectColumns(file.name)
-        });
-      } else {
+    setIsParsing(true);
+
+    for (const file of files) {
+      const extension = '.' + (file.name.split('.').pop()?.toLowerCase() ?? '');
+
+      if (!knownTypes.includes(extension)) {
         toast({
           title: "Format non supporté",
           description: `Le fichier ${file.name} n'est pas dans un format supporté.`,
           variant: "destructive"
         });
+        continue;
       }
-    });
 
+      const entry: UploadedFile = {
+        file,
+        type: extension,
+        size: formatFileSize(file.size)
+      };
+
+      if (textTypes.includes(extension)) {
+        try {
+          const text = await file.text();
+          const parsed = parseCsv(text);
+
+          if (parsed.headers.length === 0) {
+            entry.parseError = "Fichier vide ou en-tête illisible";
+          } else {
+            const mapping = guessMapping(parsed.headers);
+            const { risks, skipped } = rowsToRiskInputs(parsed.rows, mapping);
+
+            entry.columns = parsed.headers;
+            entry.rowCount = parsed.rows.length;
+            entry.importable = risks;
+            entry.skippedRows = skipped;
+
+            if (!mapping.name) {
+              entry.parseError =
+                "Aucune colonne de description reconnue (attendu : « description », « risque », « nom »…)";
+            }
+          }
+        } catch (error) {
+          entry.parseError = error instanceof Error ? error.message : "Lecture impossible";
+        }
+      } else {
+        entry.parseError = `Analyse automatique non disponible pour ${extension} — utilisez un export CSV`;
+      }
+
+      newFiles.push(entry);
+    }
+
+    setIsParsing(false);
     setUploadedFiles(prev => [...prev, ...newFiles]);
-    
+
+    const totalImportable = newFiles.reduce((sum, f) => sum + (f.importable?.length ?? 0), 0);
     if (newFiles.length > 0) {
       toast({
-        title: "Fichiers ajoutés",
-        description: `${newFiles.length} fichier(s) ajouté(s) avec succès.`
+        title: "Fichiers analysés",
+        description: totalImportable > 0
+          ? `${totalImportable} risque(s) détecté(s) et prêts à importer.`
+          : `${newFiles.length} fichier(s) ajouté(s).`
       });
     }
+  };
+
+  /** Importe dans le registre les risques détectés dans les fichiers. */
+  const importDetectedRisks = async () => {
+    const allRisks = uploadedFiles.flatMap(file => file.importable ?? []);
+    if (allRisks.length === 0) return;
+
+    await importRisks.mutateAsync(allRisks);
+    setUploadedFiles(prev => prev.map(file => ({ ...file, importable: [] })));
   };
 
   const formatFileSize = (bytes: number): string => {
@@ -129,18 +197,6 @@ export default function PipelineGenerator() {
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
-
-  const mockDetectColumns = (filename: string): string[] => {
-    // Simulation de détection automatique des colonnes
-    const baseColumns = ['Date', 'Type_Evenement', 'Description', 'Gravite', 'Probabilite'];
-    if (filename.includes('incident')) {
-      return [...baseColumns, 'Secteur', 'Employe', 'Mesures_Prises'];
-    }
-    if (filename.includes('inspection')) {
-      return [...baseColumns, 'Zone_Inspectee', 'Non_Conformites', 'Actions_Requises'];
-    }
-    return baseColumns;
   };
 
   const removeFile = (index: number) => {
@@ -275,9 +331,24 @@ export default function PipelineGenerator() {
                           ×
                         </Button>
                       </div>
+                      {file.parseError && (
+                        <div className="flex items-start gap-2 text-xs text-amber-900 bg-amber-50 border border-amber-200 rounded p-2 mb-2">
+                          <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                          <span>{file.parseError}</span>
+                        </div>
+                      )}
+                      {typeof file.rowCount === "number" && (
+                        <div className="text-xs text-gray-600 mb-2">
+                          {file.rowCount} ligne(s) lue(s) ·{" "}
+                          <span className="font-medium text-sst-blue">
+                            {file.importable?.length ?? 0} risque(s) exploitable(s)
+                          </span>
+                          {file.skippedRows ? ` · ${file.skippedRows} ligne(s) sans description écartée(s)` : ""}
+                        </div>
+                      )}
                       {file.columns && (
                         <div className="text-xs text-gray-600">
-                          <span className="font-medium">Colonnes détectées:</span>
+                          <span className="font-medium">Colonnes lues dans l'en-tête:</span>
                           <div className="flex flex-wrap gap-1 mt-1">
                             {file.columns.map((col, i) => (
                               <Badge key={i} variant="secondary" className="text-xs">
@@ -290,8 +361,31 @@ export default function PipelineGenerator() {
                     </div>
                   ))}
                 </div>
+
+                {detectedRiskCount > 0 && (
+                  <div className="mt-4 pt-4 border-t flex items-center justify-between gap-4 flex-wrap">
+                    <div className="text-sm text-gray-600">
+                      {detectedRiskCount} risque(s) prêt(s) à être ajouté(s) au registre.
+                    </div>
+                    <Button onClick={importDetectedRisks} disabled={importRisks.isPending}>
+                      {importRisks.isPending ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <Database className="w-4 h-4 mr-2" />
+                      )}
+                      Importer dans le registre
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
+          )}
+
+          {isParsing && (
+            <div className="flex items-center gap-2 text-sm text-gray-600 mt-3">
+              <Loader2 className="w-4 h-4 animate-spin" />
+              Analyse des fichiers en cours…
+            </div>
           )}
         </div>
 

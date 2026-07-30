@@ -176,7 +176,9 @@ export const InteractivePieChart: React.FC<InteractivePieChartProps> = ({
         .attr('points', (d: any) => {
           const pos = labelArc.centroid(d);
           pos[0] = radius * 0.95 * (pos[0] > 0 ? 1 : -1);
-          return [arc.centroid(d), labelArc.centroid(d), pos];
+          return [arc.centroid(d), labelArc.centroid(d), pos]
+            .map(([x, y]) => `${x},${y}`)
+            .join(' ');
         })
         .style('fill', 'none')
         .style('stroke', '#64748B')

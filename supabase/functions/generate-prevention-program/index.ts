@@ -18,6 +18,16 @@ interface ProgramGenerationParams {
   risquesIdentifies?: string[];
   cnessData?: any;
   customPrompt?: string;
+  /**
+   * Synthèse formatée du registre des risques, envoyée par le client.
+   * Ce champ était absent de l'interface : la synthèse était transmise puis
+   * silencieusement ignorée, si bien que le programme généré ne tenait aucun
+   * compte du registre.
+   */
+  registryRisks?: string;
+  /** Décomptes du registre, réémis dans les métadonnées pour l'affichage client. */
+  risksAnalyzed?: number;
+  criticalRisksCount?: number;
 }
 
 serve(async (req) => {
@@ -68,9 +78,15 @@ Génère UNIQUEMENT du contenu conforme aux exigences CNESST/LMRSST.`;
     // Construction du prompt utilisateur
     let userPrompt = '';
     
+    // Le registre des risques prime sur les données génériques : il décrit la
+    // situation réelle de l'établissement et doit piloter les priorités.
+    const registryContext = params.registryRisks?.trim()
+      ? `\n${params.registryRisks}\n`
+      : '';
+
     if (params.customPrompt) {
       // Si un prompt personnalisé est fourni (du générateur intelligent)
-      userPrompt = params.customPrompt;
+      userPrompt = `${params.customPrompt}${registryContext}`;
     } else {
       // Construction automatique pour le générateur de prototypes
       let cnessContext = '';
@@ -91,7 +107,7 @@ Génère UNIQUEMENT du contenu conforme aux exigences CNESST/LMRSST.`;
 - Nombre d'employés : ${params.nombreEmployes}
 - Activités principales : ${params.activitesPrincipales}
 - Acteur responsable : ${params.acteurResponsable}
-${params.risquesIdentifies ? `- Risques identifiés : ${params.risquesIdentifies.join(', ')}` : ''}${cnessContext}
+${params.risquesIdentifies ? `- Risques identifiés : ${params.risquesIdentifies.join(', ')}` : ''}${cnessContext}${registryContext}
 
 **SPÉCIFICITÉS SECTORIELLES :**
 Adapte le contenu aux risques typiques du secteur ${params.secteurScian} et respecte les obligations du groupe ${params.groupePrioritaire} CNESST.
@@ -122,7 +138,8 @@ Génère un document professionnel, détaillé et conforme CNESST.`;
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-3-5-sonnet-20241022',
+        // Surchargeable via le secret ANTHROPIC_MODEL sans redéploiement du code.
+        model: Deno.env.get('ANTHROPIC_MODEL') ?? 'claude-sonnet-5',
         max_tokens: 4000,
         temperature: 0.3,
         system: systemPrompt,
@@ -191,8 +208,11 @@ Génère un document professionnel, détaillé et conforme CNESST.`;
         conformite: isCompliant,
         referencesLegales: legalRefs,
         generatedAt: new Date().toISOString(),
-        model: 'claude-3-5-sonnet',
-        tokens: data.usage?.output_tokens || 0
+        model: data.model ?? 'claude',
+        source: 'claude',
+        tokens: data.usage?.output_tokens || 0,
+        risksAnalyzed: params.risksAnalyzed ?? 0,
+        criticalRisksCount: params.criticalRisksCount ?? 0
       }
     };
 

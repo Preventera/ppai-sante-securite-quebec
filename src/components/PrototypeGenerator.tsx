@@ -9,6 +9,7 @@ import { Wand2, Download, Copy, Zap, Settings, Info, Database } from "lucide-rea
 import { useToast } from "@/hooks/use-toast";
 import { CompanyInfoForm, CompanyInfo } from "@/components/CompanyInfoForm";
 import { AIGenerationService, AIProvider } from "@/services/aiGenerationService";
+import { programService } from "@/services/programService";
 import { AIConfigurationModal } from "@/components/AIConfigurationModal";
 
 const templates = {
@@ -113,10 +114,22 @@ export function PrototypeGenerator({ selectedGroup, cnessData, registryRisks }: 
       const enrichedContent = enrichContentWithCompanyInfo(response.content, companyInfo, template);
       
       setGeneratedContent(enrichedContent);
-      
+
+      // Persistance pour retrouver le programme dans l'onglet « Programmes enregistrés ».
+      await programService.save({
+        title: `${template.title} — ${companyInfo.companyName}`,
+        description: `Groupe ${selectedGroup} · ${companyInfo.scianDescription || template.description}`,
+        documentType: template.title,
+        sector: companyInfo.scianDescription || template.description,
+        responsibleActor: companyInfo.responsibleTitle || "Coordonnateur SST",
+        content: enrichedContent,
+        metadata: response.metadata
+      });
+
+      const generatedByClaude = response.metadata.source === 'claude';
       toast({
-        title: "Succès",
-        description: `${template.title} généré avec l'IA ! ${cnessData ? '(Enrichi CNESST)' : ''} ${registryRisks?.length ? `(${registryRisks.length} risques intégrés)` : ''}`,
+        title: generatedByClaude ? "Généré par Claude" : "Généré localement",
+        description: `${template.title}${cnessData ? ' (enrichi CNESST)' : ''} — ${registryRisks?.length ?? 0} risque(s) intégré(s)`,
       });
     } catch (error) {
       console.error('Erreur génération IA:', error);

@@ -1,11 +1,12 @@
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Users, Search, Filter, BookOpen } from "lucide-react";
+import { Users, Search, Filter, BookOpen, AlertTriangle } from "lucide-react";
+import { Risk } from "@/types/risk";
 
 interface Responsibility {
   id: number;
@@ -216,10 +217,33 @@ const getResponsibilityTypeColor = (type: string) => {
   }
 };
 
-export function RolesResponsibilities() {
+interface RolesResponsibilitiesProps {
+  /** Registre courant, pour rattacher les responsables réels à la matrice légale. */
+  risks?: Risk[];
+}
+
+export function RolesResponsibilities({ risks = [] }: RolesResponsibilitiesProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState("all");
   const [selectedParty, setSelectedParty] = useState("all");
+
+  /** Charge réelle par responsable, dérivée du registre des risques. */
+  const registryOwners = useMemo(() => {
+    const owners = new Map<string, { count: number; critical: number; maxIndex: number }>();
+
+    risks.forEach(risk => {
+      const name = risk.responsible.trim() || "Non désigné";
+      const entry = owners.get(name) ?? { count: 0, critical: 0, maxIndex: 0 };
+      entry.count += 1;
+      if (risk.initialRisk >= 15) entry.critical += 1;
+      entry.maxIndex = Math.max(entry.maxIndex, risk.initialRisk);
+      owners.set(name, entry);
+    });
+
+    return [...owners.entries()]
+      .map(([name, stats]) => ({ name, ...stats }))
+      .sort((a, b) => b.critical - a.critical || b.count - a.count);
+  }, [risks]);
 
   const filteredResponsibilities = responsibilities.filter(resp => {
     const matchesSearch = resp.activity.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -246,6 +270,49 @@ export function RolesResponsibilities() {
           </p>
         </CardHeader>
       </Card>
+
+      {/* Rattachement de la matrice légale aux responsables réellement désignés */}
+      {registryOwners.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Responsables désignés au registre</CardTitle>
+            <p className="text-sm text-gray-600">
+              Charge de risques par responsable, calculée sur le registre courant
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {registryOwners.map(owner => (
+                <div
+                  key={owner.name}
+                  className="border rounded-md p-3 flex items-start justify-between gap-2"
+                >
+                  <div className="min-w-0">
+                    <div className="font-medium text-sm truncate" title={owner.name}>
+                      {owner.name === "Non désigné" ? (
+                        <span className="text-red-600 flex items-center gap-1">
+                          <AlertTriangle className="w-4 h-4 shrink-0" />
+                          Non désigné
+                        </span>
+                      ) : (
+                        owner.name
+                      )}
+                    </div>
+                    <div className="text-xs text-gray-600 mt-1">
+                      {owner.count} risque(s) · indice max {owner.maxIndex}
+                    </div>
+                  </div>
+                  {owner.critical > 0 && (
+                    <Badge className="bg-red-100 text-red-800 border-red-200 shrink-0">
+                      {owner.critical} critique(s)
+                    </Badge>
+                  )}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Filtres */}
       <Card>

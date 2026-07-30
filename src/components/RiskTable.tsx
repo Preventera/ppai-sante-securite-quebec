@@ -1,29 +1,28 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Eye, Edit, Trash2, TrendingUp, TrendingDown, Minus } from "lucide-react";
-
-interface Risk {
-  id: string;
-  name: string;
-  phase: string;
-  category: string;
-  probability: number;
-  gravity: number;
-  initialRisk: number;
-  measures: string;
-  residualRisk: number;
-  status: string;
-  responsible: string;
-  sector: string;
-}
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from "@/components/ui/alert-dialog";
+import { Edit, Trash2, TrendingUp, TrendingDown, Minus, ArrowUpDown } from "lucide-react";
+import { Risk } from "@/types/risk";
+import { RiskInput } from "@/services/riskService";
+import { AddRiskModal } from "@/components/AddRiskModal";
 
 interface RiskTableProps {
   risks: Risk[];
   searchTerm: string;
+  onUpdate: (code: string, input: RiskInput) => Promise<unknown>;
+  onDelete: (code: string) => Promise<unknown>;
 }
 
 const getStatusColor = (status: string) => {
@@ -51,16 +50,24 @@ const getRiskLevelColor = (risk: number) => {
 };
 
 const getTrendIcon = (initial: number, residual: number) => {
+  if (initial <= 0) return <Minus className="w-4 h-4 text-gray-400" />;
   const improvement = ((initial - residual) / initial) * 100;
-  if (improvement > 10) return <TrendingDown className="w-4 h-4 text-green-600" />;
+  if (improvement > 10) {
+    return (
+      <TrendingDown
+        className="w-4 h-4 text-green-600"
+        aria-label={`Risque réduit de ${Math.round(improvement)} %`}
+      />
+    );
+  }
   if (improvement < -10) return <TrendingUp className="w-4 h-4 text-red-600" />;
   return <Minus className="w-4 h-4 text-gray-400" />;
 };
 
-export function RiskTable({ risks, searchTerm }: RiskTableProps) {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [sortField, setSortField] = useState<keyof Risk>("id");
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+export function RiskTable({ risks, searchTerm, onUpdate, onDelete }: RiskTableProps) {
+  const [sortField, setSortField] = useState<keyof Risk>("initialRisk");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+  const [pendingDeletion, setPendingDeletion] = useState<Risk | null>(null);
 
   const filteredRisks = risks.filter(risk =>
     risk.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -71,17 +78,17 @@ export function RiskTable({ risks, searchTerm }: RiskTableProps) {
   const sortedRisks = [...filteredRisks].sort((a, b) => {
     const aValue = a[sortField];
     const bValue = b[sortField];
-    
+
     if (typeof aValue === "string" && typeof bValue === "string") {
-      return sortDirection === "asc" 
-        ? aValue.localeCompare(bValue)
-        : bValue.localeCompare(aValue);
+      return sortDirection === "asc"
+        ? aValue.localeCompare(bValue, "fr")
+        : bValue.localeCompare(aValue, "fr");
     }
-    
+
     if (typeof aValue === "number" && typeof bValue === "number") {
       return sortDirection === "asc" ? aValue - bValue : bValue - aValue;
     }
-    
+
     return 0;
   });
 
@@ -90,7 +97,28 @@ export function RiskTable({ risks, searchTerm }: RiskTableProps) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
     } else {
       setSortField(field);
-      setSortDirection("asc");
+      setSortDirection(field === "initialRisk" || field === "residualRisk" ? "desc" : "asc");
+    }
+  };
+
+  const sortableHeader = (field: keyof Risk, label: string, className = "") => (
+    <TableHead
+      className={`cursor-pointer select-none hover:bg-gray-50 ${className}`}
+      onClick={() => handleSort(field)}
+    >
+      <span className="inline-flex items-center gap-1">
+        {label}
+        <ArrowUpDown className={`w-3 h-3 ${sortField === field ? "text-sst-blue" : "text-gray-300"}`} />
+      </span>
+    </TableHead>
+  );
+
+  const confirmDeletion = async () => {
+    if (!pendingDeletion) return;
+    try {
+      await onDelete(pendingDeletion.id);
+    } finally {
+      setPendingDeletion(null);
     }
   };
 
@@ -103,41 +131,33 @@ export function RiskTable({ risks, searchTerm }: RiskTableProps) {
         </p>
       </CardHeader>
       <CardContent>
-        <div className="rounded-md border">
+        <div className="rounded-md border overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead 
-                  className="cursor-pointer hover:bg-gray-50"
-                  onClick={() => handleSort("id")}
-                >
-                  ID
-                </TableHead>
-                <TableHead 
-                  className="cursor-pointer hover:bg-gray-50"
-                  onClick={() => handleSort("phase")}
-                >
-                  Phase
-                </TableHead>
-                <TableHead 
-                  className="cursor-pointer hover:bg-gray-50"
-                  onClick={() => handleSort("category")}
-                >
-                  Catégorie
-                </TableHead>
+                {sortableHeader("id", "ID")}
+                {sortableHeader("phase", "Phase")}
+                {sortableHeader("category", "Catégorie")}
                 <TableHead>Description</TableHead>
                 <TableHead className="text-center">P</TableHead>
                 <TableHead className="text-center">G</TableHead>
-                <TableHead className="text-center">Risque initial</TableHead>
+                {sortableHeader("initialRisk", "Risque initial", "text-center")}
                 <TableHead>Mesures</TableHead>
-                <TableHead className="text-center">Risque résiduel</TableHead>
-                <TableHead>Statut</TableHead>
+                {sortableHeader("residualRisk", "Risque résiduel", "text-center")}
+                {sortableHeader("status", "Statut")}
                 <TableHead>Responsable</TableHead>
                 <TableHead className="text-center">Tendance</TableHead>
                 <TableHead className="text-center">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
+              {sortedRisks.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={13} className="text-center text-gray-500 py-8">
+                    Aucun risque ne correspond à la recherche.
+                  </TableCell>
+                </TableRow>
+              )}
               {sortedRisks.map((risk) => (
                 <TableRow key={risk.id} className="hover:bg-gray-50">
                   <TableCell className="font-medium">{risk.id}</TableCell>
@@ -177,14 +197,22 @@ export function RiskTable({ risks, searchTerm }: RiskTableProps) {
                     {getTrendIcon(risk.initialRisk, risk.residualRisk)}
                   </TableCell>
                   <TableCell>
-                    <div className="flex gap-1">
-                      <Button size="sm" variant="ghost">
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                      <Button size="sm" variant="ghost">
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button size="sm" variant="ghost">
+                    <div className="flex gap-1 justify-center">
+                      <AddRiskModal
+                        risk={risk}
+                        onSave={(input) => onUpdate(risk.id, input)}
+                        trigger={
+                          <Button size="sm" variant="ghost" aria-label={`Modifier ${risk.id}`}>
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                        }
+                      />
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        aria-label={`Supprimer ${risk.id}`}
+                        onClick={() => setPendingDeletion(risk)}
+                      >
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
@@ -195,6 +223,29 @@ export function RiskTable({ risks, searchTerm }: RiskTableProps) {
           </Table>
         </div>
       </CardContent>
+
+      <AlertDialog open={pendingDeletion !== null} onOpenChange={(open) => !open && setPendingDeletion(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Supprimer ce risque du registre ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {pendingDeletion && (
+                <>
+                  <strong>{pendingDeletion.id}</strong> — {pendingDeletion.name}
+                  <br />
+                  Cette action retire le risque du registre et recalcule les indices. Elle est irréversible.
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeletion} className="bg-red-600 hover:bg-red-700">
+              Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }

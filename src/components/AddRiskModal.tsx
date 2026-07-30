@@ -1,27 +1,19 @@
-
-import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useEffect, useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus } from "lucide-react";
-
-interface NewRisk {
-  name: string;
-  phase: string;
-  category: string;
-  probability: number;
-  gravity: number;
-  measures: string;
-  responsible: string;
-  sector: string;
-}
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Plus, Loader2, AlertTriangle } from "lucide-react";
+import { Risk, RiskSector, RiskStatus } from "@/types/risk";
+import { RiskInput } from "@/services/riskService";
+import { validateRisk } from "@/utils/riskCalculations";
 
 const phases = [
   "Démolition",
-  "Terrassement", 
+  "Terrassement",
   "Fondations",
   "Structure",
   "Gros œuvre",
@@ -41,66 +33,154 @@ const categories = [
   "Autres risques professionnels"
 ];
 
-const sectors = [
-  "Construction",
-  "Électricité",
-  "Sécurité",
-  "Santé"
+const sectors: RiskSector[] = ["Construction", "Électricité", "Sécurité", "Santé"];
+
+const statuses: RiskStatus[] = [
+  "Contrôles actifs",
+  "En surveillance",
+  "Action requise",
+  "En contrôle",
+  "Complété"
 ];
 
-export function AddRiskModal() {
+type FormState = {
+  name: string;
+  phase: string;
+  category: string;
+  probability: number;
+  gravity: number;
+  measures: string;
+  responsible: string;
+  sector: RiskSector | "";
+  status: RiskStatus;
+};
+
+const emptyForm: FormState = {
+  name: "",
+  phase: "",
+  category: "",
+  probability: 1,
+  gravity: 1,
+  measures: "",
+  responsible: "",
+  sector: "",
+  status: "En surveillance"
+};
+
+const fromRisk = (risk: Risk): FormState => ({
+  name: risk.name,
+  phase: risk.phase,
+  category: risk.category,
+  probability: risk.probability,
+  gravity: risk.gravity,
+  measures: risk.measures,
+  responsible: risk.responsible,
+  sector: risk.sector,
+  status: risk.status
+});
+
+interface AddRiskModalProps {
+  /** Enregistre le risque. Doit rejeter en cas d'échec pour garder le modal ouvert. */
+  onSave: (input: RiskInput) => Promise<unknown>;
+  /** Fourni en mode édition ; absent en création. */
+  risk?: Risk;
+  /** Déclencheur personnalisé (bouton d'édition d'une ligne, par exemple). */
+  trigger?: React.ReactNode;
+}
+
+export function AddRiskModal({ onSave, risk, trigger }: AddRiskModalProps) {
+  const isEdit = Boolean(risk);
   const [open, setOpen] = useState(false);
-  const [newRisk, setNewRisk] = useState<NewRisk>({
-    name: "",
-    phase: "",
-    category: "",
-    probability: 1,
-    gravity: 1,
-    measures: "",
-    responsible: "",
-    sector: ""
-  });
+  const [form, setForm] = useState<FormState>(risk ? fromRisk(risk) : emptyForm);
+  const [errors, setErrors] = useState<string[]>([]);
+  const [saving, setSaving] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Réaligne le formulaire sur le risque courant à chaque ouverture.
+  useEffect(() => {
+    if (open) {
+      setForm(risk ? fromRisk(risk) : emptyForm);
+      setErrors([]);
+    }
+  }, [open, risk]);
+
+  const initialRisk = form.probability * form.gravity;
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Ici on pourrait ajouter la logique pour sauvegarder le nouveau risque
-    console.log("Nouveau risque:", {
-      ...newRisk,
-      id: `NEW-${Date.now()}`,
-      initialRisk: newRisk.probability * newRisk.gravity,
-      residualRisk: Math.max(1, Math.floor((newRisk.probability * newRisk.gravity) * 0.6)), // Simulation réduction 40%
-      status: "Nouveau"
-    });
 
-    // Reset du formulaire
-    setNewRisk({
-      name: "",
-      phase: "",
-      category: "",
-      probability: 1,
-      gravity: 1,
-      measures: "",
-      responsible: "",
-      sector: ""
-    });
-    
-    setOpen(false);
+    const candidate = {
+      name: form.name,
+      probability: form.probability,
+      gravity: form.gravity,
+      sector: form.sector || undefined,
+      responsible: form.responsible
+    };
+
+    const validationErrors = validateRisk(candidate as Partial<Risk>);
+    if (!form.phase) validationErrors.push("La phase du projet est requise");
+    if (!form.category) validationErrors.push("La catégorie de risque est requise");
+    if (!form.measures.trim()) validationErrors.push("Les mesures de prévention sont requises");
+
+    if (validationErrors.length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    setErrors([]);
+    setSaving(true);
+
+    try {
+      await onSave({
+        name: form.name,
+        phase: form.phase,
+        category: form.category,
+        probability: form.probability,
+        gravity: form.gravity,
+        measures: form.measures,
+        responsible: form.responsible,
+        sector: form.sector as RiskSector,
+        status: form.status
+      });
+      setOpen(false);
+    } catch {
+      // L'erreur est signalée par la couche mutation (toast) ; on garde le modal
+      // ouvert pour que la saisie ne soit pas perdue.
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
-          <Plus className="w-4 h-4 mr-2" />
-          Nouveau risque
-        </Button>
+        {trigger ?? (
+          <Button>
+            <Plus className="w-4 h-4 mr-2" />
+            Nouveau risque
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Ajouter un nouveau risque</DialogTitle>
+          <DialogTitle>{isEdit ? `Modifier le risque ${risk?.id}` : "Ajouter un nouveau risque"}</DialogTitle>
+          <DialogDescription>
+            L'indice de risque est calculé automatiquement (probabilité × gravité) sur la matrice 5×5.
+          </DialogDescription>
         </DialogHeader>
-        
+
+        {errors.length > 0 && (
+          <Alert variant="destructive">
+            <AlertTriangle className="w-4 h-4" />
+            <AlertDescription>
+              <ul className="list-disc pl-4">
+                {errors.map(error => (
+                  <li key={error}>{error}</li>
+                ))}
+              </ul>
+            </AlertDescription>
+          </Alert>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -108,18 +188,17 @@ export function AddRiskModal() {
               <Textarea
                 id="name"
                 placeholder="Ex: Chute d'objets depuis grue mobile..."
-                value={newRisk.name}
-                onChange={(e) => setNewRisk(prev => ({ ...prev, name: e.target.value }))}
-                required
+                value={form.name}
+                onChange={(e) => setForm(prev => ({ ...prev, name: e.target.value }))}
                 rows={3}
               />
             </div>
-            
+
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="phase">Phase du projet *</Label>
-                <Select value={newRisk.phase} onValueChange={(value) => setNewRisk(prev => ({ ...prev, phase: value }))}>
-                  <SelectTrigger>
+                <Select value={form.phase} onValueChange={(value) => setForm(prev => ({ ...prev, phase: value }))}>
+                  <SelectTrigger id="phase">
                     <SelectValue placeholder="Sélectionner une phase" />
                   </SelectTrigger>
                   <SelectContent>
@@ -132,8 +211,8 @@ export function AddRiskModal() {
 
               <div className="space-y-2">
                 <Label htmlFor="category">Catégorie de risque *</Label>
-                <Select value={newRisk.category} onValueChange={(value) => setNewRisk(prev => ({ ...prev, category: value }))}>
-                  <SelectTrigger>
+                <Select value={form.category} onValueChange={(value) => setForm(prev => ({ ...prev, category: value }))}>
+                  <SelectTrigger id="category">
                     <SelectValue placeholder="Sélectionner une catégorie" />
                   </SelectTrigger>
                   <SelectContent>
@@ -149,8 +228,11 @@ export function AddRiskModal() {
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="probability">Probabilité (1-5) *</Label>
-              <Select value={newRisk.probability.toString()} onValueChange={(value) => setNewRisk(prev => ({ ...prev, probability: parseInt(value) }))}>
-                <SelectTrigger>
+              <Select
+                value={form.probability.toString()}
+                onValueChange={(value) => setForm(prev => ({ ...prev, probability: parseInt(value, 10) }))}
+              >
+                <SelectTrigger id="probability">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -165,8 +247,11 @@ export function AddRiskModal() {
 
             <div className="space-y-2">
               <Label htmlFor="gravity">Gravité (1-5) *</Label>
-              <Select value={newRisk.gravity.toString()} onValueChange={(value) => setNewRisk(prev => ({ ...prev, gravity: parseInt(value) }))}>
-                <SelectTrigger>
+              <Select
+                value={form.gravity.toString()}
+                onValueChange={(value) => setForm(prev => ({ ...prev, gravity: parseInt(value, 10) }))}
+              >
+                <SelectTrigger id="gravity">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -181,8 +266,16 @@ export function AddRiskModal() {
 
             <div className="space-y-2">
               <Label>Indice de risque</Label>
-              <div className="p-2 bg-gray-100 rounded text-center font-bold text-lg">
-                {newRisk.probability * newRisk.gravity}
+              <div
+                className={`p-2 rounded text-center font-bold text-lg ${
+                  initialRisk >= 15
+                    ? "bg-red-100 text-red-800"
+                    : initialRisk >= 10
+                      ? "bg-orange-100 text-orange-800"
+                      : "bg-gray-100 text-gray-800"
+                }`}
+              >
+                {initialRisk}
               </div>
             </div>
           </div>
@@ -191,30 +284,31 @@ export function AddRiskModal() {
             <Label htmlFor="measures">Mesures de prévention *</Label>
             <Textarea
               id="measures"
-              placeholder="Ex: Balisage zone de sécurité + formation opérateur..."
-              value={newRisk.measures}
-              onChange={(e) => setNewRisk(prev => ({ ...prev, measures: e.target.value }))}
-              required
+              placeholder="Ex: Balisage zone de sécurité + formation opérateur (CSTC art. 3.9.1)..."
+              value={form.measures}
+              onChange={(e) => setForm(prev => ({ ...prev, measures: e.target.value }))}
               rows={2}
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="responsible">Responsable *</Label>
               <Input
                 id="responsible"
                 placeholder="Ex: Chef de chantier"
-                value={newRisk.responsible}
-                onChange={(e) => setNewRisk(prev => ({ ...prev, responsible: e.target.value }))}
-                required
+                value={form.responsible}
+                onChange={(e) => setForm(prev => ({ ...prev, responsible: e.target.value }))}
               />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="sector">Secteur *</Label>
-              <Select value={newRisk.sector} onValueChange={(value) => setNewRisk(prev => ({ ...prev, sector: value }))}>
-                <SelectTrigger>
+              <Select
+                value={form.sector}
+                onValueChange={(value) => setForm(prev => ({ ...prev, sector: value as RiskSector }))}
+              >
+                <SelectTrigger id="sector">
                   <SelectValue placeholder="Sélectionner un secteur" />
                 </SelectTrigger>
                 <SelectContent>
@@ -224,14 +318,32 @@ export function AddRiskModal() {
                 </SelectContent>
               </Select>
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="status">Statut *</Label>
+              <Select
+                value={form.status}
+                onValueChange={(value) => setForm(prev => ({ ...prev, status: value as RiskStatus }))}
+              >
+                <SelectTrigger id="status">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {statuses.map(status => (
+                    <SelectItem key={status} value={status}>{status}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <div className="flex justify-end space-x-4 pt-4 border-t">
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+            <Button type="button" variant="outline" onClick={() => setOpen(false)} disabled={saving}>
               Annuler
             </Button>
-            <Button type="submit">
-              Ajouter le risque
+            <Button type="submit" disabled={saving}>
+              {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              {isEdit ? "Enregistrer les modifications" : "Ajouter le risque"}
             </Button>
           </div>
         </form>

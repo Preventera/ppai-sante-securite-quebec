@@ -10,6 +10,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Brain, AlertTriangle, Target, Zap, TrendingUp, Clock, Info } from "lucide-react";
+import { seededInt, seededRange, seededUnit } from "@/lib/deterministic";
 import { useToast } from "@/hooks/use-toast";
 import { AIAlgorithmsInfo } from "@/components/AIAlgorithmsInfo";
 import { CNESSTMetadata } from "@/types/cnesst";
@@ -116,7 +117,12 @@ export function PredictiveEngine({ cnessData }: PredictiveEngineProps) {
     if (["Mécanique", "Chimique"].includes(inputData.typeRisque)) baseGravity += 0.7;
     if (inputData.tache === "Maintenance") baseGravity += 0.3;
 
-    const gravitePredite = Math.min(5, Math.max(1, Math.round(baseGravity + Math.random() * 0.3)));
+    // Graine dérivée des entrées : une même saisie produit toujours la même prédiction.
+    const predictionSeed = `${inputData.typeRisque}|${inputData.tache}|${inputData.equipement}|${inputData.departement}`;
+    const gravitePredite = Math.min(
+      5,
+      Math.max(1, Math.round(baseGravity + seededRange(predictionSeed, 0, 0.3)))
+    );
     
     // Calcul probabilité enrichi avec CNESST
     let probabiliteIncident = (gravitePredite/5) * 0.8 + inputData.scoreFatigue * 0.2;
@@ -151,9 +157,9 @@ export function PredictiveEngine({ cnessData }: PredictiveEngineProps) {
     return {
       gravitePredite,
       probabiliteIncident,
-      classeNeuralNet: Math.floor(Math.random() * 5) + 1,
-      clusterProfil: Math.floor(Math.random() * 5) + 1,
-      anomalieDetectee: Math.random() > 0.9,
+      classeNeuralNet: seededInt(`${predictionSeed}|nn`, 1, 5),
+      clusterProfil: seededInt(`${predictionSeed}|cluster`, 1, 5),
+      anomalieDetectee: seededUnit(`${predictionSeed}|anomalie`) > 0.9,
       priorite,
       couleur
     };

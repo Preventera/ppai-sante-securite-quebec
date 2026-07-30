@@ -1,4 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
+import { Risk } from "@/types/risk";
+import { getBackendMode } from "@/lib/backend";
+import { generateLocalPreventionProgram } from "@/services/localProgramGenerator";
 
 interface ProgramGenerationParams {
   companyName: string;
@@ -11,7 +14,8 @@ interface ProgramGenerationParams {
   risquesIdentifies?: string[];
   cnessData?: any;
   customPrompt?: string;
-  registryRisks?: any[]; // Nouveau paramètre pour les risques du registre
+  /** Risques du registre à intégrer réellement dans le programme généré. */
+  registryRisks?: Risk[];
 }
 
 interface AIGenerationResponse {
@@ -23,9 +27,11 @@ interface AIGenerationResponse {
     referencesLegales: string[];
     generatedAt?: string;
     model?: string;
+    /** `claude` si généré par l'Edge Function, `local` si généré par le repli. */
+    source?: 'claude' | 'local';
     tokens?: number;
-    risksAnalyzed?: number; // Nouveau champ
-    criticalRisksCount?: number; // Nouveau champ
+    risksAnalyzed?: number;
+    criticalRisksCount?: number;
   };
 }
 
@@ -36,9 +42,45 @@ interface AIConfig {
   apiKey: string;
 }
 
+/** Éléments dont la présence est vérifiée pour la conformité de base. */
+const COMPLIANCE_KEYWORDS = [
+  'identification',
+  'risques',
+  'prévention',
+  'mesures',
+  'responsable',
+  'échéancier',
+  'formation',
+  'surveillance'
+];
+
+const checkCompliance = (content: string): boolean => {
+  const lower = content.toLowerCase();
+  return COMPLIANCE_KEYWORDS.every(keyword => lower.includes(keyword));
+};
+
+const extractLegalReferences = (content: string): string[] => {
+  const references = new Set<string>();
+  const patterns = [
+    /LSST\s+(?:art\.|article)\s*([\d.]+)/gi,
+    /RSST\s+(?:art\.|article)\s*([\d.]+)/gi,
+    /CSTC\s+(?:art\.|article)\s*([\d.]+)/gi
+  ];
+  const labels = ['LSST', 'RSST', 'CSTC'];
+
+  patterns.forEach((pattern, index) => {
+    let match: RegExpExecArray | null;
+    while ((match = pattern.exec(content)) !== null) {
+      references.add(`${labels[index]} art. ${match[1]}`);
+    }
+  });
+
+  return [...references];
+};
+
 export class AIGenerationService {
   private config: AIConfig;
-  
+
   constructor() {
     const savedConfig = localStorage.getItem('ai_config');
     this.config = savedConfig ? JSON.parse(savedConfig) : {
@@ -47,84 +89,117 @@ export class AIGenerationService {
     };
   }
 
+  /**
+   * Génère un programme de prévention.
+   *
+   * Tente d'abord l'Edge Function (Claude). Si le backend n'est pas disponible
+   * ou si l'appel échoue — clé API absente, réseau coupé —, la génération se
+   * poursuit avec le moteur local déterministe. La démonstration reste donc
+   * toujours fonctionnelle, et `metadata.source` indique la provenance réelle.
+   */
   async generatePreventionProgram(params: ProgramGenerationParams): Promise<AIGenerationResponse> {
-    try {
-      console.log('Génération via Supabase Edge Function avec données registre...');
-      
-      // Enrichissement avec données du registre si disponibles
-      const enrichedParams = {
-        ...params,
-        registryRisks: this.formatRegistryRisks(params.registryRisks || [])
-      };
+    const risks = params.registryRisks ?? [];
+    const criticalRisksCount = risks.filter(risk => risk.initialRisk >= 15).length;
 
-      const { data, error } = await supabase.functions.invoke('generate-prevention-program', {
-        body: enrichedParams
-      });
+    const backendMode = await getBackendMode();
 
-      if (error) {
-        console.error('Erreur Edge Function:', error);
-        throw new Error(`Erreur Edge Function: ${error.message}`);
+    if (backendMode === 'live') {
+      try {
+        const { data, error } = await supabase.functions.invoke('generate-prevention-program', {
+          body: {
+            ...params,
+            registryRisks: this.formatRegistryRisks(risks),
+            risksAnalyzed: risks.length,
+            criticalRisksCount
+          }
+        });
+
+        if (error) throw new Error(error.message);
+        if (!data?.content) throw new Error("Aucun contenu généré par l'IA");
+
+        return {
+          ...data,
+          metadata: { ...data.metadata, source: 'claude' as const }
+        };
+      } catch (error) {
+        console.warn(
+          '[PPAI] Génération Claude indisponible, repli sur le moteur local:',
+          error instanceof Error ? error.message : error
+        );
       }
-
-      if (!data || !data.content) {
-        throw new Error('Aucun contenu généré par l\'IA');
-      }
-
-      console.log('Programme généré avec succès:', {
-        conformite: data.metadata?.conformite,
-        references: data.metadata?.referencesLegales?.length || 0,
-        tokens: data.metadata?.tokens || 0,
-        risksAnalyzed: data.metadata?.risksAnalyzed || 0
-      });
-
-      return data;
-
-    } catch (error) {
-      console.error('Erreur génération IA:', error);
-      
-      if (error instanceof Error) {
-        if (error.message.includes('ANTHROPIC_API_KEY')) {
-          throw new Error('❌ Clé API Claude non configurée dans Supabase.\n\n🔧 Pour résoudre:\n1. Allez dans votre tableau de bord Supabase\n2. Ajoutez votre ANTHROPIC_API_KEY dans les secrets\n3. Redémarrez la génération');
-        }
-        throw error;
-      }
-      
-      throw new Error('Erreur inconnue lors de la génération IA');
     }
+
+    return this.generateLocally(params, risks, criticalRisksCount);
   }
 
-  private formatRegistryRisks(risks: any[]): string {
-    if (!risks || risks.length === 0) return '';
-    
-    const criticalRisks = risks.filter(r => r.initialRisk >= 15);
-    const moderateRisks = risks.filter(r => r.initialRisk >= 10 && r.initialRisk < 15);
-    
-    let formattedRisks = '\n📊 ANALYSE DU REGISTRE DES RISQUES INTÉGRÉ:\n';
-    
+  /** Génération locale déterministe, sans réseau ni clé API. */
+  private generateLocally(
+    params: ProgramGenerationParams,
+    risks: Risk[],
+    criticalRisksCount: number
+  ): AIGenerationResponse {
+    const content = generateLocalPreventionProgram({
+      companyName: params.companyName,
+      secteurScian: params.secteurScian,
+      groupePrioritaire: params.groupePrioritaire,
+      nombreEmployes: params.nombreEmployes,
+      activitesPrincipales: params.activitesPrincipales,
+      typeDocument: params.typeDocument,
+      acteurResponsable: params.acteurResponsable,
+      risks
+    });
+
+    return {
+      content,
+      metadata: {
+        secteur: params.secteurScian,
+        groupe: params.groupePrioritaire,
+        conformite: checkCompliance(content),
+        referencesLegales: extractLegalReferences(content),
+        generatedAt: new Date().toISOString(),
+        model: 'PPAI local',
+        source: 'local',
+        tokens: 0,
+        risksAnalyzed: risks.length,
+        criticalRisksCount
+      }
+    };
+  }
+
+  /** Met en forme le registre pour le prompt, en priorisant par criticité. */
+  private formatRegistryRisks(risks: Risk[]): string {
+    if (risks.length === 0) return '';
+
+    const criticalRisks = risks.filter(risk => risk.initialRisk >= 15);
+    const moderateRisks = risks.filter(risk => risk.initialRisk >= 10 && risk.initialRisk < 15);
+
+    let formatted = '\n📊 REGISTRE DES RISQUES DE L\'ÉTABLISSEMENT :\n';
+
     if (criticalRisks.length > 0) {
-      formattedRisks += `\n🔴 RISQUES CRITIQUES (${criticalRisks.length}):\n`;
+      formatted += `\n🔴 RISQUES CRITIQUES (${criticalRisks.length}) :\n`;
       criticalRisks.forEach(risk => {
-        formattedRisks += `- ${risk.description} (P×G: ${risk.initialRisk})\n`;
-        formattedRisks += `  • Contrôles: ${risk.controlMeasures}\n`;
-        formattedRisks += `  • Efficacité: ${risk.controlEffectiveness}%\n`;
-        formattedRisks += `  • Statut: ${risk.status}\n`;
+        formatted += `- [${risk.id}] ${risk.name} — P×G : ${risk.probability}×${risk.gravity} = ${risk.initialRisk}\n`;
+        formatted += `  • Phase : ${risk.phase || 'non précisée'} · Catégorie : ${risk.category || 'non précisée'}\n`;
+        formatted += `  • Mesures actuelles : ${risk.measures || 'AUCUNE — à définir'}\n`;
+        formatted += `  • Indice résiduel visé : ${risk.residualRisk} · Statut : ${risk.status}\n`;
+        formatted += `  • Responsable : ${risk.responsible || 'NON DÉSIGNÉ'}\n`;
       });
     }
-    
+
     if (moderateRisks.length > 0) {
-      formattedRisks += `\n🟡 RISQUES MODÉRÉS (${moderateRisks.length}):\n`;
+      formatted += `\n🟡 RISQUES MODÉRÉS (${moderateRisks.length}) :\n`;
       moderateRisks.forEach(risk => {
-        formattedRisks += `- ${risk.description} (P×G: ${risk.initialRisk})\n`;
+        formatted += `- [${risk.id}] ${risk.name} (indice ${risk.initialRisk}) — ${risk.measures || 'aucune mesure'}\n`;
       });
     }
-    
-    formattedRisks += '\n🎯 DIRECTIVES D\'INTÉGRATION:\n';
-    formattedRisks += '- Prioriser les mesures pour les risques critiques identifiés\n';
-    formattedRisks += '- Inclure les contrôles existants et proposer des améliorations\n';
-    formattedRisks += '- Référencer les responsables actuels pour la continuité\n';
-    formattedRisks += '- Adapter l\'échéancier selon le statut des risques\n';
-    
-    return formattedRisks;
+
+    formatted += '\n🎯 DIRECTIVES D\'INTÉGRATION :\n';
+    formatted += "- Traiter les risques critiques en premier dans l'échéancier\n";
+    formatted += '- Reprendre les contrôles existants et proposer des améliorations concrètes\n';
+    formatted += '- Signaler explicitement tout risque sans responsable ou sans mesure\n';
+    formatted += '- Rattacher chaque mesure à un niveau de la hiérarchie de prévention (art. 51)\n';
+
+    return formatted;
   }
 
   setConfig(config: AIConfig): void {
@@ -141,6 +216,6 @@ export class AIGenerationService {
   }
 
   getProviderName(): string {
-    return 'Claude 3.5 Sonnet (Supabase)';
+    return 'Claude (Supabase Edge Function) avec repli local';
   }
 }
