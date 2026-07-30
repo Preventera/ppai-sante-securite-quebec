@@ -473,7 +473,6 @@ function ClassicProgramGenerator() {
         open={showAIConfig}
         onOpenChange={setShowAIConfig}
         onConfigSet={handleConfigSet}
-        currentConfig={{}} // Remplacer par la config actuelle si nécessaire
       />
     </div>
   );

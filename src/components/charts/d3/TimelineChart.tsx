@@ -353,7 +353,7 @@ export const TimelineChart: React.FC<TimelineChartProps> = ({
         .attr('stroke', '#9CA3AF')
         .attr('stroke-width', 2)
         .attr('stroke-dasharray', '5,5')
-        .attr('d', predictionLine)
+        .attr('d', d => predictionLine(d as any))
         .style('opacity', 0)
         .transition()
         .delay(3000)

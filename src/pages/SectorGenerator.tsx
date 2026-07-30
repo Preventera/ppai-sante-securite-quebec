@@ -7,6 +7,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Building, Search, Filter, Download, Copy, Wand2, LucideIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ExportActions } from "@/components/ExportActions";
+import { AIGenerationService } from "@/services/aiGenerationService";
+import { programService } from "@/services/programService";
+import { riskService } from "@/services/riskService";
 
 // Interface pour les secteurs
 interface SectorData {
@@ -172,53 +175,61 @@ export default function SectorGenerator() {
     }
 
     setIsGenerating(true);
-    
-    // Simulation de génération
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
+
     const sector = secteursDatabase[selectedSector];
     const prompt = sector.prompts[selectedPromptType];
-    
-    const mockContent = `# Programme de Prévention - ${sector.nom}
 
-## 1. Contexte Sectoriel
-**Secteur :** ${sector.nom}  
-**Code SCIAN :** ${sector.scian}  
-**Groupe CNESST :** ${sector.groupe}  
-**Description :** ${sector.description}
+    try {
+      const aiService = new AIGenerationService();
+      const registryRisks = await riskService.getAllRisks();
 
-## 2. Risques Principaux Identifiés
-${sector.risquesPrincipaux.map(risque => `- ${risque}`).join('\n')}
+      const customPrompt = `${prompt}
 
-## 3. Obligations Spécifiques
-${sector.obligations.map(obligation => `- ${obligation}`).join('\n')}
+**CONTEXTE SECTORIEL :**
+- Secteur : ${sector.nom}
+- Code SCIAN : ${sector.scian}
+- Groupe prioritaire CNESST : ${sector.groupe}
+- Description : ${sector.description}
+- Risques principaux du secteur : ${sector.risquesPrincipaux.join(', ')}
+- Obligations spécifiques : ${sector.obligations.join(', ')}`;
 
-## 4. Programme Détaillé
-${prompt}
+      const result = await aiService.generatePreventionProgram({
+        companyName: `Établissement du secteur ${sector.nom}`,
+        secteurScian: `${sector.scian} — ${sector.nom}`,
+        groupePrioritaire: sector.groupe,
+        nombreEmployes: 0,
+        activitesPrincipales: sector.description,
+        typeDocument: selectedPromptType,
+        acteurResponsable: 'Responsable SST',
+        customPrompt,
+        registryRisks
+      });
 
-## 5. Mesures de Prévention Sectorielles
-- Identification des dangers spécifiques au secteur ${sector.nom}
-- Évaluation des risques selon la matrice CNESST Groupe ${sector.groupe}
-- Mesures de contrôle hiérarchisées adaptées aux activités
-- Formation spécialisée pour les travailleurs du secteur
-- Équipements de protection adaptés aux risques identifiés
+      setGeneratedContent(result.content);
 
-## 6. Indicateurs de Performance
-- Taux d'accidents par secteur d'activité
-- Conformité aux obligations réglementaires
-- Participation aux formations sectorielles
-- Efficacité des mesures préventives
+      await programService.save({
+        title: `${selectedPromptType} — ${sector.nom}`,
+        description: `Secteur ${sector.scian} · groupe ${sector.groupe}`,
+        documentType: selectedPromptType,
+        sector: sector.nom,
+        responsibleActor: 'Responsable SST',
+        content: result.content,
+        metadata: result.metadata
+      });
 
-## 7. Révision et Amélioration Continue
-Révision recommandée selon les spécificités du secteur ${sector.nom} et les évolutions réglementaires du Groupe ${sector.groupe} CNESST.`;
-
-    setGeneratedContent(mockContent);
-    setIsGenerating(false);
-    
-    toast({
-      title: "Succès",
-      description: "Le programme sectoriel a été généré avec succès !",
-    });
+      toast({
+        title: result.metadata.source === 'claude' ? 'Généré par Claude' : 'Généré localement',
+        description: `Programme sectoriel produit avec ${result.metadata.risksAnalyzed ?? 0} risque(s) du registre.`
+      });
+    } catch (error) {
+      toast({
+        title: 'Erreur de génération',
+        description: error instanceof Error ? error.message : 'Génération impossible',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const resetForm = () => {

@@ -36,16 +36,21 @@ export const DistributionChart: React.FC<DistributionChartProps> = ({
   width = 600,
   height = 400,
   title = "Distribution des Risques",
-  orientation = 'vertical',
-  stacked = false,
+  orientation: orientationProp = 'vertical',
+  stacked: stackedProp = false,
   sortBy = 'value',
-  showComparison = false,
+  showComparison: showComparisonProp = false,
   className = ""
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [filterLevel, setFilterLevel] = useState<string>('all');
   const [hoveredBar, setHoveredBar] = useState<string | null>(null);
+  // Les options d'affichage sont pilotables depuis le graphique : les props
+  // servent de valeur initiale, l'état local porte les changements de l'utilisateur.
+  const [orientation, setOrientation] = useState(orientationProp);
+  const [stacked, setStacked] = useState(stackedProp);
+  const [showComparison, setShowComparison] = useState(showComparisonProp);
 
   const margin = { top: 20, right: 40, bottom: 60, left: 80 };
   const chartWidth = width - margin.left - margin.right;

@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { AIGenerationService } from "@/services/aiGenerationService";
+import { programService } from "@/services/programService";
 import { riskIntegrationService, RiskAnalysis, ProgramSuggestion } from "@/services/RiskIntegrationService";
 
 // Types
@@ -251,61 +252,58 @@ export function ProgramGeneratorWizard() {
     setIsGenerating(true);
     try {
       const aiService = new AIGenerationService();
-      
-      // Génération du programme avec intégration des risques
-      const basePrompt = `Générer un programme ${config.obligation} pour ${config.acteur} dans le secteur ${SECTEURS[config.secteur]?.nom}`;
-      
-      let enrichedPrompt = basePrompt;
-      if (config.riskIntegration.analysis && config.riskIntegration.suggestions) {
-        enrichedPrompt = riskIntegrationService.generateEnrichedPrompt(
-          basePrompt,
-          config.riskIntegration.analysis,
-          config.riskIntegration.suggestions
-        );
-      }
+      const secteurNom = SECTEURS[config.secteur]?.nom ?? config.secteur;
+      const acteurNom = ACTEURS[config.acteur]?.nom ?? config.acteur;
 
-      // Simulation de génération enrichie
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      
-      const mockContent = `PROGRAMME DE PRÉVENTION SST - VERSION ENRICHIE
-      
-Secteur: ${SECTEURS[config.secteur]?.nom}
-Entreprise: ${config.companyInfo.name}
-Employés: ${config.companyInfo.employees}
-Responsable: ${ACTEURS[config.acteur]?.nom}
+      // Le registre alimente réellement la génération lorsque l'intégration est active.
+      const registryRisks = config.riskIntegration.enabled
+        ? await riskIntegrationService.getRisks()
+        : [];
 
-${config.riskIntegration.analysis ? `
-📊 ANALYSE DES RISQUES INTÉGRÉE:
-- Risques totaux: ${config.riskIntegration.analysis.summary.totalRisks}
-- Risques critiques: ${config.riskIntegration.analysis.criticalRisks.length}
-- Index moyen: ${config.riskIntegration.analysis.summary.averageIndex.toFixed(1)}
+      const basePrompt = `Générer un programme ${config.obligation} pour ${acteurNom} dans le secteur ${secteurNom}`;
+      const customPrompt =
+        config.riskIntegration.analysis && config.riskIntegration.suggestions
+          ? riskIntegrationService.generateEnrichedPrompt(
+              basePrompt,
+              config.riskIntegration.analysis,
+              config.riskIntegration.suggestions
+            )
+          : basePrompt;
 
-🔴 RISQUES CRITIQUES PRIORITAIRES:
-${config.riskIntegration.analysis.criticalRisks.map(r => `- ${r.name} (${r.initialRisk}/25)`).join('\n')}
+      const result = await aiService.generatePreventionProgram({
+        companyName: config.companyInfo.name,
+        secteurScian: secteurNom,
+        groupePrioritaire: Number(config.secteur) || 1,
+        nombreEmployes: config.companyInfo.employees,
+        activitesPrincipales: config.companyInfo.activities,
+        typeDocument: config.obligation || 'Programme de prévention',
+        acteurResponsable: acteurNom,
+        customPrompt,
+        registryRisks
+      });
 
-🎯 MESURES PERSONNALISÉES:
-${config.riskIntegration.suggestions?.map(s => `- ${s.sectionTitle}`).join('\n')}
-` : ''}
+      setGeneratedContent(result.content);
 
-1. IDENTIFICATION DES RISQUES SPÉCIFIQUES
-2. MESURES DE PRÉVENTION PERSONNALISÉES  
-3. RESPONSABILITÉS DÉFINIES
-4. FORMATION CIBLÉE
-5. SUIVI ET ÉVALUATION CONTINUE
+      // Le programme est persisté pour être retrouvé dans la page « Programmes ».
+      await programService.save({
+        title: `${config.obligation || 'Programme de prévention'} — ${config.companyInfo.name}`,
+        description: `Secteur ${secteurNom} · responsable ${acteurNom}`,
+        documentType: config.obligation || 'Programme de prévention',
+        sector: secteurNom,
+        responsibleActor: acteurNom,
+        content: result.content,
+        metadata: result.metadata
+      });
 
-[Programme généré avec intelligence artificielle basé sur vos données réelles...]`;
-
-      setGeneratedContent(mockContent);
+      const generatedByClaude = result.metadata.source === 'claude';
       toast({
-        title: "✅ Programme enrichi généré",
-        description: config.riskIntegration.analysis 
-          ? `Programme personnalisé avec ${config.riskIntegration.analysis.summary.totalRisks} risques intégrés`
-          : "Programme standard généré avec succès",
+        title: generatedByClaude ? "✅ Programme généré par Claude" : "✅ Programme généré localement",
+        description: `${result.metadata.risksAnalyzed ?? 0} risque(s) intégré(s), dont ${result.metadata.criticalRisksCount ?? 0} critique(s)${generatedByClaude ? '' : ' — moteur local, aucune clé API requise'}`
       });
     } catch (error) {
       toast({
         title: "❌ Erreur de génération",
-        description: "Impossible de générer le programme",
+        description: error instanceof Error ? error.message : "Impossible de générer le programme",
         variant: "destructive"
       });
     } finally {

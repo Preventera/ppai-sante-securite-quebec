@@ -573,8 +573,10 @@ export class PPAIOrchestrator {
       id: risk.id || `risk_${index}`,
       title: risk.title || risk.name || 'Risque non défini',
       category: risk.category || 'general',
-      probability: Math.floor(Math.random() * 5) + 1,
-      severity: Math.floor(Math.random() * 5) + 1,
+      // Reprend les valeurs réelles du registre lorsqu'elles existent ; à défaut,
+      // une valeur stable plutôt qu'un tirage aléatoire à chaque exécution.
+      probability: risk.probability ?? 3,
+      severity: risk.severity ?? risk.gravity ?? 3,
       get risk_level() { return this.probability * this.severity },
       current_controls: risk.current_controls || ['Formation de base'],
       residual_risk: 'medium'
@@ -631,7 +633,7 @@ export class PPAIOrchestrator {
         .limit(limit)
 
       if (error) throw error
-      return data || []
+      return (data ?? []) as AgentExecution[]
     } catch (error) {
       console.warn('Mode fallback: historique simulé', error)
       // Retourner des données simulées en cas d'erreur
@@ -662,11 +664,17 @@ export class PPAIOrchestrator {
 
       if (error) throw error
 
+      const rows = data ?? []
       const metrics = {
-        total_executions: data?.length || 0,
-        success_rate: data ? (data.filter(e => e.execution_status === 'completed').length / data.length) * 100 : 0,
-        average_execution_time: data?.reduce((acc, e) => acc + (e.execution_time_ms || 0), 0) / (data?.length || 1),
-        agent_usage: this.calculateAgentUsage(data || [])
+        total_executions: rows.length,
+        // Éviter 0/0 → NaN lorsqu'aucune exécution n'est enregistrée
+        success_rate: rows.length
+          ? (rows.filter(e => e.execution_status === 'completed').length / rows.length) * 100
+          : 0,
+        average_execution_time: rows.length
+          ? rows.reduce((acc, e) => acc + (e.execution_time_ms || 0), 0) / rows.length
+          : 0,
+        agent_usage: this.calculateAgentUsage(rows)
       }
 
       return metrics

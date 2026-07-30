@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { seededRange } from "@/lib/deterministic";
 import { Thermometer, Filter, Download } from "lucide-react";
 
 interface ConfigurationData {
@@ -65,9 +66,11 @@ export function RiskHeatmap({ configuration }: RiskHeatmapProps) {
           return false;
         });
         
-        const baseValue = Math.random() * 5 + (isHighRiskActivity ? 3 : 1);
+        // Graine dérivée de la cellule : la carte reste identique d'un rendu à l'autre.
+        const cellSeed = `${configuration.secteur}|${configuration.groupePrioritaire}|${phase}|${category}`;
+        const baseValue = seededRange(cellSeed, 0, 5) + (isHighRiskActivity ? 3 : 1);
         const value = Math.min(10, baseValue * riskMultiplier);
-        const incidents = Math.floor(Math.random() * 15 + (value > 7 ? 5 : 0));
+        const incidents = Math.floor(seededRange(`${cellSeed}|inc`, 0, 15) + (value > 7 ? 5 : 0));
         
         data.push({
           secteur: phase,

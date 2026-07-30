@@ -1,22 +1,28 @@
 import { useState, useCallback, useRef, useMemo } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
-// Import conditionnel pour éviter les erreurs
+// Chargement paresseux de l'orchestrateur : un `await` au niveau module n'est pas
+// supporté par la cible de build et faisait échouer `npm run build`.
 let ppaiOrchestrator: any = null
-let AgentExecution: any = null
-let WorkflowStep: any = null
+let orchestratorLoaded = false
 
-try {
-  const orchestratorModule = await import('@/agentic/orchestrator/PPAIOrchestrator')
-  ppaiOrchestrator = orchestratorModule.ppaiOrchestrator
-  AgentExecution = orchestratorModule.AgentExecution
-  WorkflowStep = orchestratorModule.WorkflowStep
-} catch (error) {
-  console.warn('Orchestrateur PPAI non disponible, mode fallback activé:', error)
+async function loadOrchestrator(): Promise<any | null> {
+  if (orchestratorLoaded) return ppaiOrchestrator
+
+  try {
+    const orchestratorModule = await import('@/agentic/orchestrator/PPAIOrchestrator')
+    ppaiOrchestrator = orchestratorModule.ppaiOrchestrator ?? null
+  } catch (error) {
+    console.warn('Orchestrateur PPAI non disponible, mode fallback activé:', error)
+    ppaiOrchestrator = null
+  }
+
+  orchestratorLoaded = true
+  return ppaiOrchestrator
 }
 
-// Mode fallback si l'orchestrateur n'est pas disponible
-const FALLBACK_MODE = !ppaiOrchestrator
+// Vrai uniquement une fois le chargement tenté et l'orchestrateur indisponible
+const isFallbackMode = () => orchestratorLoaded && !ppaiOrchestrator
 
 // Types pour le hook
 export interface OrchestratorState {
@@ -119,14 +125,15 @@ export function useOrchestrator(): UseOrchestratorReturn {
   } = useQuery({
     queryKey: ['orchestrator', 'history'],
     queryFn: async () => {
-      if (FALLBACK_MODE) {
+      const orchestrator = await loadOrchestrator()
+      if (!orchestrator) {
         // Simulation d'une requête
         await new Promise(resolve => setTimeout(resolve, 300))
         return MOCK_EXECUTION_HISTORY
       }
-      return ppaiOrchestrator.getExecutionHistory(20)
+      return orchestrator.getExecutionHistory(20)
     },
-    refetchInterval: FALLBACK_MODE ? false : 30000,
+    refetchInterval: () => (isFallbackMode() ? false : 30000),
     staleTime: 10000,
     retry: false,
     enabled: true
@@ -139,14 +146,15 @@ export function useOrchestrator(): UseOrchestratorReturn {
   } = useQuery({
     queryKey: ['orchestrator', 'metrics'],
     queryFn: async () => {
-      if (FALLBACK_MODE) {
+      const orchestrator = await loadOrchestrator()
+      if (!orchestrator) {
         // Simulation d'une requête
         await new Promise(resolve => setTimeout(resolve, 500))
         return MOCK_PERFORMANCE_METRICS
       }
-      return ppaiOrchestrator.getPerformanceMetrics()
+      return orchestrator.getPerformanceMetrics()
     },
-    refetchInterval: FALLBACK_MODE ? false : 60000,
+    refetchInterval: () => (isFallbackMode() ? false : 60000),
     staleTime: 30000,
     retry: false,
     enabled: true
@@ -236,8 +244,9 @@ export function useOrchestrator(): UseOrchestratorReturn {
 
       try {
         let result: any
+        const orchestrator = await loadOrchestrator()
 
-        if (FALLBACK_MODE) {
+        if (!orchestrator) {
           // Mode simulation
           console.log('🔄 Mode simulation PPAI activé')
           result = await simulateOrchestration(workflowId, inputData, {
@@ -259,7 +268,7 @@ export function useOrchestrator(): UseOrchestratorReturn {
           })
         } else {
           // Mode orchestrateur réel
-          result = await ppaiOrchestrator.executeWorkflow(workflowId, inputData, {
+          result = await orchestrator.executeWorkflow(workflowId, inputData, {
             onStepStart: (step: any) => {
               setState(prev => ({
                 ...prev,
@@ -312,7 +321,7 @@ export function useOrchestrator(): UseOrchestratorReturn {
     },
     onSuccess: () => {
       // Actualiser l'historique après une exécution réussie
-      if (!FALLBACK_MODE) {
+      if (!isFallbackMode()) {
         refetchHistory()
       }
     }
@@ -349,10 +358,11 @@ export function useOrchestrator(): UseOrchestratorReturn {
   // Méthodes utilitaires
   const getWorkflowStatus = useCallback(async (executionId: string) => {
     try {
-      if (FALLBACK_MODE) {
+      const orchestrator = await loadOrchestrator()
+      if (!orchestrator) {
         return MOCK_EXECUTION_HISTORY.find(exec => exec.id === executionId) || null
       }
-      const history = await ppaiOrchestrator.getExecutionHistory(100)
+      const history = await orchestrator.getExecutionHistory(100)
       return history.find((exec: any) => exec.id === executionId) || null
     } catch (error) {
       console.error('Erreur lors de la récupération du statut:', error)

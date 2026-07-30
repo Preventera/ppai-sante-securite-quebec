@@ -130,7 +130,7 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
       .attr('x', d => d.x)
       .attr('y', d => d.y)
       .attr('width', d => d.width)
-      .attr('height', -d => d.height)
+      .attr('height', d => d.height)
       .attr('fill', d => d.color)
       .attr('opacity', d => d.opacity)
       .attr('stroke', '#E5E7EB')
@@ -168,11 +168,11 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
     // Axes
     const xAxis = d3.axisBottom(xScale)
       .tickValues([1, 2, 3, 4, 5])
-      .tickFormat('');
+      .tickFormat(() => '');
 
     const yAxis = d3.axisLeft(yScale)
       .tickValues([1, 2, 3, 4, 5])
-      .tickFormat('');
+      .tickFormat(() => '');
 
     g.append('g')
       .attr('class', 'x-axis')
@@ -200,7 +200,7 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
       .enter()
       .append('tspan')
       .attr('x', (_, i, nodes) => {
-        const parent = d3.select(nodes[i].parentNode);
+        const parent = d3.select(nodes[i].parentNode as SVGTextElement);
         return parent.attr('x');
       })
       .attr('dy', (_, i) => i === 0 ? 0 : '1em')
@@ -223,7 +223,7 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
       .enter()
       .append('tspan')
       .attr('x', (_, i, nodes) => {
-        const parent = d3.select(nodes[i].parentNode);
+        const parent = d3.select(nodes[i].parentNode as SVGTextElement);
         return parent.attr('x');
       })
       .attr('dy', (_, i) => i === 0 ? '-0.5em' : '1em')

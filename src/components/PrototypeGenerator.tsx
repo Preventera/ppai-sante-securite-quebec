@@ -9,6 +9,7 @@ import { Wand2, Download, Copy, Zap, Settings, Info, Database } from "lucide-rea
 import { useToast } from "@/hooks/use-toast";
 import { CompanyInfoForm, CompanyInfo } from "@/components/CompanyInfoForm";
 import { AIGenerationService, AIProvider } from "@/services/aiGenerationService";
+import { programService } from "@/services/programService";
 import { AIConfigurationModal } from "@/components/AIConfigurationModal";
 
 const templates = {
@@ -113,10 +114,22 @@ export function PrototypeGenerator({ selectedGroup, cnessData, registryRisks }: 
       const enrichedContent = enrichContentWithCompanyInfo(response.content, companyInfo, template);
       
       setGeneratedContent(enrichedContent);
-      
+
+      // Persistance pour retrouver le programme dans l'onglet « Programmes enregistrés ».
+      await programService.save({
+        title: `${template.title} — ${companyInfo.companyName}`,
+        description: `Groupe ${selectedGroup} · ${companyInfo.scianDescription || template.description}`,
+        documentType: template.title,
+        sector: companyInfo.scianDescription || template.description,
+        responsibleActor: companyInfo.responsibleTitle || "Coordonnateur SST",
+        content: enrichedContent,
+        metadata: response.metadata
+      });
+
+      const generatedByClaude = response.metadata.source === 'claude';
       toast({
-        title: "Succès",
-        description: `${template.title} généré avec l'IA ! ${cnessData ? '(Enrichi CNESST)' : ''} ${registryRisks?.length ? `(${registryRisks.length} risques intégrés)` : ''}`,
+        title: generatedByClaude ? "Généré par Claude" : "Généré localement",
+        description: `${template.title}${cnessData ? ' (enrichi CNESST)' : ''} — ${registryRisks?.length ?? 0} risque(s) intégré(s)`,
       });
     } catch (error) {
       console.error('Erreur génération IA:', error);
@@ -134,43 +147,100 @@ export function PrototypeGenerator({ selectedGroup, cnessData, registryRisks }: 
   };
 
   // Fonction pour enrichir le contenu avec les informations de l'entreprise
+  //
+  // Les champs facultatifs non renseignés sont omis plutôt qu'affichés vides :
+  // un document destiné à la CNESST ne doit pas exhiber « Téléphone : » suivi
+  // de rien, ni une adresse réduite à une suite de virgules.
   const enrichContentWithCompanyInfo = (content: string, info: CompanyInfo, template: any): string => {
-    const header = `# ${template.title}
+    const filled = (value?: string) => value?.trim() ?? '';
 
-## INFORMATIONS DE L'ÉTABLISSEMENT
+    /** Ligne « **Libellé :** valeur », ou rien si la valeur est absente. */
+    const field = (label: string, value?: string) =>
+      filled(value) ? [`**${label} :** ${filled(value)}`] : [];
 
-**Nom de l'entreprise :** ${info.companyName}
-**Adresse :** ${info.address}, ${info.city}, ${info.province} ${info.postalCode}
-**Code SCIAN :** ${info.scianCode} - ${info.scianDescription}
-**Nombre d'employés :** ${info.employeeCount}
-**Type d'établissement :** ${info.establishmentType}
+    /** Puce « - Libellé : valeur », ou rien si la valeur est absente. */
+    const bullet = (label: string, value?: string) =>
+      filled(value) ? [`- ${label} : ${filled(value)}`] : [];
 
-**Responsable du programme SST :**
-- Nom : ${info.responsibleName}
-- Titre : ${info.responsibleTitle}
-- Téléphone : ${info.responsiblePhone}
-- Courriel : ${info.responsibleEmail}
+    /** Bloc titré, omis entièrement si aucune de ses lignes n'est renseignée. */
+    const block = (title: string, lines: string[]) =>
+      lines.length > 0 ? [`**${title} :**`, ...lines, ''] : [];
 
-**Dates importantes :**
-- Date de mise en œuvre : ${info.implementationDate}
-- Prochaine révision : ${info.revisionDate}
+    const address = [info.address, info.city, info.province, info.postalCode]
+      .map(filled)
+      .filter(Boolean)
+      .join(', ');
 
----
+    const scian = [info.scianCode, info.scianDescription]
+      .map(filled)
+      .filter(Boolean)
+      .join(' — ');
 
-${content}
+    // Le moteur de génération produit déjà un titre et un tableau de contexte.
+    // On ne réémet ni l'un ni l'autre pour éviter deux sections d'établissement
+    // successives ; seules les informations qu'il ne connaît pas sont ajoutées.
+    const body = content.trimStart();
+    const hasOwnTitle = body.startsWith('# ');
+    const hasOwnContext = body.includes("## Contexte de l'établissement");
 
----
+    const identity = hasOwnContext
+      ? [
+          ...field('Adresse', address),
+          ...field("Type d'établissement", info.establishmentType)
+        ]
+      : [
+          ...field("Nom de l'entreprise", info.companyName),
+          ...field('Adresse', address),
+          ...field('Code SCIAN', scian),
+          ...field("Nombre d'employés", info.employeeCount),
+          ...field("Type d'établissement", info.establishmentType)
+        ];
 
-## INFORMATIONS ADDITIONNELLES
+    const responsible = [
+      ...bullet('Nom', info.responsibleName),
+      ...bullet('Titre', info.responsibleTitle),
+      ...bullet('Téléphone', info.responsiblePhone),
+      ...bullet('Courriel', info.responsibleEmail)
+    ];
 
-${info.additionalInfo}
+    const dates = [
+      ...bullet('Date de mise en œuvre', info.implementationDate),
+      ...bullet('Prochaine révision', info.revisionDate)
+    ];
 
----
+    const complements = [
+      ...identity,
+      ...(identity.length > 0 ? [''] : []),
+      ...block('Responsable du programme SST', responsible),
+      ...block('Dates importantes', dates)
+    ];
 
-*Document généré automatiquement par PPAI (Prevention Program AI) - ${new Date().toLocaleDateString('fr-CA')}*
-*Conforme aux exigences CNESST/LMRSST - Groupe ${selectedGroup}*`;
+    // Section omise entièrement quand aucun complément n'est renseigné.
+    const complementSection = complements.length > 0
+      ? [
+          hasOwnContext ? '## COORDONNÉES ET ÉCHÉANCES' : "## INFORMATIONS DE L'ÉTABLISSEMENT",
+          '',
+          ...complements,
+          '---',
+          ''
+        ]
+      : [];
 
-    return header;
+    const sections = [
+      // Quand le contenu porte déjà son titre, les compléments viennent après lui :
+      // les placer avant ferait commencer le document par une sous-section.
+      ...(hasOwnTitle
+        ? [content, '', '---', '', ...complementSection]
+        : [`# ${template.title}`, '', ...complementSection, content, '', '---', '']),
+      '',
+      ...(filled(info.additionalInfo)
+        ? ['## INFORMATIONS ADDITIONNELLES', '', filled(info.additionalInfo), '', '---', '']
+        : []),
+      `*Document généré automatiquement par PPAI (Prevention Program AI) — ${new Date().toLocaleDateString('fr-CA')}*`,
+      `*Conforme aux exigences CNESST/LMRSST — Groupe ${selectedGroup}*`
+    ];
+
+    return sections.join('\n');
   };
 
   // Fonction de fallback pour la simulation

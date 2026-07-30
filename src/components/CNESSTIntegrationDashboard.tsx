@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { seededRange } from "@/lib/deterministic";
 import { 
   BarChart, 
   Bar, 
@@ -49,11 +50,14 @@ export function CNESSTIntegrationDashboard({ etablissementData, cnessMetadata }:
 
     if (!sectorData) return null;
 
-    // Simulation de données établissement vs secteur
+    // Estimation de l'établissement par rapport à sa référence sectorielle.
+    // La variation est dérivée du nom de l'établissement : elle reste donc
+    // identique d'un rendu à l'autre au lieu de fluctuer à chaque affichage.
+    const seed = `${etablissementData.secteur}|${etablissementData.tailleEtablissement}|${etablissementData.groupePrioritaire}`;
     const etablissementMetrics = {
-      tauxFrequence: sectorData.taux_frequence * (0.8 + Math.random() * 0.4), // Variation ±20%
-      graviteMoyenne: sectorData.gravite_moyenne * (0.9 + Math.random() * 0.2), // Variation ±10%
-      coutMoyen: sectorData.cout_moyen_reclamation * (0.7 + Math.random() * 0.6) // Variation ±30%
+      tauxFrequence: sectorData.taux_frequence * seededRange(`${seed}|freq`, 0.8, 1.2), // ±20 %
+      graviteMoyenne: sectorData.gravite_moyenne * seededRange(`${seed}|gravite`, 0.9, 1.1), // ±10 %
+      coutMoyen: sectorData.cout_moyen_reclamation * seededRange(`${seed}|cout`, 0.7, 1.3) // ±30 %
     };
 
     return {
@@ -120,7 +124,8 @@ export function CNESSTIntegrationDashboard({ etablissementData, cnessMetadata }:
     },
     {
       metric: 'Formation',
-      etablissement: Math.random() * 60 + 20, // Simulation
+      // Estimation stable tant que l'établissement ne change pas.
+      etablissement: seededRange(`${etablissementData.secteur}|formation`, 20, 80),
       secteur: 50
     }
   ];

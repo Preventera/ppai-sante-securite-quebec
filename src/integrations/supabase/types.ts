@@ -6,10 +6,303 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
+/**
+ * Types de la base PPAI, alignés sur `supabase/migrations`.
+ * À régénérer via `supabase gen types typescript` après toute migration.
+ */
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      organizations: {
+        Row: {
+          id: string
+          name: string
+          sector: string
+          scian_code: string | null
+          size_category: string
+          priority_group: boolean
+          employee_count: number | null
+          cnesst_number: string | null
+          address: Json | null
+          contact_info: Json | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          sector: string
+          scian_code?: string | null
+          size_category?: string
+          priority_group?: boolean
+          employee_count?: number | null
+          cnesst_number?: string | null
+          address?: Json | null
+          contact_info?: Json | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          name?: string
+          sector?: string
+          scian_code?: string | null
+          size_category?: string
+          priority_group?: boolean
+          employee_count?: number | null
+          cnesst_number?: string | null
+          address?: Json | null
+          contact_info?: Json | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      establishments: {
+        Row: {
+          id: string
+          organization_id: string | null
+          name: string
+          site_type: string | null
+          address: Json | null
+          employee_count: number | null
+          main_activities: string[] | null
+          risk_level: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          organization_id?: string | null
+          name: string
+          site_type?: string | null
+          address?: Json | null
+          employee_count?: number | null
+          main_activities?: string[] | null
+          risk_level?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          organization_id?: string | null
+          name?: string
+          site_type?: string | null
+          address?: Json | null
+          employee_count?: number | null
+          main_activities?: string[] | null
+          risk_level?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      risks: {
+        Row: {
+          id: string
+          establishment_id: string | null
+          code: string
+          name: string
+          phase: string | null
+          category: string | null
+          probability: number
+          gravity: number
+          initial_risk: number
+          measures: string | null
+          residual_risk: number | null
+          status: string
+          responsible: string | null
+          sector: string
+          source: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          establishment_id?: string | null
+          code: string
+          name: string
+          phase?: string | null
+          category?: string | null
+          probability: number
+          gravity: number
+          measures?: string | null
+          residual_risk?: number | null
+          status?: string
+          responsible?: string | null
+          sector: string
+          source?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          establishment_id?: string | null
+          code?: string
+          name?: string
+          phase?: string | null
+          category?: string | null
+          probability?: number
+          gravity?: number
+          measures?: string | null
+          residual_risk?: number | null
+          status?: string
+          responsible?: string | null
+          sector?: string
+          source?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      prevention_programs: {
+        Row: {
+          id: string
+          organization_id: string | null
+          title: string
+          description: string | null
+          document_type: string
+          sector: string
+          responsible_actor: string
+          content: string
+          metadata: Json | null
+          status: string
+          version: number
+          approved_by: string | null
+          approved_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          organization_id?: string | null
+          title: string
+          description?: string | null
+          document_type: string
+          sector: string
+          responsible_actor: string
+          content: string
+          metadata?: Json | null
+          status?: string
+          version?: number
+          approved_by?: string | null
+          approved_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          organization_id?: string | null
+          title?: string
+          description?: string | null
+          document_type?: string
+          sector?: string
+          responsible_actor?: string
+          content?: string
+          metadata?: Json | null
+          status?: string
+          version?: number
+          approved_by?: string | null
+          approved_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      agent_executions: {
+        Row: {
+          id: string
+          agent_name: string
+          workflow_id: string | null
+          input_data: Json
+          output_data: Json | null
+          execution_status: string
+          execution_time_ms: number | null
+          error_message: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          agent_name: string
+          workflow_id?: string | null
+          input_data: Json
+          output_data?: Json | null
+          execution_status?: string
+          execution_time_ms?: number | null
+          error_message?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          agent_name?: string
+          workflow_id?: string | null
+          input_data?: Json
+          output_data?: Json | null
+          execution_status?: string
+          execution_time_ms?: number | null
+          error_message?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ai_agents: {
+        Row: {
+          id: string
+          name: string
+          type: string
+          role: string
+          capabilities: string[] | null
+          specialized_knowledge: string[] | null
+          ai_model: Json | null
+          is_active: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          type: string
+          role: string
+          capabilities?: string[] | null
+          specialized_knowledge?: string[] | null
+          ai_model?: Json | null
+          is_active?: boolean
+          created_at?: string
+        }
+        Update: {
+          name?: string
+          type?: string
+          role?: string
+          capabilities?: string[] | null
+          specialized_knowledge?: string[] | null
+          ai_model?: Json | null
+          is_active?: boolean
+        }
+        Relationships: []
+      }
+      workflows: {
+        Row: {
+          id: string
+          workflow_key: string
+          name: string
+          trigger: string | null
+          steps: Json
+          success_criteria: string[] | null
+          is_active: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          workflow_key: string
+          name: string
+          trigger?: string | null
+          steps: Json
+          success_criteria?: string[] | null
+          is_active?: boolean
+          created_at?: string
+        }
+        Update: {
+          workflow_key?: string
+          name?: string
+          trigger?: string | null
+          steps?: Json
+          success_criteria?: string[] | null
+          is_active?: boolean
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
