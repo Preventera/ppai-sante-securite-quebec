@@ -1,5 +1,5 @@
 import { supabase } from '@/integrations/supabase/client'
-import { forceDemoMode } from '@/lib/env'
+import { forceDemoMode, supabaseConfig } from '@/lib/env'
 
 /**
  * Détermine à l'exécution si le backend Supabase est réellement exploitable,
@@ -25,6 +25,13 @@ const withTimeout = <T,>(promise: PromiseLike<T>, ms: number): Promise<T | 'time
 
 async function probe(): Promise<BackendMode> {
   if (forceDemoMode) return 'demo'
+
+  // Sans configuration explicite, inutile d'interroger le réseau : le client
+  // ne pointe vers aucun projet réel.
+  if (!supabaseConfig.isExplicitlyConfigured) {
+    console.info('[PPAI] Supabase non configuré — mode démonstration activé.')
+    return 'demo'
+  }
 
   try {
     // La table `risks` est le socle du registre : si elle répond, le schéma est en place.

@@ -13,21 +13,29 @@ const readEnv = (key: string): string | undefined => {
 }
 
 /**
- * Projet Supabase de repli, historiquement codé en dur dans le client.
- * Conservé pour ne pas casser les déploiements existants, mais toujours
- * surchargeable via VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY.
+ * Le client embarquait en dur les identifiants d'un projet Supabase, utilisés
+ * comme repli. Cette valeur par défaut est trompeuse : elle dirigeait
+ * l'application vers un projet qui n'est plus le sien, et figeait des
+ * identifiants dans le dépôt.
+ *
+ * La configuration provient désormais exclusivement de l'environnement. En son
+ * absence, l'application fonctionne en mode démonstration — comportement
+ * explicite et prévisible, plutôt qu'un projet arbitraire.
+ *
+ * Les valeurs ci-dessous ne servent qu'à construire un client syntaxiquement
+ * valide ; aucune requête ne leur est adressée puisque le mode démonstration
+ * court-circuite tout accès réseau.
  */
-const FALLBACK_SUPABASE_URL = 'https://krtgeqejpsdyzuesopez.supabase.co'
-const FALLBACK_SUPABASE_ANON_KEY =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtydGdlcWVqcHNkeXp1ZXNvcGV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgzNDIwOTksImV4cCI6MjA2MzkxODA5OX0.IMp_uuvTw_UtcDtCip3qsObsnt0z2sz8fJEQJ8sMuew'
+const PLACEHOLDER_URL = 'https://placeholder.supabase.co'
+const PLACEHOLDER_ANON_KEY = 'placeholder-anon-key'
 
 const envUrl = readEnv('VITE_SUPABASE_URL')
 const envAnonKey = readEnv('VITE_SUPABASE_ANON_KEY')
 
 export const supabaseConfig = {
-  url: envUrl ?? FALLBACK_SUPABASE_URL,
-  anonKey: envAnonKey ?? FALLBACK_SUPABASE_ANON_KEY,
-  /** Vrai si les deux variables d'environnement ont été fournies explicitement */
+  url: envUrl ?? PLACEHOLDER_URL,
+  anonKey: envAnonKey ?? PLACEHOLDER_ANON_KEY,
+  /** Vrai uniquement si les deux variables ont été fournies explicitement. */
   isExplicitlyConfigured: Boolean(envUrl && envAnonKey)
 } as const
 

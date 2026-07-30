@@ -15,7 +15,7 @@ backend Supabase exploitable est joignable :
 
 | Mode | Déclenchement | Données | Génération de programme |
 |---|---|---|---|
-| **Démonstration** | Backend absent, injoignable ou schéma manquant | Registre de 15 risques pré-chargé, persisté dans le navigateur | Moteur local déterministe |
+| **Démonstration** | Variables Supabase absentes, backend injoignable ou schéma manquant | Registre de 15 risques pré-chargé, persisté dans le navigateur | Moteur local déterministe |
 | **Live** | Supabase joignable avec le schéma appliqué | Tables PostgreSQL | Claude via Edge Function, repli local en cas d'échec |
 
 Le mode actif est affiché en permanence dans l'interface (badge « Mode
