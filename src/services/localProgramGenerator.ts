@@ -101,6 +101,22 @@ export function generateLocalPreventionProgram(params: LocalProgramParams): stri
           ...subset.map(riskLine)
         ].join('\n') + '\n'
 
+  // Les lignes de contexte non renseignées sont omises plutôt qu'affichées vides.
+  const contextRow = (label: string, value: string | number) => {
+    const text = typeof value === 'number' ? (value > 0 ? String(value) : '') : value.trim()
+    return text ? [`| ${label} | ${text} |`] : []
+  }
+
+  const contextTable = [
+    ...contextRow('Entreprise', params.companyName),
+    ...contextRow('Secteur SCIAN', params.secteurScian),
+    ...contextRow('Groupe prioritaire CNESST', params.groupePrioritaire),
+    ...contextRow('Nombre de travailleurs', params.nombreEmployes),
+    ...contextRow('Activités principales', params.activitesPrincipales),
+    ...contextRow('Responsable du programme', params.acteurResponsable),
+    ...contextRow('Risques au registre', sorted.length)
+  ].join('\n')
+
   return `# ${params.typeDocument} — ${params.companyName}
 
 > Document généré le ${today} par PPAI (moteur local déterministe).
@@ -111,13 +127,7 @@ export function generateLocalPreventionProgram(params: LocalProgramParams): stri
 
 | Élément | Valeur |
 |---|---|
-| Entreprise | ${params.companyName} |
-| Secteur SCIAN | ${params.secteurScian} |
-| Groupe prioritaire CNESST | ${params.groupePrioritaire} |
-| Nombre de travailleurs | ${params.nombreEmployes} |
-| Activités principales | ${params.activitesPrincipales} |
-| Responsable du programme | ${params.acteurResponsable} |
-| Risques au registre | ${sorted.length} |
+${contextTable}
 
 **Synthèse du niveau de risque** — indice initial cumulé ${totalInitial}, indice résiduel cumulé ${totalResidual}, soit une réduction attendue de **${reduction} %** grâce aux mesures prévues.
 
