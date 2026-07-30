@@ -86,6 +86,26 @@ c'est-à-dire à quiconque possède la clé publique du projet. Elles doivent ê
 remplacées par des politiques fondées sur `auth.uid()` et le rattachement de
 l'utilisateur à son organisation.
 
+## Mettre la démo en ligne (Netlify)
+
+Le site se déploie **sans backend** : sans variables Supabase, il tourne en mode
+démonstration, pleinement fonctionnel.
+
+1. Netlify > **Add new site** > *Import an existing project* > GitHub >
+   `Preventera/ppai-sante-securite-quebec`.
+2. Laisser Netlify lire `netlify.toml` — commande et dossier de publication y
+   sont déjà définis (`npm run build`, `dist`).
+3. Déployer. Rien d'autre n'est requis pour une démonstration.
+
+Pour passer en mode « live », ajouter dans *Site configuration > Environment
+variables* : `VITE_SUPABASE_URL` et `VITE_SUPABASE_ANON_KEY`, puis appliquer les
+migrations (voir plus haut). Ne jamais y placer la clé `service_role` : toute
+variable préfixée `VITE_` est incluse dans le bundle public.
+
+> **Redirection SPA** — la règle `/*  →  /index.html` de `netlify.toml` est
+> indispensable : sans elle, toute URL profonde (`/risks`, `/programs`) renvoie
+> 404 au rechargement ou en accès direct. Elle doit rester la dernière règle.
+
 ## Scénario de démonstration suggéré
 
 1. **Tableau de bord** — indicateurs et écarts de conformité calculés sur le registre.

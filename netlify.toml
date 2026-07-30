@@ -1,16 +1,23 @@
 # ==========================================
-# PPAI Preventera - Netlify Configuration
+# PPAI Preventera — Configuration Netlify
 # Repository: github.com/Preventera/ppai-sante-securite-quebec
+#
+# Principe : le site doit se déployer et fonctionner sans backend.
+# Sans variables Supabase, l'application bascule d'elle-même en mode
+# démonstration (registre pré-chargé, générateur local). Renseigner les
+# variables dans l'interface Netlify suffit à passer en mode « live ».
+#
+# Les secrets ne sont PAS versionnés ici : Netlify > Site configuration >
+# Environment variables. Tout ce qui est préfixé VITE_ finit dans le bundle
+# public — n'y placer que la clé « anon » de Supabase, jamais la clé service.
 # ==========================================
 
 [build]
-  # Build principal pour production (main branch)
   publish = "dist"
   command = "npm run build"
-  functions = "functions"
 
 # ==========================================
-# DÉVELOPPEMENT (develop branch)
+# DÉVELOPPEMENT (branche develop)
 # ==========================================
 [context.develop.build]
   command = "npm run build:dev"
@@ -18,17 +25,11 @@
 
 [context.develop.environment]
   VITE_APP_ENV = "development"
-  VITE_API_URL = "https://ppai-dev.supabase.co"
-  VITE_SUPABASE_URL = "https://ppai-dev.supabase.co"
-  VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dev..."
-  VITE_AI_ENGINE_URL = "https://api.anthropic.com/v1"
-  VITE_CNESST_MODE = "sandbox"
   VITE_DEMO_MODE = "true"
-  VITE_DEBUG_ENABLED = "true"
   VITE_VERSION = "dev-{{COMMIT_REF}}"
 
 # ==========================================
-# STAGING CNESST (staging-cnesst branch)
+# STAGING CNESST (branche staging-cnesst)
 # ==========================================
 [context.staging-cnesst.build]
   command = "npm run build:staging"
@@ -36,155 +37,69 @@
 
 [context.staging-cnesst.environment]
   VITE_APP_ENV = "staging"
-  VITE_API_URL = "https://ppai-staging.supabase.co"
-  VITE_SUPABASE_URL = "https://ppai-staging.supabase.co"
-  VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.staging..."
-  VITE_AI_ENGINE_URL = "https://api.anthropic.com/v1"
-  VITE_CNESST_MODE = "validation"
-  VITE_DEMO_MODE = "false"
-  VITE_DEBUG_ENABLED = "false"
+  VITE_DEMO_MODE = "true"
   VITE_VERSION = "staging-{{COMMIT_REF}}"
 
 # ==========================================
-# PRODUCTION (main branch)
+# PRODUCTION (branche main)
+#
+# VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY se définissent dans
+# l'interface Netlify. Tant qu'elles sont absentes, le site tourne en
+# mode démonstration plutôt que d'afficher une page en erreur.
 # ==========================================
 [context.production.environment]
   VITE_APP_ENV = "production"
-  VITE_API_URL = "https://ppai-prod.supabase.co"
-  VITE_SUPABASE_URL = "https://ppai-prod.supabase.co"
-  VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.prod..."
-  VITE_AI_ENGINE_URL = "https://api.anthropic.com/v1"
-  VITE_CNESST_MODE = "live"
-  VITE_DEMO_MODE = "false"
-  VITE_DEBUG_ENABLED = "false"
   VITE_VERSION = "{{COMMIT_REF}}"
 
 # ==========================================
-# DEPLOY PREVIEWS (Pull Requests)
+# APERÇUS DE PULL REQUEST
 # ==========================================
 [context.deploy-preview.build]
   command = "npm run build:preview"
+  publish = "dist"
 
 [context.deploy-preview.environment]
   VITE_APP_ENV = "preview"
-  VITE_API_URL = "https://ppai-dev.supabase.co"
-  VITE_SUPABASE_URL = "https://ppai-dev.supabase.co"
-  VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dev..."
-  VITE_AI_ENGINE_URL = "https://api.anthropic.com/v1"
-  VITE_CNESST_MODE = "sandbox"
   VITE_DEMO_MODE = "true"
-  VITE_DEBUG_ENABLED = "true"
   VITE_VERSION = "preview-{{COMMIT_REF}}"
 
 # ==========================================
-# REDIRECTS - SCÉNARIOS DÉMO PPAI
+# BRANCHES DE TRAVAIL
 # ==========================================
-[[redirects]]
-  from = "/demo/construction"
-  to = "/scenarios/construction-prevention"
-  status = 200
-
-[[redirects]]
-  from = "/demo/elaboration"  
-  to = "/scenarios/metal-fabrication"
-  status = 200
-
-[[redirects]]
-  from = "/demo/coss"
-  to = "/scenarios/safety-committee"
-  status = 200
-
-[[redirects]]
-  from = "/demo/inspection"
-  to = "/scenarios/mobile-inspection"
-  status = 200
-
-[[redirects]]
-  from = "/demo/ai-agent"
-  to = "/orchestrator/autonomous-agent"
-  status = 200
-
-# API Proxy pour éviter CORS
-[[redirects]]
-  from = "/api/*"
-  to = "{{VITE_API_URL}}/:splat"
-  status = 200
-  force = true
+[context.branch-deploy.environment]
+  VITE_APP_ENV = "branch"
+  VITE_DEMO_MODE = "true"
+  VITE_VERSION = "branch-{{COMMIT_REF}}"
 
 # ==========================================
-# HEADERS - SÉCURITÉ PPAI
+# REDIRECTIONS
+#
+# L'application est une SPA React Router : sans ce repli, toute URL
+# profonde (/risks, /programs, /kpi-generator) renvoie 404 au
+# rechargement ou en accès direct. Cette règle doit rester la dernière.
+# ==========================================
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# ==========================================
+# EN-TÊTES DE SÉCURITÉ
+#
+# connect-src autorise Supabase (base et Edge Functions). L'API Anthropic
+# n'est jamais appelée depuis le navigateur : la clé reste côté serveur,
+# dans les secrets de l'Edge Function.
 # ==========================================
 [[headers]]
   for = "/*"
   [headers.values]
     X-Frame-Options = "DENY"
-    X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
-    Content-Security-Policy = """
-      default-src 'self';
-      script-src 'self' 'unsafe-inline' 'unsafe-eval';
-      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-      font-src 'self' https://fonts.gstatic.com;
-      img-src 'self' data: https:;
-      connect-src 'self' https://*.supabase.co https://api.anthropic.com;
-    """
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.gpteng.co; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
 
-# Headers développement
+# Les fichiers versionnés par empreinte peuvent être mis en cache durablement.
 [[headers]]
-  for = "/*"
+  for = "/assets/*"
   [headers.values]
-    X-Robots-Tag = "noindex, nofollow"
-  [headers.environment]
-    VITE_APP_ENV = "development"
-
-# ==========================================
-# EDGE FUNCTIONS PPAI
-# ==========================================
-[[edge_functions]]
-  function = "ai-orchestrator"
-  path = "/api/orchestrator/*"
-
-[[edge_functions]]
-  function = "risk-analyzer"
-  path = "/api/analyze-risk"
-
-[[edge_functions]]
-  function = "cnesst-validator"
-  path = "/api/validate-cnesst"
-
-# ==========================================
-# BUILD PLUGINS
-# ==========================================
-[[plugins]]
-  package = "@netlify/plugin-lighthouse"
-
-[[plugins]]
-  package = "netlify-plugin-bundle-analyzer"
-
-# ==========================================
-# FONCTIONS SERVERLESS
-# ==========================================
-[functions]
-  directory = "functions"
-  node_bundler = "esbuild"
-
-# ==========================================
-# OPTIMISATION BUILD
-# ==========================================
-[build.processing]
-  skip_processing = false
-
-[build.processing.css]
-  bundle = true
-  minify = true
-
-[build.processing.js]
-  bundle = true
-  minify = true
-
-[build.processing.html]
-  pretty_urls = true
-
-[build.processing.images]
-  compress = true
+    Cache-Control = "public, max-age=31536000, immutable"
