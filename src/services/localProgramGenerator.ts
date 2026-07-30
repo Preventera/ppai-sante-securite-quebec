@@ -1,4 +1,5 @@
 import { Risk } from '@/types/risk'
+import { determinerRegime, echeanceMiseEnApplication, echeanceTransmission } from '@/lib/lmrsst'
 
 /**
  * Générateur de programme de prévention entièrement local et déterministe.
@@ -107,11 +108,16 @@ export function generateLocalPreventionProgram(params: LocalProgramParams): stri
     return text ? [`| ${label} | ${text} |`] : []
   }
 
+  // Le document exigé découle de l'effectif, non plus du « groupe prioritaire »
+  // du régime antérieur (Règlement sur les mécanismes de prévention et de
+  // participation en établissement, en vigueur le 1er octobre 2025).
+  const regime = determinerRegime(params.nombreEmployes)
+
   const contextTable = [
     ...contextRow('Entreprise', params.companyName),
     ...contextRow('Secteur SCIAN', params.secteurScian),
-    ...contextRow('Groupe prioritaire CNESST', params.groupePrioritaire),
     ...contextRow('Nombre de travailleurs', params.nombreEmployes),
+    ...contextRow('Document exigé (LMRSST)', regime.libelle),
     ...contextRow('Activités principales', params.activitesPrincipales),
     ...contextRow('Responsable du programme', params.acteurResponsable),
     ...contextRow('Risques au registre', sorted.length)
@@ -130,6 +136,8 @@ export function generateLocalPreventionProgram(params: LocalProgramParams): stri
 ${contextTable}
 
 **Synthèse du niveau de risque** — indice initial cumulé ${totalInitial}, indice résiduel cumulé ${totalResidual}, soit une réduction attendue de **${reduction} %** grâce aux mesures prévues.
+
+**Régime applicable** — ${regime.justification} Le document doit être élaboré et mis en application dans un délai de ${regime.delaiMiseEnApplicationMois} mois, soit au plus tard le ${echeanceMiseEnApplication()}. Les priorités d'action, l'état d'avancement des mesures et le suivi des mesures en place sont transmis à la CNESST tous les ${regime.periodiciteTransmissionAnnees} ans, prochaine échéance le ${echeanceTransmission()}.
 
 ---
 
@@ -273,12 +281,13 @@ ${sorted.filter(risk => risk.sector === 'Santé').length === 0
 
 ## 11. Révision et mise à jour
 
-| Déclencheur | Action |
-|---|---|
-| Révision périodique | Réexamen complet du programme à ${addMonths(12)} |
-| Nouveau risque au registre | Mise à jour des sections 1 à 3 |
-| Accident ou quasi-accident | Analyse et révision des mesures concernées |
-| Modification des procédés ou équipements | Réévaluation des indices de risque |
+| Déclencheur | Action | Échéance |
+|---|---|---|
+| Mise en application (LMRSST) | Élaboration et application du ${regime.libelle.toLowerCase()} | ${echeanceMiseEnApplication()} |
+| Transmission à la CNESST | Priorités d'action, état d'avancement, suivi des mesures | ${echeanceTransmission()} |
+| Nouveau risque au registre | Mise à jour des sections 1 à 3 | en continu |
+| Accident ou quasi-accident | Analyse et révision des mesures concernées | sans délai |
+| Modification des procédés ou équipements | Réévaluation des indices de risque | sans délai |
 
 ---
 

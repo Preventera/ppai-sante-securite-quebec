@@ -103,14 +103,19 @@ Génère UNIQUEMENT du contenu conforme aux exigences CNESST/LMRSST.`;
 **CONTEXTE ENTREPRISE :**
 - Nom : ${params.companyName}
 - Secteur SCIAN : ${params.secteurScian}
-- Groupe prioritaire CNESST : ${params.groupePrioritaire}
+- Document exigé : ${params.nombreEmployes >= 20 ? 'Programme de prévention (20 travailleurs et plus)' : "Plan d'action (19 travailleurs et moins)"}
 - Nombre d'employés : ${params.nombreEmployes}
 - Activités principales : ${params.activitesPrincipales}
 - Acteur responsable : ${params.acteurResponsable}
 ${params.risquesIdentifies ? `- Risques identifiés : ${params.risquesIdentifies.join(', ')}` : ''}${cnessContext}${registryContext}
 
 **SPÉCIFICITÉS SECTORIELLES :**
-Adapte le contenu aux risques typiques du secteur ${params.secteurScian} et respecte les obligations du groupe ${params.groupePrioritaire} CNESST.
+Adapte le contenu aux risques typiques du secteur ${params.secteurScian}.
+Le régime applicable découle de l'effectif de l'établissement (Règlement sur les
+mécanismes de prévention et de participation en établissement, en vigueur le
+1er octobre 2025) : programme de prévention à partir de 20 travailleurs, plan
+d'action en deçà. N'emploie PAS la notion de « groupe prioritaire », qui relève
+du régime antérieur.
 
 **STRUCTURE ATTENDUE :**
 1. IDENTIFICATION DES PRINCIPALES SOURCES DE RISQUES
