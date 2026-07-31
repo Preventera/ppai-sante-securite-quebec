@@ -6,6 +6,7 @@ import {
   modalitesSelonNiveau,
   type ContexteEtablissement
 } from '@/lib/lmrsst'
+import { CAS_NON_COUVERTS, LIBELLE_NIVEAU_NEUTRE, secteurPourCode } from '@/lib/scianNiveaux'
 
 /**
  * Générateur de programme de prévention entièrement local et déterministe.
@@ -154,11 +155,16 @@ export function generateLocalPreventionProgram(params: LocalProgramParams): stri
   // Le document exigé découle de l'effectif, non plus du « groupe prioritaire »
   // du régime antérieur (Règlement sur les mécanismes de prévention et de
   // participation en établissement, en vigueur le 1er octobre 2025).
+  // Le niveau est déduit du code SCIAN saisi, sauf s'il a été fourni
+  // explicitement — l'outil de la CNESST fait autorité sur la table.
+  const secteur = secteurPourCode(params.secteurScian)
+  const niveauRisque = params.contexte?.niveauRisque ?? secteur?.niveau
   const mecanismes = determinerMecanismes({
     effectif: params.nombreEmployes,
-    ...params.contexte
+    ...params.contexte,
+    niveauRisque
   })
-  const modalites = modalitesSelonNiveau(params.contexte?.niveauRisque)
+  const modalites = modalitesSelonNiveau(niveauRisque)
   const regime = {
     libelle: mecanismes.prevention.libelle,
     justification: mecanismes.prevention.justification,
@@ -168,7 +174,14 @@ export function generateLocalPreventionProgram(params: LocalProgramParams): stri
 
   const contextTable = [
     ...contextRow('Entreprise', params.companyName),
-    ...contextRow('Secteur SCIAN', params.secteurScian),
+    ...contextRow(
+      'Secteur SCIAN',
+      secteur ? `${params.secteurScian} — ${secteur.libelle}` : params.secteurScian
+    ),
+    ...contextRow(
+      'Classement CNESST du secteur',
+      niveauRisque ? LIBELLE_NIVEAU_NEUTRE(niveauRisque) : ''
+    ),
     ...contextRow('Nombre de travailleurs', params.nombreEmployes),
     ...contextRow('Document exigé (LMRSST)', regime.libelle),
     ...contextRow('Activités principales', params.activitesPrincipales),
@@ -332,6 +345,10 @@ ${mecanismes.formations.length === 0
 ${modalites.explication}
 
 Modalités concernées : ${modalites.aDefautDEntente.join(' ; ')}.
+
+${niveauRisque
+    ? `Le secteur relève du ${LIBELLE_NIVEAU_NEUTRE(niveauRisque).toLowerCase()}. Ce classement ne détermine pas quels mécanismes s'appliquent — l'effectif s'en charge — mais les modalités supplétives du RMPPÉ à défaut d'entente.`
+    : `Le classement du secteur n'a pas pu être déterminé à partir du code SCIAN saisi. À vérifier auprès de l'outil de la CNESST : ${CAS_NON_COUVERTS.join(' ; ')}.`}
 
 ${mecanismes.avertissements.map(a => `> ${a}`).join('\n>\n')}
 

@@ -25,23 +25,50 @@ Conséquence pour PPAI : `modalitesSelonNiveau()` énonce la règle d'entente et
 renvoie au texte réglementaire. Les valeurs supplétives chiffrées ne sont pas
 intégrées tant qu'elles n'ont pas été obtenues du Règlement lui-même.
 
+## Le sens de l'échelle n'est pas documenté
+
+La source publiée ne dit pas laquelle des deux extrémités correspond au régime
+le plus exigeant, et la répartition ne permet pas de le déduire : la
+construction de bâtiments (236) est au **niveau 1** tandis que la foresterie
+(113) et l'extraction minière (212) sont au **niveau 4**.
+
+Conséquence tenue dans le code : le niveau est affiché tel quel — « niveau 3 » —
+et **jamais** traduit en « risque élevé » ou « risque faible », ni coloré selon
+une échelle de gravité. Voir `LIBELLE_NIVEAU_NEUTRE` dans
+`src/lib/scianNiveaux.ts`. Le jour où la CNESST documente le sens de l'échelle,
+c'est ce seul point qu'il faudra reprendre.
+
 ## `niveaux_risque_cnesst.csv`
 
-Extrait **partiel**. Il ne contient que les affectations effectivement obtenues
-de l'outil « Recherche du classement de l'établissement par niveau » de la
-CNESST. Aucune ligne n'est déduite, extrapolée ou complétée par analogie : un
-niveau erroné produirait des obligations erronées dans un document remis à un
-inspecteur.
+Table **complète** : les 102 sous-secteurs SCIAN 2012 publiés par la CNESST,
+avec leur niveau. Aucune ligne n'est déduite, extrapolée ou complétée par
+analogie — un niveau erroné produirait des obligations erronées dans un
+document remis à un inspecteur.
 
 Colonnes : `code,libelle,niveau,source`
 
-La colonne `code` est **vide** pour les trois lignes actuelles : l'outil CNESST
-a été consulté par libellé d'activité, et le code SCIAN correspondant n'a pas
-été relevé. Le chargeur ignore ces lignes en le signalant — c'est voulu. Pour
-les activer, relever le code affiché par l'outil et le reporter dans la
-colonne.
+Le code est celui du **sous-secteur**, à trois chiffres. Un code plus fin —
+quatre à six chiffres — est ramené à ses trois premiers par
+`secteurPourCode()`. Un code absent de la table renvoie `null` : l'absence est
+une information, pas un motif pour retenir un niveau voisin.
 
-## Chargement
+Répartition : niveau 1 → 37 secteurs, niveau 2 → 24, niveau 3 → 9, niveau 4 → 32.
+
+## Module TypeScript généré
+
+`src/lib/scianNiveaux.ts` est **généré** depuis ce CSV et versionné, pour que
+l'application résolve un niveau sans base de données — le mode démonstration
+n'a pas de Supabase à interroger.
+
+```bash
+python3 scripts/data-analysis/generer_scian_ts.py            # régénérer
+python3 scripts/data-analysis/generer_scian_ts.py --verifier # contrôler, sortie non nulle si écart
+```
+
+Ne pas modifier le fichier `.ts` à la main : deux copies d'une même table
+réglementaire finissent toujours par diverger.
+
+## Chargement en base
 
 ```bash
 python3 scripts/data-analysis/charger_referentiel.py \
@@ -51,6 +78,10 @@ python3 scripts/data-analysis/charger_referentiel.py \
 Le script produit du SQL idempotent, à relire puis à coller dans l'éditeur SQL
 du projet Supabase. Il refuse tout niveau hors de l'intervalle 1–4 et signale
 les lignes incomplètes.
+
+Vérifié sur PostgreSQL 16 : 102 lignes chargées, rejeu sans doublon, accents et
+apostrophes préservés, contrainte `CHECK (niveau_risque BETWEEN 1 AND 4)`
+opposée à un niveau 7, lecture refusée à `anon` et accordée à `authenticated`.
 
 ## Limites de l'outil de classement de la CNESST
 
