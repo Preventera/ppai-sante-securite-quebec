@@ -79,6 +79,42 @@ export function resetAllCollections(): void {
   }
 }
 
+/**
+ * Lit une valeur JSON isolée, hors collection.
+ *
+ * Tout échec — stockage refusé par le navigateur, contenu corrompu — renvoie
+ * `secours`. Aucun appelant ne doit avoir à envelopper l'appel : une exception
+ * levée pendant le rendu de React vide l'arbre entier et produit une page
+ * blanche, sans rien afficher qui permette de comprendre.
+ */
+export function readValue<T>(name: string, secours: T): T {
+  const store = storage()
+  if (!store) return secours
+
+  try {
+    const raw = store.getItem(key(name))
+    if (raw === null) return secours
+    return JSON.parse(raw) as T
+  } catch (error) {
+    console.warn(`[PPAI] Lecture locale impossible pour « ${name} », valeur par défaut retenue:`, error)
+    return secours
+  }
+}
+
+/** Écrit une valeur JSON isolée. Renvoie `false` si le stockage a refusé. */
+export function writeValue<T>(name: string, value: T): boolean {
+  const store = storage()
+  if (!store) return false
+
+  try {
+    store.setItem(key(name), JSON.stringify(value))
+    return true
+  } catch (error) {
+    console.warn(`[PPAI] Écriture locale impossible pour « ${name} »:`, error)
+    return false
+  }
+}
+
 /** Identifiant stable côté client, sans dépendance externe. */
 export function generateId(): string {
   try {

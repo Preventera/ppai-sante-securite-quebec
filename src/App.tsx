@@ -7,6 +7,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { RequireAuth } from "@/components/RequireAuth";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import RiskRegistry from "./pages/RiskRegistry";
@@ -36,7 +37,8 @@ const AppShell = ({ children }: { children: React.ReactNode }) => (
           <div className="p-4">
             <SidebarTrigger className="mb-4" />
           </div>
-          {children}
+          {/* Une page qui échoue ne doit pas emporter la navigation avec elle. */}
+          <ErrorBoundary>{children}</ErrorBoundary>
         </main>
       </div>
     </SidebarProvider>
@@ -44,6 +46,7 @@ const AppShell = ({ children }: { children: React.ReactNode }) => (
 );
 
 const App = () => (
+  <ErrorBoundary>
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
@@ -72,6 +75,7 @@ const App = () => (
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;
