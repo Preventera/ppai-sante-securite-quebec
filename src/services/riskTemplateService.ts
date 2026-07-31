@@ -3,20 +3,135 @@ import { getBackendMode } from '@/lib/backend'
 import { secteurPourCode } from '@/lib/scianNiveaux'
 
 /**
- * Correspondance sous-secteur SCIAN (annexe I, 102 valeurs) vers grand secteur
- * CNESST (données de lésions, 22 valeurs).
+ * Correspondance sous-secteur SCIAN (annexe I du RMPPÉ, 102 codes) vers grand
+ * secteur CNESST (fichiers de lésions, 22 libellés).
  *
- * NON RENSEIGNÉE — délibérément. Elle exige un arbitrage : « FABRICATION DE
- * BIENS DURABLES » et « NON DURABLES » ne se déduisent pas mécaniquement des
- * codes, et « AUTRES OU NON CODES » ne correspond à rien. Tant que la table
- * n'est pas établie et relue, la fonction renvoie null et l'application se
- * rabat sur le jeu de démonstration plutôt que de rattacher un établissement au
- * mauvais secteur.
+ * FICHIER DE RÉFÉRENCE : data/referentiel/secteurs_cnesst_lesions.csv
  *
- * Fichier de travail : data/referentiel/secteurs_cnesst_lesions.csv
+ * 101 des 102 codes se déduisent de la hiérarchie SCIAN elle-même, sans
+ * arbitrage : le découpage « biens durables / non durables » est une
+ * classification de Statistique Canada, pas un jugement de notre part.
+ *
+ * DEUX CAS NON RÉSOLUS, volontairement laissés hors table :
+ *
+ *   115 — « Activités de soutien à l'agriculture ET à la foresterie » chevauche
+ *   deux secteurs CNESST distincts, qui n'ont ni le même profil de lésions ni
+ *   le même niveau à l'annexe I (agriculture 3, foresterie 4). Trancher au
+ *   hasard rattacherait un établissement au mauvais référentiel.
+ *
+ *   « AUTRES OU NON CODES » — 78 181 lésions, dont 57 204 d'exposition au
+ *   bruit, ne correspond à aucun secteur d'activité. Ces lésions ne sont
+ *   attribuables à personne en particulier.
+ *
+ * Un code absent renvoie null, et l'application se rabat alors sur le jeu de
+ * démonstration plutôt que de proposer les risques d'un secteur voisin.
  */
-export function secteurCnesstPour(_codeScian: string): string | null {
-  return null
+const SECTEUR_CNESST_PAR_CODE: Record<string, string> = {
+  '111': 'AGRICULTURE',
+  '112': 'AGRICULTURE',
+  '113': 'FORESTERIE, EXPLOITATION FORESTIERE ET ACTIVITES DE SOUTIEN A LA FORESTERIE',
+  '114': 'PECHE, CHASSE ET PIEGEAGE',
+  '211': 'EXTRACTION MINIERE, EXPLOITATION EN CARRIERE ET EXTRACTION DE PETROLE ET DE GAZ',
+  '212': 'EXTRACTION MINIERE, EXPLOITATION EN CARRIERE ET EXTRACTION DE PETROLE ET DE GAZ',
+  '213': 'EXTRACTION MINIERE, EXPLOITATION EN CARRIERE ET EXTRACTION DE PETROLE ET DE GAZ',
+  '221': 'SERVICES PUBLICS',
+  '236': 'CONSTRUCTION',
+  '237': 'CONSTRUCTION',
+  '238': 'CONSTRUCTION',
+  '311': 'FABRICATION DE BIENS NON DURABLES',
+  '312': 'FABRICATION DE BIENS NON DURABLES',
+  '313': 'FABRICATION DE BIENS NON DURABLES',
+  '314': 'FABRICATION DE BIENS NON DURABLES',
+  '315': 'FABRICATION DE BIENS NON DURABLES',
+  '316': 'FABRICATION DE BIENS NON DURABLES',
+  '321': 'FABRICATION DE BIENS DURABLES',
+  '322': 'FABRICATION DE BIENS NON DURABLES',
+  '323': 'FABRICATION DE BIENS NON DURABLES',
+  '324': 'FABRICATION DE BIENS NON DURABLES',
+  '325': 'FABRICATION DE BIENS NON DURABLES',
+  '326': 'FABRICATION DE BIENS NON DURABLES',
+  '327': 'FABRICATION DE BIENS DURABLES',
+  '331': 'FABRICATION DE BIENS DURABLES',
+  '332': 'FABRICATION DE BIENS DURABLES',
+  '333': 'FABRICATION DE BIENS DURABLES',
+  '334': 'FABRICATION DE BIENS DURABLES',
+  '335': 'FABRICATION DE BIENS DURABLES',
+  '336': 'FABRICATION DE BIENS DURABLES',
+  '337': 'FABRICATION DE BIENS DURABLES',
+  '339': 'FABRICATION DE BIENS DURABLES',
+  '411': 'COMMERCE DE GROS',
+  '412': 'COMMERCE DE GROS',
+  '413': 'COMMERCE DE GROS',
+  '414': 'COMMERCE DE GROS',
+  '415': 'COMMERCE DE GROS',
+  '416': 'COMMERCE DE GROS',
+  '417': 'COMMERCE DE GROS',
+  '418': 'COMMERCE DE GROS',
+  '419': 'COMMERCE DE GROS',
+  '441': 'COMMERCE DE DETAIL',
+  '442': 'COMMERCE DE DETAIL',
+  '443': 'COMMERCE DE DETAIL',
+  '444': 'COMMERCE DE DETAIL',
+  '445': 'COMMERCE DE DETAIL',
+  '446': 'COMMERCE DE DETAIL',
+  '447': 'COMMERCE DE DETAIL',
+  '448': 'COMMERCE DE DETAIL',
+  '451': 'COMMERCE DE DETAIL',
+  '452': 'COMMERCE DE DETAIL',
+  '453': 'COMMERCE DE DETAIL',
+  '454': 'COMMERCE DE DETAIL',
+  '481': 'TRANSPORT ET ENTREPOSAGE',
+  '482': 'TRANSPORT ET ENTREPOSAGE',
+  '483': 'TRANSPORT ET ENTREPOSAGE',
+  '484': 'TRANSPORT ET ENTREPOSAGE',
+  '485': 'TRANSPORT ET ENTREPOSAGE',
+  '486': 'TRANSPORT ET ENTREPOSAGE',
+  '487': 'TRANSPORT ET ENTREPOSAGE',
+  '488': 'TRANSPORT ET ENTREPOSAGE',
+  '491': 'TRANSPORT ET ENTREPOSAGE',
+  '492': 'TRANSPORT ET ENTREPOSAGE',
+  '493': 'TRANSPORT ET ENTREPOSAGE',
+  '511': 'INFORMATION, CULTURE ET LOISIRS',
+  '512': 'INFORMATION, CULTURE ET LOISIRS',
+  '515': 'INFORMATION, CULTURE ET LOISIRS',
+  '517': 'INFORMATION, CULTURE ET LOISIRS',
+  '518': 'INFORMATION, CULTURE ET LOISIRS',
+  '519': 'INFORMATION, CULTURE ET LOISIRS',
+  '521': 'FINANCE ET ASSURANCES',
+  '522': 'FINANCE ET ASSURANCES',
+  '523': 'FINANCE ET ASSURANCES',
+  '524': 'FINANCE ET ASSURANCES',
+  '526': 'FINANCE ET ASSURANCES',
+  '531': 'SERVICES IMMOBILIERS ET SERVICES DE LOCATION ET DE LOCATION A BAIL',
+  '532': 'SERVICES IMMOBILIERS ET SERVICES DE LOCATION ET DE LOCATION A BAIL',
+  '533': 'SERVICES IMMOBILIERS ET SERVICES DE LOCATION ET DE LOCATION A BAIL',
+  '541': 'SERVICES PROFESSIONNELS, SCIENTIFIQUES ET TECHNIQUES',
+  '551': 'SERVICES AUX ENTREPRISES, SERVICES RELATIFS AUX BATIMENTS ET AUTRES SERVICES DE SOUTIEN',
+  '561': 'SERVICES AUX ENTREPRISES, SERVICES RELATIFS AUX BATIMENTS ET AUTRES SERVICES DE SOUTIEN',
+  '562': 'SERVICES AUX ENTREPRISES, SERVICES RELATIFS AUX BATIMENTS ET AUTRES SERVICES DE SOUTIEN',
+  '611': 'SERVICES D\'ENSEIGNEMENT',
+  '621': 'SOINS DE SANTE ET ASSISTANCE SOCIALE',
+  '622': 'SOINS DE SANTE ET ASSISTANCE SOCIALE',
+  '623': 'SOINS DE SANTE ET ASSISTANCE SOCIALE',
+  '624': 'SOINS DE SANTE ET ASSISTANCE SOCIALE',
+  '711': 'INFORMATION, CULTURE ET LOISIRS',
+  '712': 'INFORMATION, CULTURE ET LOISIRS',
+  '713': 'INFORMATION, CULTURE ET LOISIRS',
+  '721': 'HEBERGEMENT ET SERVICES DE RESTAURATION',
+  '722': 'HEBERGEMENT ET SERVICES DE RESTAURATION',
+  '811': 'AUTRES SERVICES',
+  '812': 'AUTRES SERVICES',
+  '813': 'AUTRES SERVICES',
+  '814': 'AUTRES SERVICES',
+  '911': 'ADMINISTRATIONS PUBLIQUES',
+  '912': 'ADMINISTRATIONS PUBLIQUES',
+  '913': 'ADMINISTRATIONS PUBLIQUES',
+  '914': 'ADMINISTRATIONS PUBLIQUES',
+  '919': 'ADMINISTRATIONS PUBLIQUES',
+}
+
+export function secteurCnesstPour(codeScian: string): string | null {
+  return SECTEUR_CNESST_PAR_CODE[codeScian] ?? null
 }
 
 /**
