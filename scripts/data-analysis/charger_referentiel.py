@@ -57,6 +57,17 @@ def lire_secteurs(chemin: Path) -> list[dict]:
             libelle = (ligne.get("libelle") or "").strip()
             niveau_brut = (ligne.get("niveau") or "").strip()
 
+            if not code and libelle:
+                # Cas courant : l'outil de la CNESST a été consulté par libellé
+                # d'activité sans relever le code SCIAN affiché. La ligne est
+                # inutilisable telle quelle — `code` est la clé primaire.
+                print(
+                    f"  ligne {numero} ignorée : code SCIAN absent pour « {libelle} » "
+                    f"(niveau {niveau_brut or 'non précisé'})",
+                    file=sys.stderr,
+                )
+                continue
+
             if not code or not libelle:
                 print(f"  ligne {numero} ignorée : code ou libellé manquant", file=sys.stderr)
                 continue

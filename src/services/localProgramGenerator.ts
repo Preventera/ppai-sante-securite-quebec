@@ -1,5 +1,11 @@
 import { Risk } from '@/types/risk'
-import { determinerMecanismes, echeanceMiseEnApplication, echeanceTransmission } from '@/lib/lmrsst'
+import {
+  determinerMecanismes,
+  echeanceMiseEnApplication,
+  echeanceTransmission,
+  modalitesSelonNiveau,
+  type ContexteEtablissement
+} from '@/lib/lmrsst'
 
 /**
  * Générateur de programme de prévention entièrement local et déterministe.
@@ -23,6 +29,12 @@ export interface LocalProgramParams {
   typeDocument: string
   acteurResponsable: string
   risks: Risk[]
+  /**
+   * Précisions d'assujettissement au-delà de l'effectif : mutuelle de
+   * prévention, regroupement multiétablissements, jours d'atteinte du seuil,
+   * niveau de risque sectoriel. L'effectif est repris de `nombreEmployes`.
+   */
+  contexte?: Omit<ContexteEtablissement, 'effectif'>
 }
 
 /** Niveaux de la hiérarchie de prévention (LSST art. 51, al. 1 à 5). */
@@ -33,6 +45,37 @@ const HIERARCHY = [
   "Mesures administratives (procédures, permis, formation, signalisation)",
   "Équipements de protection individuelle, en dernier recours"
 ] as const
+
+/**
+ * Section du document couvrant chaque élément du contenu minimal exigé par la
+ * CNESST, dans l'ordre de `CONTENU_MINIMAL_*`. `null` signale un élément que ce
+ * générateur ne produit pas : il dépend de documents propres à l'établissement
+ * (politique de harcèlement, inventaire des matières dangereuses). Le taire
+ * ferait croire à une conformité qui n'est pas atteinte.
+ */
+const COUVERTURE_CONTENU_MINIMAL: Record<'plan_action' | 'programme_prevention', (string | null)[]> = {
+  plan_action: [
+    '§ 1',
+    '§ 2 et § 3',
+    '§ 4 et § 7',
+    '§ 6',
+    '§ 5',
+    null, // politique de harcèlement psychologique
+    '§ 10'
+  ],
+  programme_prevention: [
+    '§ 1',
+    '§ 2 et § 3',
+    '§ 4 et § 7',
+    '§ 6',
+    '§ 5',
+    '§ 10',
+    null, // liste des matières dangereuses et contaminants
+    '§ 9',
+    null, // politique de harcèlement psychologique
+    '§ 10'
+  ]
+}
 
 const formatDate = (date: Date) => date.toISOString().slice(0, 10)
 
@@ -111,7 +154,11 @@ export function generateLocalPreventionProgram(params: LocalProgramParams): stri
   // Le document exigé découle de l'effectif, non plus du « groupe prioritaire »
   // du régime antérieur (Règlement sur les mécanismes de prévention et de
   // participation en établissement, en vigueur le 1er octobre 2025).
-  const mecanismes = determinerMecanismes({ effectif: params.nombreEmployes })
+  const mecanismes = determinerMecanismes({
+    effectif: params.nombreEmployes,
+    ...params.contexte
+  })
+  const modalites = modalitesSelonNiveau(params.contexte?.niveauRisque)
   const regime = {
     libelle: mecanismes.prevention.libelle,
     justification: mecanismes.prevention.justification,
@@ -253,7 +300,7 @@ ${sorted.filter(risk => /harnais|apr|masque|casque|gant|protection individuelle|
 
 ---
 
-## 8. Mécanismes de participation (RMPPE)
+## 8. Mécanismes de participation (RMPPÉ)
 
 ${mecanismes.participation.justification}
 
@@ -262,6 +309,29 @@ ${mecanismes.participation.justification}
 | Agent de liaison en santé et en sécurité | ${mecanismes.participation.agentDeLiaison ? 'Oui' : 'Non'} |
 | Comité de santé et de sécurité | ${mecanismes.participation.comiteSanteSecurite ? 'Oui' : 'Non'} |
 | Représentant en santé et en sécurité | ${mecanismes.participation.representantSanteSecurite ? 'Oui' : 'Non'} |
+
+### Formations obligatoires
+
+${mecanismes.formations.length === 0
+    ? '_Aucun mécanisme de participation retenu : aucune formation obligatoire à ce titre._\n'
+    : mecanismes.formations
+        .map(
+          formation =>
+            `**${formation.libelle}**\n\n` +
+            `- *Formation initiale* : ${formation.formationInitiale}\n` +
+            (formation.formationContinue
+              ? `- *Formation continue* : ${formation.formationContinue}\n`
+              : '') +
+            (formation.contenuPublie
+              ? ''
+              : "- *À surveiller* : les modalités détaillées de cette formation seront publiées par la CNESST.\n")
+        )
+        .join('\n')}
+### Modalités de fonctionnement
+
+${modalites.explication}
+
+Modalités concernées : ${modalites.aDefautDEntente.join(' ; ')}.
 
 ${mecanismes.avertissements.map(a => `> ${a}`).join('\n>\n')}
 
@@ -305,9 +375,40 @@ ${sorted.filter(risk => risk.sector === 'Santé').length === 0
 |---|---|---|
 | Mise en application (LMRSST) | Élaboration et application du ${regime.libelle.toLowerCase()} | ${echeanceMiseEnApplication()} |
 | Transmission à la CNESST | Priorités d'action, état d'avancement, suivi des mesures | ${echeanceTransmission()} |
+| Mise à jour annuelle obligatoire | Révision complète du ${regime.libelle.toLowerCase()} | chaque année |
 | Nouveau risque au registre | Mise à jour des sections 1 à 3 | en continu |
 | Accident ou quasi-accident | Analyse et révision des mesures concernées | sans délai |
 | Modification des procédés ou équipements | Réévaluation des indices de risque | sans délai |
+
+---
+
+## Vérification du contenu minimal exigé
+
+La CNESST fixe les éléments qu'un ${regime.libelle.toLowerCase()} doit contenir au minimum.
+Le tableau ci-dessous confronte cette liste au présent document — les écarts sont
+signalés plutôt que masqués.
+
+| Élément exigé | Traité en |
+|---|---|
+${mecanismes.prevention.contenuMinimal
+    .map((element, index) => {
+      const section = COUVERTURE_CONTENU_MINIMAL[mecanismes.prevention.mecanisme][index]
+      return `| ${element} | ${section ?? '**à compléter — non couvert par le générateur**'} |`
+    })
+    .join('\n')}
+
+${(() => {
+    const manquants = mecanismes.prevention.contenuMinimal.filter(
+      (_, index) => !COUVERTURE_CONTENU_MINIMAL[mecanismes.prevention.mecanisme][index]
+    )
+    return manquants.length === 0
+      ? '_Tous les éléments exigés sont traités._'
+      : `> ${manquants.length} élément(s) restent à rédiger hors de cet outil avant de considérer ` +
+        `le document complet. Le générateur ne les produit pas : ils dépendent de documents ` +
+        `propres à l'établissement.`
+  })()}
+
+_Référence : ${mecanismes.reference}_
 
 ---
 
