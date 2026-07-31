@@ -27,6 +27,13 @@
  *   une analyse juridique du cas d'espèce.
  */
 
+import {
+  fonctionnementComite,
+  nombreRepresentantsTravailleurs,
+  tempsLiberationMensuel,
+  REFERENCE_RMPPE
+} from '@/lib/rmppe'
+
 /** Seuil d'effectif séparant les deux régimes. */
 export const SEUIL_EFFECTIF = 20
 
@@ -468,8 +475,15 @@ export interface ModalitesParticipation {
   niveau: NiveauRisque | null
   /** Modalités renvoyées au RMPPÉ à défaut d'entente. */
   aDefautDEntente: readonly string[]
-  /** Les valeurs supplétives du RMPPÉ sont-elles intégrées à l'application ? */
-  tableSuppletiveIntegree: false
+  /** Les valeurs supplétives du RMPPÉ sont désormais intégrées. */
+  tableSuppletiveIntegree: boolean
+  /** Valeurs chiffrées du Règlement, si le niveau et l'effectif sont connus. */
+  valeurs: {
+    reunionsParAnnee: number
+    representantsTravailleurs: number
+    heuresLiberationParMois: number
+    reference: string
+  } | null
   explication: string
 }
 
@@ -477,33 +491,62 @@ export interface ModalitesParticipation {
  * Modalités de fonctionnement du comité et du représentant : nombre de
  * représentants des travailleurs, fréquence des rencontres, temps de libération.
  *
- * La publication DC200-7107-1 lève une ambiguïté : ces modalités ne découlent
- * pas mécaniquement du niveau de risque sectoriel. Elles sont d'abord convenues
- * PAR ENTENTE entre les parties — l'employeur et les travailleurs pour la
- * désignation, les membres du comité pour le fonctionnement et le temps de
- * libération. Le RMPPÉ n'intervient qu'à défaut d'entente, et c'est là que le
- * niveau de risque joue.
+ * Ces modalités ne découlent pas mécaniquement du niveau sectoriel. Elles sont
+ * d'abord convenues PAR ENTENTE entre les parties — l'employeur et les
+ * travailleurs pour la désignation, les membres du comité pour le
+ * fonctionnement et le temps de libération. Le RMPPÉ n'intervient qu'à défaut
+ * d'entente (art. 7, 17 et 33), et c'est là que le niveau joue.
  *
- * Les valeurs supplétives du Règlement ne sont pas intégrées : elles n'ont pas
- * été obtenues et ne sont pas devinées. Une fréquence de réunion erronée dans un
- * document remis à un inspecteur serait une non-conformité.
+ * Les valeurs supplétives sont désormais intégrées, tirées du Règlement
+ * lui-même. Elles ne sont renvoyées que si le niveau est connu : sans lui, rien
+ * n'est deviné.
  */
-export function modalitesSelonNiveau(niveau?: NiveauRisque): ModalitesParticipation {
+export function modalitesSelonNiveau(
+  niveau?: NiveauRisque,
+  effectif?: number
+): ModalitesParticipation {
+  const aDefautDEntente = [
+    'le nombre de représentants des travailleuses et travailleurs au comité',
+    'les modalités de désignation des membres du comité',
+    'la fréquence des rencontres du comité',
+    'le temps de libération du représentant en santé et en sécurité'
+  ]
+
+  const socle =
+    "Ces modalités sont convenues par entente entre les parties : règles de désignation entre " +
+    "l'employeur et les travailleuses et travailleurs, règles de fonctionnement et temps de " +
+    "libération entre les membres du comité. À défaut d'entente seulement, le RMPPÉ s'applique."
+
+  if (!niveau) {
+    return {
+      regleParEntente: true,
+      niveau: null,
+      aDefautDEntente,
+      tableSuppletiveIntegree: false,
+      valeurs: null,
+      explication:
+        socle +
+        " Le classement de l'établissement n'étant pas déterminé, les valeurs supplétives ne " +
+        'peuvent pas être précisées.'
+    }
+  }
+
+  const effectifRetenu = normaliserEffectif(effectif ?? 0)
+
   return {
     regleParEntente: true,
-    niveau: niveau ?? null,
-    aDefautDEntente: [
-      'le nombre de représentants des travailleuses et travailleurs au comité',
-      'les modalités de désignation des membres du comité',
-      'la fréquence des rencontres du comité',
-      'le temps de libération du représentant en santé et en sécurité'
-    ],
-    tableSuppletiveIntegree: false,
+    niveau,
+    aDefautDEntente,
+    tableSuppletiveIntegree: true,
+    valeurs: {
+      reunionsParAnnee: fonctionnementComite(niveau).reunionsParAnnee,
+      representantsTravailleurs: nombreRepresentantsTravailleurs(effectifRetenu).nombreRepresentants,
+      heuresLiberationParMois: tempsLiberationMensuel(effectifRetenu, niveau).heuresParMois,
+      reference: REFERENCE_RMPPE
+    },
     explication:
-      'Ces modalités sont convenues par entente entre les parties : règles de désignation entre ' +
-      "l'employeur et les travailleuses et travailleurs, règles de fonctionnement et temps de " +
-      "libération entre les membres du comité. À défaut d'entente, le RMPPÉ s'applique. Les " +
-      "valeurs supplétives du Règlement, qui dépendent du niveau de risque du secteur, ne sont " +
-      "pas intégrées à l'application : se reporter au texte réglementaire."
+      socle +
+      ` Les valeurs ci-dessous sont celles du Règlement pour un établissement de niveau ` +
+      `${niveau}.`
   }
 }

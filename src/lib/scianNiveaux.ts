@@ -12,14 +12,19 @@
  * réalités propres aux hommes et aux femmes, des données de lésions
  * professionnelles et des données de risques psychosociaux et ergonomiques.
  *
- * SENS DE L'ÉCHELLE — NON DOCUMENTÉ ICI
- * La source consultée n'indique pas laquelle des deux extrémités correspond au
- * régime le plus exigeant, et la répartition ne permet pas de le déduire : la
- * construction de bâtiments est au niveau 1 alors que la foresterie et
- * l'extraction minière sont au niveau 4. Le niveau doit donc être présenté tel
- * quel — « niveau 3 » — et jamais traduit en « risque élevé » ou « risque
- * faible », ni coloré selon une échelle de gravité. Voir
- * `LIBELLE_NIVEAU_NEUTRE`.
+ * SENS DE L'ÉCHELLE
+ * Les obligations croissent avec le niveau : 4 réunions du comité par année au
+ * niveau 1, 9 au niveau 4, et jusqu'à quatre fois plus d'heures de libération
+ * du représentant (RMPPÉ, art. 19 et 33). Le point était indécidable à la seule
+ * lecture de la table — la construction de bâtiments est au niveau 1 alors que
+ * la foresterie et l'extraction minière sont au niveau 4 ; c'est le Règlement
+ * qui le tranche.
+ *
+ * Cela ne fait pas du niveau une mesure de gravité affichable. L'annexe I
+ * classe des ACTIVITÉS pour moduler des modalités ; elle ne qualifie pas le
+ * risque d'un établissement. Le niveau reste donc présenté tel quel —
+ * « niveau 3 » — et jamais traduit en « risque élevé » ou « risque faible »,
+ * ni coloré selon une échelle de gravité. Voir `LIBELLE_NIVEAU_NEUTRE`.
  */
 
 import type { NiveauRisque } from '@/lib/lmrsst'

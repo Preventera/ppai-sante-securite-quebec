@@ -7,6 +7,7 @@ import {
   type ContexteEtablissement
 } from '@/lib/lmrsst'
 import { CAS_NON_COUVERTS, LIBELLE_NIVEAU_NEUTRE, secteurPourCode } from '@/lib/scianNiveaux'
+import { HIERARCHIE_MESURES_PREVENTION } from '@/lib/rmppe'
 
 /**
  * Générateur de programme de prévention entièrement local et déterministe.
@@ -38,14 +39,15 @@ export interface LocalProgramParams {
   contexte?: Omit<ContexteEtablissement, 'effectif'>
 }
 
-/** Niveaux de la hiérarchie de prévention (LSST art. 51, al. 1 à 5). */
-const HIERARCHY = [
-  "Élimination du danger à la source",
-  "Substitution par un procédé ou produit moins dangereux",
-  "Contrôles techniques (protection collective, ventilation, encoffrement)",
-  "Mesures administratives (procédures, permis, formation, signalisation)",
-  "Équipements de protection individuelle, en dernier recours"
-] as const
+/**
+ * Hiérarchie des mesures de prévention — SIX niveaux.
+ *
+ * Le générateur en retenait cinq, attribués à l'article 51 de la Loi.
+ * L'article 6 du RMPPÉ en énonce six, en isolant la signalisation du risque
+ * des mesures de contrôle administratif. C'est l'ordre réglementaire que
+ * l'employeur doit privilégier ; le document doit donc le refléter.
+ */
+const HIERARCHY = HIERARCHIE_MESURES_PREVENTION
 
 /**
  * Section du document couvrant chaque élément du contenu minimal exigé par la
@@ -108,11 +110,14 @@ const hierarchyLevelFor = (measures: string): string => {
   if (/garde-corps|ventilation|captage|étaie|blindage|encoffr|carter|disjoncteur|détection/.test(text)) {
     return HIERARCHY[2]
   }
-  if (/procédure|permis|formation|balisage|signal|inspection|plan de|rotation|certifi/.test(text)) {
-    return HIERARCHY[3]
+  // Niveau distinct depuis l'article 6 : la signalisation du risque ne relève
+  // plus des mesures administratives.
+  if (/signal|balisage|alarme|avertisseur|lampe témoin|affichage/.test(text)) return HIERARCHY[3]
+  if (/procédure|permis|formation|inspection|plan de|rotation|certifi/.test(text)) {
+    return HIERARCHY[4]
   }
-  if (/harnais|apr|epi|masque|casque|gant|protection individuelle/.test(text)) return HIERARCHY[4]
-  return HIERARCHY[3]
+  if (/harnais|apr|epi|masque|casque|gant|protection individuelle/.test(text)) return HIERARCHY[5]
+  return HIERARCHY[4]
 }
 
 export function generateLocalPreventionProgram(params: LocalProgramParams): string {
@@ -164,7 +169,7 @@ export function generateLocalPreventionProgram(params: LocalProgramParams): stri
     ...params.contexte,
     niveauRisque
   })
-  const modalites = modalitesSelonNiveau(niveauRisque)
+  const modalites = modalitesSelonNiveau(niveauRisque, params.nombreEmployes)
   const regime = {
     libelle: mecanismes.prevention.libelle,
     justification: mecanismes.prevention.justification,
@@ -222,7 +227,7 @@ ${riskTable(moderate)}
 ${riskTable(low)}
 ---
 
-## 2. Mesures de prévention selon la hiérarchie (LSST art. 51)
+## 2. Mesures de prévention selon la hiérarchie (RMPPÉ art. 6)
 
 Chaque mesure est rattachée au niveau de la hiérarchie de prévention qu'elle met en œuvre. Les niveaux supérieurs sont privilégiés ; l'équipement de protection individuelle n'intervient qu'en dernier recours.
 
@@ -346,9 +351,19 @@ ${modalites.explication}
 
 Modalités concernées : ${modalites.aDefautDEntente.join(' ; ')}.
 
-${niveauRisque
-    ? `Le secteur relève du ${LIBELLE_NIVEAU_NEUTRE(niveauRisque).toLowerCase()}. Ce classement ne détermine pas quels mécanismes s'appliquent — l'effectif s'en charge — mais les modalités supplétives du RMPPÉ à défaut d'entente.`
-    : `Le classement du secteur n'a pas pu être déterminé à partir du code SCIAN saisi. À vérifier auprès de l'outil de la CNESST : ${CAS_NON_COUVERTS.join(' ; ')}.`}
+${modalites.valeurs && niveauRisque
+    ? `Le secteur est classé au **${LIBELLE_NIVEAU_NEUTRE(niveauRisque)}**. Ce classement ne détermine pas quels mécanismes s'appliquent — l'effectif s'en charge — mais leurs modalités **à défaut d'entente** :
+
+| Modalité | Valeur supplétive | Article |
+|---|---|---|
+| Réunions du comité | ${modalites.valeurs.reunionsParAnnee} par année, au moins une par trimestre | art. 19 |
+| Représentants des travailleurs au comité | ${modalites.valeurs.representantsTravailleurs} (représentant en santé et en sécurité inclus) | art. 7 |
+| Temps de libération du représentant | ${modalites.valeurs.heuresLiberationParMois} h par mois | art. 33 |
+
+Ces valeurs ne s'imposent qu'en l'absence d'entente entre les parties : une entente conclue les remplace. Le temps de libération se partage entre les représentants s'il y en a plusieurs, il ne se multiplie pas.
+
+_Source : ${modalites.valeurs.reference}_`
+    : `Le classement du secteur n'a pas pu être déterminé à partir du code SCIAN saisi ; les valeurs supplétives du Règlement ne peuvent donc pas être précisées. À vérifier auprès de l'outil de la CNESST : ${CAS_NON_COUVERTS.join(' ; ')}.`}
 
 ${mecanismes.avertissements.map(a => `> ${a}`).join('\n>\n')}
 
