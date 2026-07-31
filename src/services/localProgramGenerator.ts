@@ -1,5 +1,5 @@
 import { Risk } from '@/types/risk'
-import { determinerRegime, echeanceMiseEnApplication, echeanceTransmission } from '@/lib/lmrsst'
+import { determinerMecanismes, echeanceMiseEnApplication, echeanceTransmission } from '@/lib/lmrsst'
 
 /**
  * Générateur de programme de prévention entièrement local et déterministe.
@@ -111,7 +111,13 @@ export function generateLocalPreventionProgram(params: LocalProgramParams): stri
   // Le document exigé découle de l'effectif, non plus du « groupe prioritaire »
   // du régime antérieur (Règlement sur les mécanismes de prévention et de
   // participation en établissement, en vigueur le 1er octobre 2025).
-  const regime = determinerRegime(params.nombreEmployes)
+  const mecanismes = determinerMecanismes({ effectif: params.nombreEmployes })
+  const regime = {
+    libelle: mecanismes.prevention.libelle,
+    justification: mecanismes.prevention.justification,
+    delaiMiseEnApplicationMois: mecanismes.echeances.delaiMois,
+    periodiciteTransmissionAnnees: mecanismes.echeances.periodiciteAnnees
+  }
 
   const contextTable = [
     ...contextRow('Entreprise', params.companyName),
@@ -247,7 +253,21 @@ ${sorted.filter(risk => /harnais|apr|masque|casque|gant|protection individuelle|
 
 ---
 
-## 8. Participation des travailleurs
+## 8. Mécanismes de participation (RMPPE)
+
+${mecanismes.participation.justification}
+
+| Mécanisme | Exigé |
+|---|---|
+| Agent de liaison en santé et en sécurité | ${mecanismes.participation.agentDeLiaison ? 'Oui' : 'Non'} |
+| Comité de santé et de sécurité | ${mecanismes.participation.comiteSanteSecurite ? 'Oui' : 'Non'} |
+| Représentant en santé et en sécurité | ${mecanismes.participation.representantSanteSecurite ? 'Oui' : 'Non'} |
+
+${mecanismes.avertissements.map(a => `> ${a}`).join('\n>\n')}
+
+_Référence : ${mecanismes.reference}_
+
+### Participation des travailleurs
 
 - Consultation du comité de santé et de sécurité sur le présent programme et ses révisions.
 - Mécanisme de signalement des situations dangereuses accessible à tous les travailleurs (LSST art. 49).
