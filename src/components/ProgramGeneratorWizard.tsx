@@ -359,6 +359,8 @@ export function ProgramGeneratorWizard() {
         sector: secteurNom,
         responsibleActor: acteurNom,
         content: result.content,
+        // La provenance voyage avec les métadonnées : elle est figée à la
+        // génération et ne doit jamais être recalculée à la relecture.
         metadata: result.metadata
       });
 

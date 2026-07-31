@@ -232,6 +232,7 @@ export type Database = {
       agent_executions: {
         Row: {
           id: string
+          organization_id: string | null
           agent_name: string
           workflow_id: string | null
           input_data: Json
@@ -244,6 +245,7 @@ export type Database = {
         }
         Insert: {
           id?: string
+          organization_id?: string | null
           agent_name: string
           workflow_id?: string | null
           input_data: Json
@@ -256,6 +258,7 @@ export type Database = {
         }
         Update: {
           agent_name?: string
+          organization_id?: string | null
           workflow_id?: string | null
           input_data?: Json
           output_data?: Json | null

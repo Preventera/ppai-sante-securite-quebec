@@ -25,18 +25,28 @@ Conséquence pour PPAI : `modalitesSelonNiveau()` énonce la règle d'entente et
 renvoie au texte réglementaire. Les valeurs supplétives chiffrées ne sont pas
 intégrées tant qu'elles n'ont pas été obtenues du Règlement lui-même.
 
-## Le sens de l'échelle n'est pas documenté
+## Le sens de l'échelle
 
-La source publiée ne dit pas laquelle des deux extrémités correspond au régime
-le plus exigeant, et la répartition ne permet pas de le déduire : la
-construction de bâtiments (236) est au **niveau 1** tandis que la foresterie
-(113) et l'extraction minière (212) sont au **niveau 4**.
+Les obligations **croissent avec le niveau**, le Règlement le tranche :
 
-Conséquence tenue dans le code : le niveau est affiché tel quel — « niveau 3 » —
-et **jamais** traduit en « risque élevé » ou « risque faible », ni coloré selon
-une échelle de gravité. Voir `LIBELLE_NIVEAU_NEUTRE` dans
-`src/lib/scianNiveaux.ts`. Le jour où la CNESST documente le sens de l'échelle,
-c'est ce seul point qu'il faudra reprendre.
+| Niveau | Réunions du comité (art. 19) | Libération, 101-200 travailleurs (art. 33) |
+|---|---|---|
+| 1 | 4 par année | 11 h par mois |
+| 2 | 6 par année | 14 h par mois |
+| 3 | 6 par année | 27 h par mois |
+| 4 | 9 par année | 43 h par mois |
+
+Le point était indécidable à la seule lecture de la table : la construction de
+bâtiments (236) est au niveau 1 tandis que la foresterie (113) et l'extraction
+minière (212) sont au niveau 4. C'est le RMPPÉ qui lève l'ambiguïté, pas la
+répartition.
+
+Cela ne fait pas pour autant du niveau une mesure de gravité affichable :
+l'annexe I classe des **activités** pour moduler des modalités, elle ne
+qualifie pas le risque d'un établissement. Le niveau reste donc affiché tel
+quel — « niveau 3 » — et **jamais** traduit en « risque élevé » ou « risque
+faible », ni coloré selon une échelle de gravité. Voir `LIBELLE_NIVEAU_NEUTRE`
+dans `src/lib/scianNiveaux.ts`.
 
 ## `niveaux_risque_cnesst.csv`
 

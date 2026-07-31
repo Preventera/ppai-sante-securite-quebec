@@ -4,6 +4,9 @@ import { getBackendMode } from "@/lib/backend";
 import { generateLocalPreventionProgram } from "@/services/localProgramGenerator";
 import type { ContexteEtablissement } from "@/lib/lmrsst";
 import { readValue, writeValue } from "@/lib/localStore";
+import { journaliserExecution } from "@/services/executionLog";
+import { construireProvenance } from "@/lib/provenance";
+import { secteurPourCode } from "@/lib/scianNiveaux";
 
 interface ProgramGenerationParams {
   companyName: string;
@@ -40,6 +43,8 @@ interface AIGenerationResponse {
     tokens?: number;
     risksAnalyzed?: number;
     criticalRisksCount?: number;
+    /** Instantané réglementaire figé, joint quel que soit le moteur. */
+    provenance?: ReturnType<typeof construireProvenance>;
   };
 }
 
@@ -134,6 +139,31 @@ export class AIGenerationService {
     const risks = params.registryRisks ?? [];
     const criticalRisksCount = risks.filter(risk => risk.initialRisk >= 15).length;
 
+    // Contexte non nominatif joint au journal : de quoi diagnostiquer une
+    // génération lente ou en échec, sans recopier le prompt ni le document.
+    const contexteJournal = {
+      secteurScian: params.secteurScian,
+      nombreEmployes: params.nombreEmployes,
+      typeDocument: params.typeDocument,
+      nbRisques: risks.length
+    };
+    const debut = Date.now();
+
+    // La provenance est construite à partir des MÊMES entrées que le document,
+    // quel que soit le moteur : un document produit par Claude et un document
+    // produit localement doivent être traçables de la même façon.
+    const provenancePour = (source: string, modele?: string | null) =>
+      construireProvenance({
+        contexte: { effectif: params.nombreEmployes, ...params.contexte,
+          niveauRisque: params.contexte?.niveauRisque
+            ?? secteurPourCode(params.secteurScian)?.niveau },
+        codeScianSaisi: params.secteurScian,
+        sousSecteurRetenu: secteurPourCode(params.secteurScian)?.code ?? null,
+        risques: risks,
+        source,
+        modele
+      });
+
     const backendMode = await getBackendMode();
 
     if (backendMode === 'live') {
@@ -150,19 +180,50 @@ export class AIGenerationService {
         if (error) throw new Error(error.message);
         if (!data?.content) throw new Error("Aucun contenu généré par l'IA");
 
+        void journaliserExecution({
+          moteur: 'claude',
+          statut: 'completed',
+          dureeMs: Date.now() - debut,
+          contexte: contexteJournal,
+          jetons: data.metadata?.tokens ?? 0,
+          longueurDocument: data.content?.length ?? 0
+        });
+
         return {
           ...data,
-          metadata: { ...data.metadata, source: 'claude' as const }
+          metadata: {
+            ...data.metadata,
+            source: 'claude' as const,
+            provenance: provenancePour('claude', data.metadata?.model ?? null)
+          }
         };
       } catch (error) {
         console.warn(
           '[PPAI] Génération Claude indisponible, repli sur le moteur local:',
           error instanceof Error ? error.message : error
         );
+        // L'échec est consigné même si le repli réussit : sans cela, un backend
+        // durablement en panne resterait invisible, la génération semblant
+        // toujours fonctionner.
+        void journaliserExecution({
+          moteur: 'claude',
+          statut: 'failed',
+          dureeMs: Date.now() - debut,
+          contexte: contexteJournal,
+          messageErreur: error instanceof Error ? error.message : String(error)
+        });
       }
     }
 
-    return this.generateLocally(params, risks, criticalRisksCount);
+    const resultatLocal = this.generateLocally(params, risks, criticalRisksCount);
+    void journaliserExecution({
+      moteur: 'local',
+      statut: 'completed',
+      dureeMs: Date.now() - debut,
+      contexte: contexteJournal,
+      longueurDocument: resultatLocal.content.length
+    });
+    return resultatLocal;
   }
 
   /** Génération locale déterministe, sans réseau ni clé API. */
@@ -193,6 +254,7 @@ export class AIGenerationService {
         generatedAt: new Date().toISOString(),
         model: 'PPAI local',
         source: 'local',
+        provenance: provenancePour('local', 'PPAI local'),
         tokens: 0,
         risksAnalyzed: risks.length,
         criticalRisksCount

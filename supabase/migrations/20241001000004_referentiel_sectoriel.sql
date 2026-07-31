@@ -97,9 +97,16 @@ CREATE TABLE IF NOT EXISTS cnesst_effectifs (
 -- dénominateur d'effectifs.
 -- ------------------------------------------------------------
 
+-- `secteur_cnesst` porte le LIBELLÉ de grand secteur des données ouvertes — 22
+-- valeurs — et non un code SCIAN. Les fichiers de lésions ne descendent pas au
+-- sous-secteur à trois chiffres de l'annexe I : attribuer les lésions de tout le
+-- secteur de la santé aux seuls centres d'hébergement serait une invention.
+-- `secteur_scian` reste disponible pour les rares sources déjà codées, sans être
+-- exigé.
 CREATE TABLE IF NOT EXISTS risk_templates (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    secteur_scian VARCHAR NOT NULL REFERENCES scian_sectors(code) ON DELETE CASCADE,
+    secteur_cnesst TEXT NOT NULL,
+    secteur_scian VARCHAR REFERENCES scian_sectors(code) ON DELETE CASCADE,
     libelle TEXT NOT NULL,
     categorie VARCHAR,
     agent_causal VARCHAR,
@@ -110,7 +117,7 @@ CREATE TABLE IF NOT EXISTS risk_templates (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX IF NOT EXISTS idx_templates_secteur ON risk_templates (secteur_scian);
+CREATE INDEX IF NOT EXISTS idx_templates_secteur ON risk_templates (secteur_cnesst);
 
 COMMENT ON TABLE risk_templates IS
     'Propositions de risques par secteur. Ne constitue pas un registre : l''employeur valide, retire et complète (LSST art. 59).';

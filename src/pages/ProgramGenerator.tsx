@@ -25,6 +25,7 @@ import { ProgramGeneratorWizard } from "@/components/ProgramGeneratorWizard";
 
 // Import de l'orchestrateur PPAI
 import { useProgramGeneration, useOrchestrator } from "@/hooks/useOrchestrator";
+import { getMetriquesExecution, type MetriquesExecution } from "@/services/executionLog";
 
 // Import des composants existants
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -485,6 +486,15 @@ export default function ProgramGenerator() {
   // Hook pour monitoring global
   const { performanceMetrics, executionHistory } = useOrchestrator();
 
+  // Mesures issues du journal des exécutions. `null` tant qu'aucune génération
+  // réelle n'a eu lieu — c'est ce qui distingue une mesure d'une illustration.
+  const [metriquesReelles, setMetriquesReelles] = useState<MetriquesExecution | null>(null);
+  useEffect(() => {
+    let annule = false;
+    getMetriquesExecution().then(m => { if (!annule) setMetriquesReelles(m); });
+    return () => { annule = true; };
+  }, []);
+
   return (
     <div className="container mx-auto p-6 space-y-6">
       {/* En-tête avec sélecteur de mode */}
@@ -528,9 +538,18 @@ export default function ProgramGenerator() {
             </div>
           </div>
 
-          {/* Statistiques de l'orchestrateur */}
+          {/* Statistiques de génération.
+
+              Les valeurs affichées viennent du journal des exécutions dès
+              qu'une génération a eu lieu. À défaut — mode démonstration, ou
+              locataire sans historique — ce sont des valeurs d'illustration,
+              et le bandeau le dit. Elles étaient auparavant présentées sans
+              distinction, ce qui donnait à des constantes en dur l'apparence
+              d'une mesure. */}
           {performanceMetrics && (
-            <div className="mt-4 p-3 bg-blue-50 rounded border grid grid-cols-4 gap-4 text-sm">
+            <div className={`mt-4 p-3 rounded border grid grid-cols-4 gap-4 text-sm ${
+              metriquesReelles ? 'bg-blue-50' : 'bg-amber-50 border-amber-300'
+            }`}>
               <div className="text-center">
                 <div className="font-semibold text-blue-600">{performanceMetrics.total_executions || 0}</div>
                 <div className="text-gray-600">Exécutions totales</div>
@@ -546,6 +565,15 @@ export default function ProgramGenerator() {
               <div className="text-center">
                 <div className="font-semibold text-orange-600">{executionHistory.filter(e => e.execution_status === 'running').length}</div>
                 <div className="text-gray-600">En cours</div>
+              </div>
+              <div className="col-span-4 text-center text-xs text-gray-600 border-t pt-2">
+                {metriquesReelles
+                  ? `Mesuré sur ${metriquesReelles.totalExecutions} génération(s) réelle(s) — ${
+                      Object.entries(metriquesReelles.repartitionMoteur)
+                        .map(([m, n]) => `${m} : ${n}`)
+                        .join(', ')
+                    }`
+                  : "⚠ Valeurs d'illustration — aucune génération enregistrée pour cette organisation."}
               </div>
             </div>
           )}
