@@ -5,7 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Building, MapPin, User, Calendar, FileText } from "lucide-react";
+import { SEUIL_EFFECTIF, SEUIL_JOURS_PRESENCE_CSS } from "@/lib/lmrsst";
 
 export interface CompanyInfo {
   companyName: string;
@@ -24,7 +26,39 @@ export interface CompanyInfo {
   revisionDate: string;
   establishmentType: string;
   additionalInfo: string;
+  /** L'employeur appartient à une mutuelle de prévention. */
+  mutuellePrevention: boolean;
+  /** L'établissement est couvert par l'approche par multiétablissements. */
+  multietablissements: boolean;
+  /**
+   * Jours, dans l'année, où l'établissement groupe 20 travailleurs ou plus.
+   * Vide = présence permanente présumée, l'hypothèse la plus exigeante.
+   */
+  joursAtteinteSeuil: string;
 }
+
+/** Valeurs initiales, pour que tout appelant parte d'un état complet. */
+export const COMPANY_INFO_VIDE: CompanyInfo = {
+  companyName: "",
+  address: "",
+  city: "",
+  province: "",
+  postalCode: "",
+  responsibleName: "",
+  responsibleTitle: "",
+  responsiblePhone: "",
+  responsibleEmail: "",
+  scianCode: "",
+  scianDescription: "",
+  employeeCount: "",
+  implementationDate: "",
+  revisionDate: "",
+  establishmentType: "",
+  additionalInfo: "",
+  mutuellePrevention: false,
+  multietablissements: false,
+  joursAtteinteSeuil: ""
+};
 
 interface CompanyInfoFormProps {
   companyInfo: CompanyInfo;
@@ -33,7 +67,7 @@ interface CompanyInfoFormProps {
 }
 
 export function CompanyInfoForm({ companyInfo, onCompanyInfoChange, selectedGroup }: CompanyInfoFormProps) {
-  const handleInputChange = (field: keyof CompanyInfo, value: string) => {
+  const handleInputChange = (field: keyof CompanyInfo, value: string | boolean) => {
     onCompanyInfoChange({
       ...companyInfo,
       [field]: value
@@ -244,6 +278,75 @@ export function CompanyInfoForm({ companyInfo, onCompanyInfoChange, selectedGrou
               </Select>
             </div>
           </div>
+
+          <fieldset className="border rounded-lg p-4 space-y-3">
+            <legend className="text-sm font-medium px-1">
+              Situations particulières d'assujettissement
+            </legend>
+
+            <div className="flex items-start gap-3">
+              <Checkbox
+                id="mutuellePrevention"
+                checked={companyInfo.mutuellePrevention}
+                onCheckedChange={(checked) =>
+                  handleInputChange('mutuellePrevention', checked === true)
+                }
+              />
+              <div>
+                <Label htmlFor="mutuellePrevention" className="cursor-pointer">
+                  L'employeur appartient à une mutuelle de prévention
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  Le programme de prévention s'impose alors quel que soit l'effectif.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3">
+              <Checkbox
+                id="multietablissements"
+                checked={companyInfo.multietablissements}
+                onCheckedChange={(checked) =>
+                  handleInputChange('multietablissements', checked === true)
+                }
+              />
+              <div>
+                <Label htmlFor="multietablissements" className="cursor-pointer">
+                  L'établissement est couvert par l'approche par multiétablissements
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  Un établissement de {SEUIL_EFFECTIF - 1} travailleurs ou moins couvert par un
+                  regroupement bascule dans le régime des {SEUIL_EFFECTIF} et plus : programme de
+                  prévention, comité et représentant, et plus d'agent de liaison.
+                </p>
+              </div>
+            </div>
+
+            {/* La tranche est libellée « 20-49 employés » : sa borne basse suffit
+                à savoir si le seuil est atteint. Sous le seuil, la question des
+                jours de présence ne se pose pas. */}
+            <div
+              className="space-y-2"
+              hidden={(parseInt(companyInfo.employeeCount, 10) || 0) < SEUIL_EFFECTIF}
+            >
+              <Label htmlFor="joursAtteinteSeuil">
+                Jours dans l'année à {SEUIL_EFFECTIF} travailleurs ou plus
+              </Label>
+              <Input
+                id="joursAtteinteSeuil"
+                type="number"
+                min={0}
+                max={366}
+                value={companyInfo.joursAtteinteSeuil}
+                onChange={(e) => handleInputChange('joursAtteinteSeuil', e.target.value)}
+                placeholder="Laisser vide si présence permanente"
+              />
+              <p className="text-xs text-muted-foreground">
+                Sous {SEUIL_JOURS_PRESENCE_CSS} jours, le comité de santé et de sécurité n'est pas
+                exigé — et le représentant non plus. Champ vide : présence permanente présumée.
+              </p>
+            </div>
+          </fieldset>
 
           <div className="space-y-2">
             <Label htmlFor="scianDescription">Description de l'activité économique</Label>

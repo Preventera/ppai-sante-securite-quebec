@@ -2,6 +2,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Risk } from "@/types/risk";
 import { getBackendMode } from "@/lib/backend";
 import { generateLocalPreventionProgram } from "@/services/localProgramGenerator";
+import type { ContexteEtablissement } from "@/lib/lmrsst";
 
 interface ProgramGenerationParams {
   companyName: string;
@@ -16,6 +17,12 @@ interface ProgramGenerationParams {
   customPrompt?: string;
   /** Risques du registre à intégrer réellement dans le programme généré. */
   registryRisks?: Risk[];
+  /**
+   * Précisions d'assujettissement au-delà de l'effectif : mutuelle de
+   * prévention, regroupement multiétablissements, jours d'atteinte du seuil.
+   * Elles changent le mécanisme exigé, pas seulement sa présentation.
+   */
+  contexte?: Omit<ContexteEtablissement, 'effectif'>;
 }
 
 interface AIGenerationResponse {
@@ -146,7 +153,8 @@ export class AIGenerationService {
       activitesPrincipales: params.activitesPrincipales,
       typeDocument: params.typeDocument,
       acteurResponsable: params.acteurResponsable,
-      risks
+      risks,
+      contexte: params.contexte
     });
 
     return {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -26,6 +26,26 @@ import { useToast } from "@/hooks/use-toast";
 import { AIGenerationService } from "@/services/aiGenerationService";
 import { programService } from "@/services/programService";
 import { riskIntegrationService, RiskAnalysis, ProgramSuggestion } from "@/services/RiskIntegrationService";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
+import {
+  determinerMecanismes,
+  SEUIL_EFFECTIF,
+  SEUIL_JOURS_PRESENCE_CSS,
+  type ContexteEtablissement
+} from "@/lib/lmrsst";
+import {
+  LIBELLE_NIVEAU_NEUTRE,
+  niveauPourCode,
+  secteurPourCode,
+  SECTEURS_SCIAN
+} from "@/lib/scianNiveaux";
 
 // Types
 interface WizardStep {
@@ -45,6 +65,17 @@ interface ProgramConfig {
     name: string;
     employees: number;
     activities: string;
+    /** Code SCIAN 2012 du sous-secteur, qui donne le classement CNESST. */
+    scianCode: string;
+    /** L'employeur appartient à une mutuelle de prévention. */
+    mutuellePrevention: boolean;
+    /** L'établissement est couvert par l'approche par multiétablissements. */
+    multietablissements: boolean;
+    /**
+     * Jours, dans l'année, où l'établissement groupe 20 travailleurs ou plus.
+     * Vide = présence permanente présumée, l'hypothèse la plus exigeante.
+     */
+    joursAtteinteSeuil: string;
   };
   riskIntegration: {
     enabled: boolean;
@@ -118,7 +149,11 @@ export function ProgramGeneratorWizard() {
     companyInfo: {
       name: "",
       employees: 0,
-      activities: ""
+      activities: "",
+      scianCode: "",
+      mutuellePrevention: false,
+      multietablissements: false,
+      joursAtteinteSeuil: ""
     },
     riskIntegration: {
       enabled: true
@@ -129,6 +164,35 @@ export function ProgramGeneratorWizard() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isLoadingRisks, setIsLoadingRisks] = useState(false);
   const { toast } = useToast();
+
+  // Contexte d'assujettissement dérivé du formulaire. Il n'est pas seulement
+  // décoratif : la mutuelle de prévention et le regroupement changent le
+  // mécanisme exigé, pas seulement sa présentation.
+  const contexteEtablissement = useMemo<Omit<ContexteEtablissement, 'effectif'>>(() => {
+    const jours = parseInt(config.companyInfo.joursAtteinteSeuil, 10);
+    return {
+      mutuellePrevention: config.companyInfo.mutuellePrevention,
+      multietablissements: config.companyInfo.multietablissements,
+      joursAtteinteSeuil: Number.isFinite(jours) && jours >= 0 ? jours : undefined,
+      niveauRisque: niveauPourCode(config.companyInfo.scianCode) ?? undefined
+    };
+  }, [config.companyInfo]);
+
+  const secteurScian = useMemo(
+    () => secteurPourCode(config.companyInfo.scianCode),
+    [config.companyInfo.scianCode]
+  );
+
+  // Aperçu en direct : l'utilisateur voit le mécanisme changer en cochant une
+  // case, plutôt que de le découvrir dans le document final.
+  const mecanismesApercu = useMemo(
+    () =>
+      determinerMecanismes({
+        effectif: config.companyInfo.employees,
+        ...contexteEtablissement
+      }),
+    [config.companyInfo.employees, contexteEtablissement]
+  );
 
   const steps: WizardStep[] = [
     {
@@ -272,14 +336,17 @@ export function ProgramGeneratorWizard() {
 
       const result = await aiService.generatePreventionProgram({
         companyName: config.companyInfo.name,
-        secteurScian: secteurNom,
+        // Le code SCIAN saisi prime : c'est lui qui résout le classement
+        // CNESST. Le libellé du secteur du wizard ne sert que de repli.
+        secteurScian: config.companyInfo.scianCode || secteurNom,
         groupePrioritaire: Number(config.secteur) || 1,
         nombreEmployes: config.companyInfo.employees,
         activitesPrincipales: config.companyInfo.activities,
         typeDocument: config.obligation || 'Programme de prévention',
         acteurResponsable: acteurNom,
         customPrompt,
-        registryRisks
+        registryRisks,
+        contexte: contexteEtablissement
       });
 
       setGeneratedContent(result.content);
@@ -420,9 +487,13 @@ export function ProgramGeneratorWizard() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">Nombre d'employés</label>
+                <label htmlFor="wizard-employees" className="block text-sm font-medium mb-2">
+                  Nombre de travailleuses et travailleurs
+                </label>
                 <input
+                  id="wizard-employees"
                   type="number"
+                  min={0}
                   className="w-full p-3 border rounded-lg"
                   placeholder="Ex: 25"
                   value={config.companyInfo.employees || ""}
@@ -431,10 +502,117 @@ export function ProgramGeneratorWizard() {
                     companyInfo: {...config.companyInfo, employees: parseInt(e.target.value) || 0}
                   })}
                 />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Calculé sur une période d'un an, selon les règles d'inclusion et d'exclusion
+                  publiées par la CNESST. C'est ce nombre qui détermine les mécanismes exigés.
+                </p>
               </div>
+
               <div>
-                <label className="block text-sm font-medium mb-2">Activités principales</label>
+                <label htmlFor="wizard-scian" className="block text-sm font-medium mb-2">
+                  Sous-secteur SCIAN 2012
+                </label>
+                <Select
+                  value={config.companyInfo.scianCode}
+                  onValueChange={(value) => setConfig({
+                    ...config,
+                    companyInfo: {...config.companyInfo, scianCode: value}
+                  })}
+                >
+                  <SelectTrigger id="wizard-scian" className="w-full">
+                    <SelectValue placeholder="Sélectionnez votre sous-secteur d'activité" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-72">
+                    {SECTEURS_SCIAN.map((secteur) => (
+                      <SelectItem key={secteur.code} value={secteur.code}>
+                        {secteur.code} — {secteur.libelle}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {secteurScian
+                    ? `Classement CNESST : ${LIBELLE_NIVEAU_NEUTRE(secteurScian.niveau)}. Il ne détermine pas quels mécanismes s'appliquent, mais les modalités supplétives du RMPPÉ à défaut d'entente.`
+                    : "Détermine le classement CNESST de l'établissement. Certains établissements ne sont pas couverts par ce classement."}
+                </p>
+              </div>
+
+              <fieldset className="border rounded-lg p-4 space-y-3">
+                <legend className="text-sm font-medium px-1">Situations particulières</legend>
+
+                <div className="flex items-start gap-3">
+                  <Checkbox
+                    id="wizard-mutuelle"
+                    checked={config.companyInfo.mutuellePrevention}
+                    onCheckedChange={(checked) => setConfig({
+                      ...config,
+                      companyInfo: {...config.companyInfo, mutuellePrevention: checked === true}
+                    })}
+                  />
+                  <div>
+                    <label htmlFor="wizard-mutuelle" className="text-sm font-medium cursor-pointer">
+                      L'employeur appartient à une mutuelle de prévention
+                    </label>
+                    <p className="text-xs text-muted-foreground">
+                      Le programme de prévention s'impose alors quel que soit l'effectif.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <Checkbox
+                    id="wizard-multi"
+                    checked={config.companyInfo.multietablissements}
+                    onCheckedChange={(checked) => setConfig({
+                      ...config,
+                      companyInfo: {...config.companyInfo, multietablissements: checked === true}
+                    })}
+                  />
+                  <div>
+                    <label htmlFor="wizard-multi" className="text-sm font-medium cursor-pointer">
+                      L'établissement est couvert par l'approche par multiétablissements
+                    </label>
+                    <p className="text-xs text-muted-foreground">
+                      Un établissement de {SEUIL_EFFECTIF - 1} travailleurs ou moins couvert par un
+                      regroupement bascule dans le régime des {SEUIL_EFFECTIF} et plus : programme de
+                      prévention, comité et représentant, et plus d'agent de liaison.
+                    </p>
+                  </div>
+                </div>
+
+                {config.companyInfo.employees >= SEUIL_EFFECTIF && (
+                  <div>
+                    <label htmlFor="wizard-jours" className="block text-sm font-medium mb-2">
+                      Jours dans l'année à {SEUIL_EFFECTIF} travailleurs ou plus
+                    </label>
+                    <input
+                      id="wizard-jours"
+                      type="number"
+                      min={0}
+                      max={366}
+                      className="w-full p-3 border rounded-lg"
+                      placeholder="Laisser vide si présence permanente"
+                      value={config.companyInfo.joursAtteinteSeuil}
+                      onChange={(e) => setConfig({
+                        ...config,
+                        companyInfo: {...config.companyInfo, joursAtteinteSeuil: e.target.value}
+                      })}
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Sous {SEUIL_JOURS_PRESENCE_CSS} jours, le comité de santé et de sécurité n'est
+                      pas exigé — et le représentant non plus. Champ vide : présence permanente
+                      présumée, l'hypothèse la plus exigeante.
+                    </p>
+                  </div>
+                )}
+              </fieldset>
+
+              <div>
+                <label htmlFor="wizard-activities" className="block text-sm font-medium mb-2">
+                  Activités principales
+                </label>
                 <Textarea
+                  id="wizard-activities"
                   className="w-full"
                   placeholder="Décrivez vos principales activités..."
                   value={config.companyInfo.activities}
@@ -444,6 +622,53 @@ export function ProgramGeneratorWizard() {
                   })}
                 />
               </div>
+
+              {config.companyInfo.employees > 0 && (
+                <Card className="bg-muted/40">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <Shield className="h-4 w-4" aria-hidden="true" />
+                      Mécanismes applicables
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3 text-sm">
+                    <p>
+                      <span className="font-medium">Document exigé :</span>{" "}
+                      {mecanismesApercu.prevention.libelle}
+                    </p>
+                    <p className="text-muted-foreground text-xs">
+                      {mecanismesApercu.prevention.justification}
+                    </p>
+                    <ul className="space-y-1">
+                      {[
+                        ["Agent de liaison en santé et en sécurité", mecanismesApercu.participation.agentDeLiaison],
+                        ["Comité de santé et de sécurité", mecanismesApercu.participation.comiteSanteSecurite],
+                        ["Représentant en santé et en sécurité", mecanismesApercu.participation.representantSanteSecurite]
+                      ].map(([libelle, exige]) => (
+                        <li key={libelle as string} className="flex items-center gap-2">
+                          {exige ? (
+                            <CheckCircle className="h-4 w-4 text-green-600 shrink-0" aria-hidden="true" />
+                          ) : (
+                            <span
+                              className="h-4 w-4 shrink-0 text-center text-muted-foreground"
+                              aria-hidden="true"
+                            >
+                              —
+                            </span>
+                          )}
+                          <span className={exige ? "" : "text-muted-foreground"}>
+                            {libelle as string} : {exige ? "exigé" : "non exigé"}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                    <p className="text-xs text-muted-foreground">
+                      Référence : {mecanismesApercu.reference}. Ce résumé est informatif ; les lois
+                      et règlements ont priorité.
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </div>
         );

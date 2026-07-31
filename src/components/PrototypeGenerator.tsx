@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -7,9 +7,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Wand2, Download, Copy, Zap, Settings, Info, Database } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { CompanyInfoForm, CompanyInfo } from "@/components/CompanyInfoForm";
+import { CompanyInfoForm, CompanyInfo, COMPANY_INFO_VIDE } from "@/components/CompanyInfoForm";
 import { AIGenerationService, AIProvider } from "@/services/aiGenerationService";
 import { programService } from "@/services/programService";
+import type { ContexteEtablissement } from "@/lib/lmrsst";
+import { niveauPourCode } from "@/lib/scianNiveaux";
 import { AIConfigurationModal } from "@/components/AIConfigurationModal";
 
 const templates = {
@@ -43,24 +45,18 @@ interface PrototypeGeneratorProps {
 
 export function PrototypeGenerator({ selectedGroup, cnessData, registryRisks }: PrototypeGeneratorProps) {
   const [selectedTemplate, setSelectedTemplate] = useState("");
-  const [companyInfo, setCompanyInfo] = useState<CompanyInfo>({
-    companyName: "",
-    address: "",
-    city: "",
-    province: "",
-    postalCode: "",
-    responsibleName: "",
-    responsibleTitle: "",
-    responsiblePhone: "",
-    responsibleEmail: "",
-    scianCode: "",
-    scianDescription: "",
-    employeeCount: "",
-    implementationDate: "",
-    revisionDate: "",
-    establishmentType: "",
-    additionalInfo: ""
-  });
+  const [companyInfo, setCompanyInfo] = useState<CompanyInfo>(COMPANY_INFO_VIDE);
+  // Le contexte d'assujettissement saisi change le mécanisme exigé, il doit
+  // donc atteindre le générateur — pas seulement figurer à l'écran.
+  const contexteEtablissement = useMemo<Omit<ContexteEtablissement, 'effectif'>>(() => {
+    const jours = parseInt(companyInfo.joursAtteinteSeuil, 10);
+    return {
+      mutuellePrevention: companyInfo.mutuellePrevention,
+      multietablissements: companyInfo.multietablissements,
+      joursAtteinteSeuil: Number.isFinite(jours) && jours >= 0 ? jours : undefined,
+      niveauRisque: niveauPourCode(companyInfo.scianCode) ?? undefined
+    };
+  }, [companyInfo]);
   const [generatedContent, setGeneratedContent] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [showAIConfig, setShowAIConfig] = useState(false);
@@ -107,7 +103,8 @@ export function PrototypeGenerator({ selectedGroup, cnessData, registryRisks }: 
         typeDocument: template.title,
         acteurResponsable: companyInfo.responsibleTitle || "Coordonnateur SST",
         cnessData: cnessData,
-        registryRisks: registryRisks // Nouveau paramètre
+        registryRisks: registryRisks, // Nouveau paramètre
+        contexte: contexteEtablissement
       });
 
       // Enrichissement du contenu avec les informations de l'entreprise
