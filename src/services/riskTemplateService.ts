@@ -12,16 +12,18 @@ import { secteurPourCode } from '@/lib/scianNiveaux'
  * arbitrage : le découpage « biens durables / non durables » est une
  * classification de Statistique Canada, pas un jugement de notre part.
  *
- * DEUX CAS NON RÉSOLUS, volontairement laissés hors table :
+ * DEUX CAS PARTICULIERS :
  *
- *   115 — « Activités de soutien à l'agriculture ET à la foresterie » chevauche
- *   deux secteurs CNESST distincts, qui n'ont ni le même profil de lésions ni
- *   le même niveau à l'annexe I (agriculture 3, foresterie 4). Trancher au
- *   hasard rattacherait un établissement au mauvais référentiel.
+ *   115 — « Activités de soutien à l'agriculture ET à la foresterie » recouvre
+ *   deux réalités de terrain aux profils de lésions distincts. Aucune
+ *   conséquence réglementaire : l'annexe I lui attribue un niveau unique, 4, et
+ *   les modalités du RMPPÉ en découlent quelle que soit l'orientation. Seul le
+ *   profil de risques proposé diffère, et c'est à l'établissement de dire
+ *   lequel le concerne — voir `CODES_PLURIVOQUES`.
  *
  *   « AUTRES OU NON CODES » — 78 181 lésions, dont 57 204 d'exposition au
  *   bruit, ne correspond à aucun secteur d'activité. Ces lésions ne sont
- *   attribuables à personne en particulier.
+ *   attribuables à personne en particulier ; le libellé reste hors table.
  *
  * Un code absent renvoie null, et l'application se rabat alors sur le jeu de
  * démonstration plutôt que de proposer les risques d'un secteur voisin.
@@ -130,8 +132,47 @@ const SECTEUR_CNESST_PAR_CODE: Record<string, string> = {
   '919': 'ADMINISTRATIONS PUBLIQUES',
 }
 
-export function secteurCnesstPour(codeScian: string): string | null {
-  return SECTEUR_CNESST_PAR_CODE[codeScian] ?? null
+/**
+ * Codes dont le profil de lésions relève de plusieurs grands secteurs.
+ *
+ * Le code SCIAN reste celui de l'annexe I — on n'en invente pas de nouveau, la
+ * table réglementaire doit continuer de refléter le Règlement à la virgule
+ * près. C'est la couche de PROPOSITION qui se dédouble, pas le référentiel.
+ */
+export const CODES_PLURIVOQUES: Record<string, readonly string[]> = {
+  '115': [
+    'AGRICULTURE',
+    'FORESTERIE, EXPLOITATION FORESTIERE ET ACTIVITES DE SOUTIEN A LA FORESTERIE'
+  ]
+}
+
+/**
+ * Grands secteurs CNESST envisageables pour un code SCIAN.
+ *
+ * Un seul dans la quasi-totalité des cas ; deux pour le code 115 ; aucun si le
+ * code est hors table. Permet à l'interface de poser la question uniquement
+ * quand elle se pose réellement.
+ */
+export function secteursCnesstCandidats(codeScian: string): readonly string[] {
+  const plurivoque = CODES_PLURIVOQUES[codeScian]
+  if (plurivoque) return plurivoque
+  const unique = SECTEUR_CNESST_PAR_CODE[codeScian]
+  return unique ? [unique] : []
+}
+
+/**
+ * Grand secteur retenu pour un code.
+ *
+ * `orientation` tranche les codes plurivoques ; elle est ignorée pour les
+ * autres, où le Règlement ne laisse aucun choix. Sans orientation sur un code
+ * plurivoque, la fonction renvoie null : elle ne choisit pas à la place de
+ * l'établissement.
+ */
+export function secteurCnesstPour(codeScian: string, orientation?: string): string | null {
+  const candidats = secteursCnesstCandidats(codeScian)
+  if (candidats.length === 0) return null
+  if (candidats.length === 1) return candidats[0]
+  return orientation && candidats.includes(orientation) ? orientation : null
 }
 
 /**
@@ -253,18 +294,23 @@ export function estIssuDesDonneesOuvertes(template: RiskTemplate): boolean {
  * trois chiffres, seul niveau auquel le référentiel est publié. Un secteur
  * inconnu renvoie une liste vide — pas les propositions d'un secteur voisin.
  */
-export async function getRiskTemplates(codeScian: string): Promise<RiskTemplate[]> {
+export async function getRiskTemplates(
+  codeScian: string,
+  options: { orientation?: string } = {}
+): Promise<RiskTemplate[]> {
   const secteur = secteurPourCode(codeScian)
   if (!secteur) return []
+  const secteurCnesst = secteurCnesstPour(secteur.code, options.orientation)
+  if (!secteurCnesst) return []
 
   if ((await getBackendMode()) === 'demo') {
-    return TEMPLATES_DEMONSTRATION.filter(t => t.secteurCnesst === secteurCnesstPour(secteur.code))
+    return TEMPLATES_DEMONSTRATION.filter(t => t.secteurCnesst === secteurCnesst)
   }
 
   const { data, error } = await supabase
     .from('risk_templates')
     .select('*')
-    .eq('secteur_cnesst', secteurCnesstPour(secteur.code) ?? '')
+    .eq('secteur_cnesst', secteurCnesst)
     .order('nb_cas_observes', { ascending: false, nullsFirst: false })
 
   if (error) {
@@ -274,7 +320,7 @@ export async function getRiskTemplates(codeScian: string): Promise<RiskTemplate[
       '[PPAI] Référentiel sectoriel indisponible, repli sur le jeu de démonstration:',
       error.message
     )
-    return TEMPLATES_DEMONSTRATION.filter(t => t.secteurCnesst === secteurCnesstPour(secteur.code))
+    return TEMPLATES_DEMONSTRATION.filter(t => t.secteurCnesst === secteurCnesst)
   }
 
   return (data ?? []).map(row => ({
