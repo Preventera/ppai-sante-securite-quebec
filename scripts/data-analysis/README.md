@@ -44,3 +44,43 @@ Les fichiers récupérés alimentent le référentiel sectoriel partagé, créé
 Ce référentiel **propose** un registre de départ ; il ne le constitue jamais.
 L'article 59 de la LSST exige que l'employeur identifie les risques de **son**
 établissement — une statistique sectorielle ne peut s'y substituer.
+
+## Charger le référentiel sectoriel
+
+La correspondance SCIAN → niveau de risque n'est pas récupérable
+automatiquement : l'outil de la CNESST et le portail de Statistique Canada
+refusent les requêtes automatisées. Le chargement passe donc par un CSV que
+tu prépares, converti en SQL relu avant exécution.
+
+```bash
+python3 charger_referentiel.py --secteurs secteurs.csv > charger.sql
+python3 charger_referentiel.py --secteurs secteurs.csv --effectifs effectifs.csv > charger.sql
+```
+
+Puis coller `charger.sql` dans l'éditeur SQL du projet Supabase.
+
+### Format attendu
+
+`secteurs.csv` — source : outil « Niveau des activités de l'établissement »
+de la CNESST.
+
+```csv
+code,libelle,niveau
+2361,Construction résidentielle,1
+5411,Services juridiques,4
+6221,Hôpitaux généraux et chirurgicaux,
+```
+
+Le niveau est un entier de 1 à 4, ou vide s'il est inconnu. Les lignes dont le
+niveau est hors bornes sont rejetées avec un avertissement.
+
+`effectifs.csv` — source : Statistique Canada ou Institut de la statistique du
+Québec. Sans ce fichier, aucun taux pour 100 travailleurs n'est calculable.
+
+```csv
+code,annee,nb_travailleurs,region
+2361,2023,48210,ENSEMBLE
+```
+
+Le SQL produit est idempotent : le rejouer met à jour les libellés et les
+niveaux sans créer de doublon.
