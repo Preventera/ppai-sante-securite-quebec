@@ -1,6 +1,8 @@
 import { supabase } from '@/integrations/supabase/client'
 import { getBackendMode } from '@/lib/backend'
 import { secteurPourCode } from '@/lib/scianNiveaux'
+import type { Risk } from '@/types/risk'
+import type { RiskInput } from '@/services/riskService'
 
 /**
  * Correspondance sous-secteur SCIAN (annexe I du RMPPÉ, 102 codes) vers grand
@@ -339,29 +341,50 @@ export async function getRiskTemplates(
 /**
  * Convertit une proposition en risque prêt à inscrire au registre.
  *
- * `probability` reste à 0 : elle n'est pas dérivable des données et relève du
- * jugement de l'employeur sur son établissement. L'indice initial est donc nul
- * tant qu'elle n'a pas été fixée, ce qui rend l'omission visible plutôt que
- * silencieuse.
+ * TROIS VALEURS QUE LES DONNÉES NE PEUVENT PAS FOURNIR, ET QUI SONT DONC
+ * DEMANDÉES À L'APPELANT
+ *
+ *   `probability` — non dérivable des lésions : le grain est « une ligne = une
+ *   lésion survenue », sans contre-exemple. Elle relève du jugement de
+ *   l'employeur sur SON établissement (LSST art. 59). La base l'impose d'ailleurs
+ *   entre 1 et 5 : il n'existe pas de valeur « inconnue » à inscrire, et en
+ *   glisser une par défaut reviendrait à coter le risque à la place de
+ *   l'employeur.
+ *
+ *   `sector` — le registre classe dans quatre domaines, les données CNESST dans
+ *   22 grands secteurs. Aucune correspondance ne se déduit de l'un à l'autre.
+ *
+ *   `residualRisk` — il découle des mesures effectivement mises en place, qui
+ *   n'existent pas encore au moment d'adopter une proposition.
+ *
+ * L'origine de la proposition est reportée à la suite des mesures types, seul
+ * champ libre du registre : elle documente d'où vient la ligne sans se faire
+ * passer pour une mesure de prévention.
  */
-export function templateVersRisque(template: RiskTemplate) {
-  const gravite = template.graviteSuggeree ?? 0
+export function templateVersRisque(
+  template: RiskTemplate,
+  choix: { probabilite: number; secteurRegistre: Risk['sector'] }
+): RiskInput {
+  const origine = estIssuDesDonneesOuvertes(template)
+    ? `Proposition issue des lésions professionnelles du secteur « ${template.secteurCnesst} »` +
+      (template.agentCausal ? `, agent causal dominant : ${template.agentCausal}` : '') +
+      (template.nbCasObserves
+        ? `, ${template.nbCasObserves} cas observés (classement, non fréquence)`
+        : '') +
+      `. Source : ${template.source}. À valider pour l'établissement.`
+    : `Proposition de démonstration — ${template.source}. À valider pour l'établissement.`
+
+  const mesures = [template.mesuresTypes?.trim(), `— ${origine}`].filter(Boolean).join('\n\n')
+
   return {
     name: template.libelle,
-    description: template.agentCausal
-      ? `Agent causal : ${template.agentCausal}`
-      : '',
-    category: template.categorie ?? '',
-    sector: template.secteurCnesst,
     phase: '',
-    probability: 0,
-    gravity: gravite,
-    initialRisk: 0,
-    residualRisk: 0,
-    measures: template.mesuresTypes ?? '',
+    category: template.categorie ?? '',
+    sector: choix.secteurRegistre,
+    probability: choix.probabilite,
+    gravity: template.graviteSuggeree ?? 3,
+    measures: mesures,
     responsible: '',
-    status: 'À évaluer',
-    /** Origine, à conserver pour la traçabilité du registre. */
-    origine: template.source
+    status: 'Action requise'
   }
 }
