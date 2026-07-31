@@ -97,10 +97,10 @@ const Index = () => {
               <Shield className="w-8 h-8" />
               PPAI — Tableau de bord SST
             </h1>
-            <p className="text-gray-600 mt-1 flex items-center gap-2 flex-wrap">
+            <div className="text-gray-600 mt-1 flex items-center gap-2 flex-wrap">
               Pilotage de la prévention à partir du registre des risques
               <BackendModeBadge />
-            </p>
+            </div>
           </div>
           <Button asChild>
             <Link to="/generator">

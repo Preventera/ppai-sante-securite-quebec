@@ -2,6 +2,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Risk } from "@/types/risk";
 import { getBackendMode } from "@/lib/backend";
 import { generateLocalPreventionProgram } from "@/services/localProgramGenerator";
+import type { ContexteEtablissement } from "@/lib/lmrsst";
+import { readValue, writeValue } from "@/lib/localStore";
 
 interface ProgramGenerationParams {
   companyName: string;
@@ -16,6 +18,12 @@ interface ProgramGenerationParams {
   customPrompt?: string;
   /** Risques du registre à intégrer réellement dans le programme généré. */
   registryRisks?: Risk[];
+  /**
+   * Précisions d'assujettissement au-delà de l'effectif : mutuelle de
+   * prévention, regroupement multiétablissements, jours d'atteinte du seuil.
+   * Elles changent le mécanisme exigé, pas seulement sa présentation.
+   */
+  contexte?: Omit<ContexteEtablissement, 'effectif'>;
 }
 
 interface AIGenerationResponse {
@@ -78,15 +86,40 @@ const extractLegalReferences = (content: string): string[] => {
   return [...references];
 };
 
+/**
+ * Reprend la configuration écrite sous l'ancienne clé non préfixée.
+ *
+ * Le stockage local est désormais cloisonné sous « ppai: ». Sans cette
+ * reprise, une clé d'API déjà saisie disparaîtrait sans un mot, obligeant
+ * l'utilisateur à la ressaisir sans comprendre pourquoi. Transitoire : à
+ * retirer une fois le parc migré.
+ */
+function reprendreConfigHeritee(): AIConfig | null {
+  try {
+    const raw = window.localStorage?.getItem('ai_config');
+    if (!raw) return null;
+    const config = JSON.parse(raw) as AIConfig;
+    writeValue('ai_config', config);
+    window.localStorage.removeItem('ai_config');
+    return config;
+  } catch {
+    // Stockage refusé ou contenu illisible : on repart des valeurs par défaut.
+    return null;
+  }
+}
+
 export class AIGenerationService {
   private config: AIConfig;
 
   constructor() {
-    const savedConfig = localStorage.getItem('ai_config');
-    this.config = savedConfig ? JSON.parse(savedConfig) : {
-      provider: 'claude',
-      apiKey: 'configured-in-supabase'
-    };
+    // Ce constructeur est appelé pendant le rendu de React. Un accès direct à
+    // localStorage y lève une exception lorsque le navigateur refuse le
+    // stockage — prévention du pistage stricte, mode privé, politique
+    // d'entreprise — et une valeur corrompue faisait échouer JSON.parse. Dans
+    // les deux cas l'arbre React entier était démonté : page blanche.
+    const defaut: AIConfig = { provider: 'claude', apiKey: 'configured-in-supabase' };
+    const stocke = readValue<AIConfig | null>('ai_config', null);
+    this.config = stocke ?? reprendreConfigHeritee() ?? defaut;
   }
 
   /**
@@ -146,7 +179,8 @@ export class AIGenerationService {
       activitesPrincipales: params.activitesPrincipales,
       typeDocument: params.typeDocument,
       acteurResponsable: params.acteurResponsable,
-      risks
+      risks,
+      contexte: params.contexte
     });
 
     return {
@@ -204,7 +238,7 @@ export class AIGenerationService {
 
   setConfig(config: AIConfig): void {
     this.config = config;
-    localStorage.setItem('ai_config', JSON.stringify(config));
+    writeValue('ai_config', config);
   }
 
   getConfig(): AIConfig {

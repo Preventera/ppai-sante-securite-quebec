@@ -2,6 +2,7 @@ import { supabase } from '@/integrations/supabase/client'
 import { Risk, RiskStatus, RiskSector } from '@/types/risk'
 import { getBackendMode } from '@/lib/backend'
 import { readCollection, writeCollection, resetCollection } from '@/lib/localStore'
+import { requireOrganizationId } from '@/lib/organization'
 import { seedRisks } from '@/data/seedRisks'
 
 /**
@@ -161,9 +162,14 @@ export const riskService = {
       return risk
     }
 
+    // Les politiques RLS refusent toute ligne dont l'organisation ne
+    // correspond pas à celle du profil de l'utilisateur.
+    const organizationId = await requireOrganizationId()
+
     const { data, error } = await supabase
       .from('risks')
       .insert({
+        organization_id: organizationId,
         code: risk.id,
         name: risk.name,
         phase: risk.phase,
@@ -254,8 +260,11 @@ export const riskService = {
       return normalized.length
     }
 
+    const organizationId = await requireOrganizationId()
+
     const { error } = await supabase.from('risks').insert(
       normalized.map(risk => ({
+        organization_id: organizationId,
         code: risk.id,
         name: risk.name,
         phase: risk.phase,

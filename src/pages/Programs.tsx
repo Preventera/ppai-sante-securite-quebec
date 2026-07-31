@@ -105,10 +105,10 @@ const Programs = () => {
             <Wand2 className="w-8 h-8" />
             PPAI - Générateur de Programmes SST
           </h1>
-          <p className="text-gray-600 mt-1 flex items-center gap-2 flex-wrap">
+          <div className="text-gray-600 mt-1 flex items-center gap-2 flex-wrap">
             Génération intelligente de programmes de prévention avec intégration du registre des risques
             <BackendModeBadge />
-          </p>
+          </div>
         </div>
 
         {/* Configuration globale */}

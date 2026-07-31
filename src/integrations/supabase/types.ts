@@ -93,9 +93,35 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          id: string
+          organization_id: string
+          full_name: string | null
+          role: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id: string
+          organization_id: string
+          full_name?: string | null
+          role?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          organization_id?: string
+          full_name?: string | null
+          role?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       risks: {
         Row: {
           id: string
+          organization_id: string | null
           establishment_id: string | null
           code: string
           name: string
@@ -115,6 +141,7 @@ export type Database = {
         }
         Insert: {
           id?: string
+          organization_id?: string | null
           establishment_id?: string | null
           code: string
           name: string
@@ -132,6 +159,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          organization_id?: string | null
           establishment_id?: string | null
           code?: string
           name?: string

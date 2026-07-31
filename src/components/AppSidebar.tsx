@@ -1,6 +1,8 @@
 import { useState } from "react";
-import { Home, Shield, FileText, BarChart3, Settings, AlertTriangle, Users, Calendar, Wand2, Building, Workflow, Calculator } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { Home, Shield, FileText, BarChart3, Settings, AlertTriangle, Users, Calendar, Wand2, Building, Workflow, Calculator, LogOut } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   Sidebar,
   SidebarContent,
@@ -83,6 +85,13 @@ const adminItems = [
 
 export function AppSidebar() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { organization, profile, user, demoMode, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/auth", { replace: true });
+  };
 
   return (
     <Sidebar className="border-r border-border bg-white">
@@ -152,7 +161,29 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="px-6 py-4 border-t border-border">
+      <SidebarFooter className="px-6 py-4 border-t border-border space-y-3">
+        {/* Organisation courante et déconnexion, masquées en démonstration */}
+        {!demoMode && organization && (
+          <div className="space-y-2">
+            <div className="text-xs">
+              <p className="font-medium text-gray-700 truncate" title={organization.name}>
+                {organization.name}
+              </p>
+              <p className="text-gray-500 truncate" title={user?.email ?? ''}>
+                {profile?.full_name || user?.email}
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full justify-start"
+              onClick={handleSignOut}
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Se déconnecter
+            </Button>
+          </div>
+        )}
         <div className="text-xs text-gray-500">
           <p>Conforme CNESST</p>
           <p>Version 1.0.0</p>
