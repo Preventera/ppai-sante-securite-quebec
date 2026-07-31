@@ -165,9 +165,12 @@ export function niveauPourCode(code: string | null | undefined): NiveauRisque | 
 }
 
 /**
- * Libellé à afficher pour un niveau. Délibérément neutre : le sens de
- * l'échelle n'est pas documenté dans la source, et présenter le niveau 4 comme
- * « risque élevé » — ou l'inverse — serait une invention.
+ * Libellé à afficher pour un niveau. Délibérément neutre.
+ *
+ * Les obligations croissent bien avec le niveau, mais l'annexe I du RMPPÉ
+ * classe des activités pour moduler des modalités — elle ne qualifie pas le
+ * risque d'un établissement. Présenter le niveau 4 comme « risque élevé »
+ * déduirait de la réglementation une chose qu'elle ne dit pas.
  */
 export function LIBELLE_NIVEAU_NEUTRE(niveau: NiveauRisque): string {
   return `Niveau ${niveau} (CNESST–IRSST, SCIAN 2012)`
