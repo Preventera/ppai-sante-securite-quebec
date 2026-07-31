@@ -8,6 +8,7 @@ import {
 } from '@/lib/lmrsst'
 import { CAS_NON_COUVERTS, LIBELLE_NIVEAU_NEUTRE, secteurPourCode } from '@/lib/scianNiveaux'
 import { HIERARCHIE_MESURES_PREVENTION } from '@/lib/rmppe'
+import { construireProvenance, provenanceEnMarkdown } from '@/lib/provenance'
 
 /**
  * Générateur de programme de prévention entièrement local et déterministe.
@@ -456,5 +457,16 @@ ${owners.length === 0
 ---
 
 _Programme établi sous la responsabilité de ${params.acteurResponsable}. Ce document doit être approuvé, daté et diffusé aux travailleurs conformément à la LSST._
+
+---
+
+${provenanceEnMarkdown(construireProvenance({
+    contexte: { effectif: params.nombreEmployes, ...params.contexte, niveauRisque },
+    codeScianSaisi: params.secteurScian,
+    sousSecteurRetenu: secteur?.code ?? null,
+    risques: sorted,
+    source: 'local',
+    modele: 'PPAI local'
+  }))}
 `
 }

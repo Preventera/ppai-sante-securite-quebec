@@ -120,6 +120,8 @@ export function PrototypeGenerator({ selectedGroup, cnessData, registryRisks }: 
         sector: companyInfo.scianDescription || template.description,
         responsibleActor: companyInfo.responsibleTitle || "Coordonnateur SST",
         content: enrichedContent,
+        // La provenance voyage avec les métadonnées : elle est figée à la
+        // génération et ne doit jamais être recalculée à la relecture.
         metadata: response.metadata
       });
 

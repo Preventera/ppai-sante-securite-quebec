@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client'
 import { getBackendMode } from '@/lib/backend'
+import type { ProvenanceReglementaire } from '@/lib/provenance'
 import { readCollection, writeCollection, generateId } from '@/lib/localStore'
 import { requireOrganizationId } from '@/lib/organization'
 
@@ -31,6 +32,12 @@ export interface PreventionProgram {
     model?: string
     risksAnalyzed?: number
     criticalRisksCount?: number
+    /**
+     * Instantané réglementaire figé à la génération. Jamais recalculé : la
+     * question posée après coup est « sur quelle base ce document a-t-il été
+     * établi », pas « que dirait-on aujourd'hui ».
+     */
+    provenance?: ProvenanceReglementaire
   } | null
 }
 

@@ -7,7 +7,12 @@
  */
 
 const readEnv = (key: string): string | undefined => {
-  const raw = (import.meta.env as Record<string, string | undefined>)[key]
+  // `import.meta.env` n'existe que sous Vite. Hors de lui — script Node, test,
+  // rendu côté serveur — y accéder directement lève une TypeError au
+  // chargement du module, ce qui casse tout ce qui en dépend, y compris des
+  // modules par ailleurs parfaitement purs.
+  const source = ((import.meta as { env?: Record<string, string | undefined> }).env ?? {})
+  const raw = source[key]
   const value = raw?.trim()
   return value && value.length > 0 ? value : undefined
 }

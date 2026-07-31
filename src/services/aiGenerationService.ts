@@ -5,6 +5,8 @@ import { generateLocalPreventionProgram } from "@/services/localProgramGenerator
 import type { ContexteEtablissement } from "@/lib/lmrsst";
 import { readValue, writeValue } from "@/lib/localStore";
 import { journaliserExecution } from "@/services/executionLog";
+import { construireProvenance } from "@/lib/provenance";
+import { secteurPourCode } from "@/lib/scianNiveaux";
 
 interface ProgramGenerationParams {
   companyName: string;
@@ -41,6 +43,8 @@ interface AIGenerationResponse {
     tokens?: number;
     risksAnalyzed?: number;
     criticalRisksCount?: number;
+    /** Instantané réglementaire figé, joint quel que soit le moteur. */
+    provenance?: ReturnType<typeof construireProvenance>;
   };
 }
 
@@ -145,6 +149,21 @@ export class AIGenerationService {
     };
     const debut = Date.now();
 
+    // La provenance est construite à partir des MÊMES entrées que le document,
+    // quel que soit le moteur : un document produit par Claude et un document
+    // produit localement doivent être traçables de la même façon.
+    const provenancePour = (source: string, modele?: string | null) =>
+      construireProvenance({
+        contexte: { effectif: params.nombreEmployes, ...params.contexte,
+          niveauRisque: params.contexte?.niveauRisque
+            ?? secteurPourCode(params.secteurScian)?.niveau },
+        codeScianSaisi: params.secteurScian,
+        sousSecteurRetenu: secteurPourCode(params.secteurScian)?.code ?? null,
+        risques: risks,
+        source,
+        modele
+      });
+
     const backendMode = await getBackendMode();
 
     if (backendMode === 'live') {
@@ -172,7 +191,11 @@ export class AIGenerationService {
 
         return {
           ...data,
-          metadata: { ...data.metadata, source: 'claude' as const }
+          metadata: {
+            ...data.metadata,
+            source: 'claude' as const,
+            provenance: provenancePour('claude', data.metadata?.model ?? null)
+          }
         };
       } catch (error) {
         console.warn(
@@ -231,6 +254,7 @@ export class AIGenerationService {
         generatedAt: new Date().toISOString(),
         model: 'PPAI local',
         source: 'local',
+        provenance: provenancePour('local', 'PPAI local'),
         tokens: 0,
         risksAnalyzed: risks.length,
         criticalRisksCount
