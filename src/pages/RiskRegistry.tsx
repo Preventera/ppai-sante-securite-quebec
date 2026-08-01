@@ -10,6 +10,7 @@ import { PredictiveAlerts } from "@/components/PredictiveAlerts";
 import { PreventiveActions } from "@/components/PreventiveActions";
 import { RolesResponsibilities } from "@/components/RolesResponsibilities";
 import { AddRiskModal } from "@/components/AddRiskModal";
+import { ProposerRisquesSecteur } from "@/components/ProposerRisquesSecteur";
 import { ExportActions } from "@/components/ExportActions";
 import { BackendModeBadge } from "@/components/BackendModeBadge";
 import { AlertTriangle, Users, Target, BarChart3, Loader2, Plus, RotateCcw } from "lucide-react";
@@ -22,7 +23,7 @@ const RiskRegistry = () => {
 
   const { data: risks = [], isLoading, isError, error, refetch } = useRisks();
   const { data: backendMode } = useBackendMode();
-  const { createRisk, updateRisk, deleteRisk, resetDemoRegistry } = useRiskMutations();
+  const { createRisk, updateRisk, deleteRisk, importRisks, resetDemoRegistry } = useRiskMutations();
 
   const filteredRisks = useMemo(
     () => filterRisksBySearch(risks, searchTerm),
@@ -63,7 +64,12 @@ const RiskRegistry = () => {
   }
 
   const addRiskTrigger = (
-    <AddRiskModal onSave={(input) => createRisk.mutateAsync(input)} />
+    <div className="flex flex-wrap gap-2">
+      {/* Les propositions sectorielles arrivent en lot : `importRisks` évite
+          une requête par risque adopté. */}
+      <ProposerRisquesSecteur onAdopter={(risques) => importRisks.mutateAsync(risques)} />
+      <AddRiskModal onSave={(input) => createRisk.mutateAsync(input)} />
+    </div>
   );
 
   return (
