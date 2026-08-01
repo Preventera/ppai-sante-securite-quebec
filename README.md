@@ -111,6 +111,41 @@ sont tous refusés.
 > Providers > Email*) avant toute mise en production, sinon n'importe qui peut
 > créer un compte avec une adresse qu'il ne contrôle pas.
 
+### Réinitialisation du mot de passe
+
+Le parcours complet est dans l'application :
+
+| Étape | Où |
+| --- | --- |
+| Demander un lien | `/auth`, lien « Mot de passe oublié ? » sous le formulaire de connexion |
+| Choisir le nouveau mot de passe | `/auth/reset`, atteinte par le lien du courriel |
+| Changer son mot de passe en étant connecté | Barre latérale, « Changer mon mot de passe » (même écran) |
+
+**Une configuration Supabase est indispensable**, sans quoi le courriel part mais
+son lien ne revient nulle part. Dans *Authentication > URL Configuration* :
+
+- **Site URL** : l'adresse de production, par exemple `https://votre-site.netlify.app`.
+- **Redirect URLs** : ajouter `https://votre-site.netlify.app/auth/reset`.
+  Une adresse non déclarée est ignorée par Supabase, qui rabat alors le lien sur
+  la *Site URL* — donc sur la racine, où aucun écran ne sait traiter le jeton.
+  Pour le développement local, ajouter aussi `http://localhost:5173/auth/reset`.
+
+Le lien est valable **une heure** et ne sert qu'une fois. L'écran `/auth/reset`
+reconnaît les trois formes de retour employées par Supabase selon le flux et le
+gabarit de courriel (`#access_token=…`, `?code=…`, `?token_hash=…`) et affiche un
+message explicite quand le lien est expiré plutôt qu'une page vide.
+
+> **Envoi des courriels** — le service SMTP intégré de Supabase est limité à
+> quelques messages par heure et n'est pas destiné à la production. Configurez un
+> SMTP applicatif dans *Project Settings > Authentication > SMTP Settings* avant
+> d'ouvrir l'application à des utilisateurs.
+
+> **Dépannage immédiat** — si plus personne ne peut se connecter, un mot de passe
+> se réinitialise depuis le tableau de bord Supabase (*Authentication > Users >
+> ⋯ > Send password recovery*). Ne supprimez pas le compte pour le recréer : les
+> risques et programmes restent rattachés à l'ancienne `organization_id` et
+> deviendraient invisibles.
+
 ## Mettre la démo en ligne (Netlify)
 
 Le site se déploie **sans backend** : sans variables Supabase, il tourne en mode

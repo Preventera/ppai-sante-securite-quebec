@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Home, Shield, FileText, BarChart3, Settings, AlertTriangle, Users, Calendar, Wand2, Building, Workflow, Calculator, LogOut } from "lucide-react";
+import { Home, Shield, FileText, BarChart3, Settings, AlertTriangle, Users, Calendar, Wand2, Building, Workflow, Calculator, LogOut, KeyRound } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
@@ -173,6 +173,14 @@ export function AppSidebar() {
                 {profile?.full_name || user?.email}
               </p>
             </div>
+            {/* Changer son mot de passe sans passer par « mot de passe oublié » :
+                le même écran sert les deux cas. */}
+            <Button variant="ghost" size="sm" className="w-full justify-start" asChild>
+              <Link to="/auth/reset">
+                <KeyRound className="w-4 h-4 mr-2" />
+                Changer mon mot de passe
+              </Link>
+            </Button>
             <Button
               variant="outline"
               size="sm"

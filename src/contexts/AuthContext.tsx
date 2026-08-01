@@ -38,6 +38,34 @@ interface AuthContextValue {
   signIn: (email: string, password: string) => Promise<void>
   signUp: (params: SignUpParams) => Promise<{ needsConfirmation: boolean }>
   signOut: () => Promise<void>
+  /**
+   * Vrai lorsque la session courante provient d'un lien de réinitialisation.
+   *
+   * Supabase ouvre une session complète dès que le lien du courriel est suivi.
+   * Sans ce marqueur, rien ne distinguerait cette session d'une connexion
+   * ordinaire, et l'écran de réinitialisation ne pourrait pas expliquer à
+   * l'utilisateur pourquoi il est là.
+   */
+  recuperationEnCours: boolean
+  /** Envoie le courriel de réinitialisation. Ne révèle jamais si le compte existe. */
+  demanderReinitialisation: (email: string) => Promise<void>
+  /** Remplace le mot de passe de la session courante. */
+  definirMotDePasse: (motDePasse: string) => Promise<void>
+}
+
+/**
+ * Adresse de retour du lien de réinitialisation.
+ *
+ * Elle doit être déclarée telle quelle dans Supabase (*Authentication > URL
+ * Configuration > Redirect URLs*) : une adresse non déclarée est ignorée, et
+ * le lien du courriel ramène alors à la racine du site, où aucun écran ne sait
+ * traiter le jeton.
+ */
+export const URL_RETOUR_REINITIALISATION = '/auth/reset'
+
+function urlDeRetour(): string | undefined {
+  if (typeof window === 'undefined') return undefined
+  return `${window.location.origin}${URL_RETOUR_REINITIALISATION}`
 }
 
 export interface SignUpParams {
@@ -56,6 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [organization, setOrganization] = useState<Organization | null>(null)
   const [loading, setLoading] = useState(true)
   const [demoMode, setDemoMode] = useState(false)
+  const [recuperationEnCours, setRecuperationEnCours] = useState(false)
 
   // Charge le profil et l'organisation de l'utilisateur connecté.
   const loadProfile = async (userId: string) => {
@@ -105,7 +134,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     bootstrap()
 
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+    const { data: listener } = supabase.auth.onAuthStateChange((event, nextSession) => {
+      // Émis lorsque le jeton présent dans l'URL est de type « recovery ».
+      // C'est le seul signal qui distingue l'arrivée par courriel d'une
+      // connexion ordinaire ; il précède l'établissement de la session.
+      if (event === 'PASSWORD_RECOVERY') setRecuperationEnCours(true)
+      if (event === 'SIGNED_OUT') setRecuperationEnCours(false)
+
       setSession(nextSession)
       if (nextSession?.user) {
         loadProfile(nextSession.user.id)
@@ -128,6 +163,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     organization,
     loading,
     demoMode,
+    recuperationEnCours,
 
     async signIn(email, password) {
       const { error } = await supabase.auth.signInWithPassword({ email, password })
@@ -162,8 +198,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       clearOrganizationCache()
       setProfile(null)
       setOrganization(null)
+      setRecuperationEnCours(false)
+    },
+
+    async demanderReinitialisation(email) {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: urlDeRetour()
+      })
+      // Supabase répond sans erreur même pour une adresse inconnue : c'est
+      // voulu, cela évite de transformer ce formulaire en test d'existence de
+      // comptes. Les erreurs restantes sont réelles (limitation de débit,
+      // adresse malformée, service de courriel non configuré).
+      if (error) throw new Error(traduireErreur(error.message))
+    },
+
+    async definirMotDePasse(motDePasse) {
+      const { error } = await supabase.auth.updateUser({ password: motDePasse })
+      if (error) throw new Error(traduireErreur(error.message))
+      // Le mot de passe est changé : la session cesse d'être une session de
+      // récupération et redevient une session ordinaire.
+      setRecuperationEnCours(false)
     }
-  }), [session, profile, organization, loading, demoMode])
+  }), [session, profile, organization, loading, demoMode, recuperationEnCours])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
@@ -176,6 +232,23 @@ function traduireErreur(message: string): string {
   if (m.includes('user already registered')) return 'Un compte existe déjà pour cette adresse.'
   if (m.includes('password should be at least')) return 'Le mot de passe doit comporter au moins 6 caractères.'
   if (m.includes('unable to validate email')) return "Adresse courriel invalide."
+  if (m.includes('new password should be different')) {
+    return "Le nouveau mot de passe doit être différent de l'ancien."
+  }
+  if (m.includes('auth session missing') || m.includes('session_not_found')) {
+    return "Le lien de réinitialisation a expiré ou a déjà été utilisé. Demandez-en un nouveau."
+  }
+  if (m.includes('token has expired') || m.includes('otp_expired') || m.includes('invalid or has expired')) {
+    return "Le lien de réinitialisation a expiré. Les liens sont valables une heure ; demandez-en un nouveau."
+  }
+  // Supabase limite le nombre de courriels par heure et par adresse. Sans ce
+  // message, l'échec paraît arbitraire alors qu'il suffit d'attendre.
+  if (m.includes('rate limit') || m.includes('for security purposes')) {
+    return "Trop de demandes en peu de temps. Patientez quelques minutes avant de réessayer."
+  }
+  if (m.includes('error sending recovery email') || m.includes('error sending confirmation')) {
+    return "Le service d'envoi de courriels du projet Supabase n'a pas pu expédier le message. Vérifiez la configuration SMTP du projet."
+  }
   return message
 }
 

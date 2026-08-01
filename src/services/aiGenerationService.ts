@@ -149,21 +149,6 @@ export class AIGenerationService {
     };
     const debut = Date.now();
 
-    // La provenance est construite à partir des MÊMES entrées que le document,
-    // quel que soit le moteur : un document produit par Claude et un document
-    // produit localement doivent être traçables de la même façon.
-    const provenancePour = (source: string, modele?: string | null) =>
-      construireProvenance({
-        contexte: { effectif: params.nombreEmployes, ...params.contexte,
-          niveauRisque: params.contexte?.niveauRisque
-            ?? secteurPourCode(params.secteurScian)?.niveau },
-        codeScianSaisi: params.secteurScian,
-        sousSecteurRetenu: secteurPourCode(params.secteurScian)?.code ?? null,
-        risques: risks,
-        source,
-        modele
-      });
-
     const backendMode = await getBackendMode();
 
     if (backendMode === 'live') {
@@ -194,7 +179,7 @@ export class AIGenerationService {
           metadata: {
             ...data.metadata,
             source: 'claude' as const,
-            provenance: provenancePour('claude', data.metadata?.model ?? null)
+            provenance: this.provenancePour(params, risks, 'claude', data.metadata?.model ?? null)
           }
         };
       } catch (error) {
@@ -226,6 +211,36 @@ export class AIGenerationService {
     return resultatLocal;
   }
 
+  /**
+   * Instantané réglementaire du document.
+   *
+   * Construit à partir des MÊMES entrées quel que soit le moteur : un document
+   * produit par Claude et un document produit localement doivent être traçables
+   * de la même façon. C'est une méthode et non une fermeture locale — déclarée
+   * dans `generatePreventionProgram`, elle n'était pas visible depuis
+   * `generateLocally`, et toute génération locale levait une `ReferenceError`.
+   */
+  private provenancePour(
+    params: ProgramGenerationParams,
+    risks: Risk[],
+    source: string,
+    modele?: string | null
+  ) {
+    const niveauSectoriel = secteurPourCode(params.secteurScian)?.niveau;
+    return construireProvenance({
+      contexte: {
+        effectif: params.nombreEmployes,
+        ...params.contexte,
+        niveauRisque: params.contexte?.niveauRisque ?? niveauSectoriel
+      },
+      codeScianSaisi: params.secteurScian,
+      sousSecteurRetenu: secteurPourCode(params.secteurScian)?.code ?? null,
+      risques: risks,
+      source,
+      modele
+    });
+  }
+
   /** Génération locale déterministe, sans réseau ni clé API. */
   private generateLocally(
     params: ProgramGenerationParams,
@@ -254,7 +269,7 @@ export class AIGenerationService {
         generatedAt: new Date().toISOString(),
         model: 'PPAI local',
         source: 'local',
-        provenance: provenancePour('local', 'PPAI local'),
+        provenance: this.provenancePour(params, risks, 'local', 'PPAI local'),
         tokens: 0,
         risksAnalyzed: risks.length,
         criticalRisksCount
