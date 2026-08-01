@@ -21,6 +21,12 @@ import { AddRiskModal } from "@/components/AddRiskModal";
 interface RiskTableProps {
   risks: Risk[];
   searchTerm: string;
+  /**
+   * Masque la colonne d'actions pour les rôles qui consultent sans rédiger
+   * (comité, membre). La base refuserait leurs écritures de toute façon —
+   * autant ne pas leur présenter des boutons qui mènent à un refus.
+   */
+  lectureSeule?: boolean;
   onUpdate: (code: string, input: RiskInput) => Promise<unknown>;
   onDelete: (code: string) => Promise<unknown>;
 }
@@ -64,7 +70,7 @@ const getTrendIcon = (initial: number, residual: number) => {
   return <Minus className="w-4 h-4 text-gray-400" />;
 };
 
-export function RiskTable({ risks, searchTerm, onUpdate, onDelete }: RiskTableProps) {
+export function RiskTable({ risks, searchTerm, lectureSeule = false, onUpdate, onDelete }: RiskTableProps) {
   const [sortField, setSortField] = useState<keyof Risk>("initialRisk");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
   const [pendingDeletion, setPendingDeletion] = useState<Risk | null>(null);
@@ -147,7 +153,7 @@ export function RiskTable({ risks, searchTerm, onUpdate, onDelete }: RiskTablePr
                 {sortableHeader("status", "Statut")}
                 <TableHead>Responsable</TableHead>
                 <TableHead className="text-center">Tendance</TableHead>
-                <TableHead className="text-center">Actions</TableHead>
+                {!lectureSeule && <TableHead className="text-center">Actions</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -196,27 +202,29 @@ export function RiskTable({ risks, searchTerm, onUpdate, onDelete }: RiskTablePr
                   <TableCell className="text-center">
                     {getTrendIcon(risk.initialRisk, risk.residualRisk)}
                   </TableCell>
-                  <TableCell>
-                    <div className="flex gap-1 justify-center">
-                      <AddRiskModal
-                        risk={risk}
-                        onSave={(input) => onUpdate(risk.id, input)}
-                        trigger={
-                          <Button size="sm" variant="ghost" aria-label={`Modifier ${risk.id}`}>
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                        }
-                      />
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        aria-label={`Supprimer ${risk.id}`}
-                        onClick={() => setPendingDeletion(risk)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
+                  {!lectureSeule && (
+                    <TableCell>
+                      <div className="flex gap-1 justify-center">
+                        <AddRiskModal
+                          risk={risk}
+                          onSave={(input) => onUpdate(risk.id, input)}
+                          trigger={
+                            <Button size="sm" variant="ghost" aria-label={`Modifier ${risk.id}`}>
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                          }
+                        />
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          aria-label={`Supprimer ${risk.id}`}
+                          onClick={() => setPendingDeletion(risk)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
             </TableBody>

@@ -24,6 +24,10 @@ export interface Organization {
   id: string
   name: string
   sector: string
+  /** Code SCIAN de l'établissement — détermine le niveau de risque sectoriel. */
+  scian_code: string | null
+  /** Effectif déclaré — détermine les mécanismes de participation exigés. */
+  employee_count: number | null
 }
 
 interface AuthContextValue {
@@ -51,6 +55,14 @@ interface AuthContextValue {
   demanderReinitialisation: (email: string) => Promise<void>
   /** Remplace le mot de passe de la session courante. */
   definirMotDePasse: (motDePasse: string) => Promise<void>
+  /**
+   * Recharge l'organisation depuis la base.
+   *
+   * Nécessaire après la saisie de l'effectif ou du code SCIAN : la navigation
+   * en dépend (Comité SST ou Agent de liaison) et doit refléter la nouvelle
+   * valeur sans exiger une déconnexion.
+   */
+  rafraichirOrganisation: () => Promise<void>
 }
 
 /**
@@ -90,7 +102,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const loadProfile = async (userId: string) => {
     const { data, error } = await supabase
       .from('profiles')
-      .select('id, organization_id, full_name, role, organizations(id, name, sector)')
+      .select('id, organization_id, full_name, role, organizations(id, name, sector, scian_code, employee_count)')
       .eq('id', userId)
       .maybeSingle()
 
@@ -218,6 +230,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Le mot de passe est changé : la session cesse d'être une session de
       // récupération et redevient une session ordinaire.
       setRecuperationEnCours(false)
+    },
+
+    async rafraichirOrganisation() {
+      if (session?.user) await loadProfile(session.user.id)
     }
   }), [session, profile, organization, loading, demoMode, recuperationEnCours])
 

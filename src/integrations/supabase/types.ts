@@ -99,6 +99,7 @@ export type Database = {
           organization_id: string
           full_name: string | null
           role: string
+          email: string | null
           created_at: string
           updated_at: string
         }
@@ -107,6 +108,7 @@ export type Database = {
           organization_id: string
           full_name?: string | null
           role?: string
+          email?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -114,6 +116,7 @@ export type Database = {
           organization_id?: string
           full_name?: string | null
           role?: string
+          email?: string | null
           updated_at?: string
         }
         Relationships: []
