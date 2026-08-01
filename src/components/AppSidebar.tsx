@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { Home, Shield, FileText, BarChart3, Settings, AlertTriangle, Users, Calendar, Wand2, Building, Workflow, Calculator, LogOut, KeyRound } from "lucide-react";
+import { Home, Shield, AlertTriangle, Wand2, Building, Workflow, Calculator, LogOut, KeyRound } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
@@ -53,35 +52,21 @@ const navigationItems = [
     url: "/programs",
     icon: Shield,
   },
-  {
-    title: "Mesures préventives",
-    url: "/measures",
-    icon: FileText,
-  },
-  {
-    title: "Rapports",
-    url: "/reports",
-    icon: BarChart3,
-  },
-  {
-    title: "Calendrier",
-    url: "/calendar",
-    icon: Calendar,
-  },
 ];
 
-const adminItems = [
-  {
-    title: "Utilisateurs",
-    url: "/users",
-    icon: Users,
-  },
-  {
-    title: "Paramètres",
-    url: "/settings",
-    icon: Settings,
-  },
-];
+/**
+ * Libellé du rôle applicatif, affiché sous l'identité.
+ *
+ * `profiles.role` existait en base depuis la migration 003 sans qu'aucun
+ * écran ne le lise : la section « Administration » s'affichait pour tout le
+ * monde, vers des modules vides. La section a été retirée avec les routes
+ * mortes ; le rôle devient visible ici, en attendant que les écrans
+ * d'administration réels le consomment.
+ */
+const LIBELLE_ROLE: Record<string, string> = {
+  admin: "Administration",
+  membre: "Membre",
+};
 
 export function AppSidebar() {
   const location = useLocation();
@@ -134,31 +119,6 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarGroup className="mt-8">
-          <SidebarGroupLabel className="text-gray-500 font-medium text-xs uppercase tracking-wide mb-3">
-            Administration
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {adminItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    className={cn(
-                      "w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors",
-                      location.pathname === item.url && "bg-sst-blue text-white hover:bg-sst-blue/90"
-                    )}
-                  >
-                    <Link to={item.url} className="flex items-center gap-3">
-                      <item.icon className="w-4 h-4" />
-                      <span className="text-sm font-medium">{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
       </SidebarContent>
 
       <SidebarFooter className="px-6 py-4 border-t border-border space-y-3">
@@ -172,6 +132,11 @@ export function AppSidebar() {
               <p className="text-gray-500 truncate" title={user?.email ?? ''}>
                 {profile?.full_name || user?.email}
               </p>
+              {profile?.role && (
+                <p className="text-gray-400">
+                  {LIBELLE_ROLE[profile.role] ?? profile.role}
+                </p>
+              )}
             </div>
             {/* Changer son mot de passe sans passer par « mot de passe oublié » :
                 le même écran sert les deux cas. */}

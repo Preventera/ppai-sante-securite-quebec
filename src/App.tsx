@@ -21,13 +21,6 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-const EnDeveloppement = ({ titre }: { titre: string }) => (
-  <div className="p-6">
-    <h1 className="text-2xl font-bold text-sst-blue">{titre}</h1>
-    <p className="text-gray-600 mt-2">Module en développement</p>
-  </div>
-);
-
 /** Coquille applicative : barre latérale et contenu, réservée aux sessions valides. */
 const AppShell = ({ children }: { children: React.ReactNode }) => (
   <RequireAuth>
@@ -69,11 +62,10 @@ const App = () => (
             <Route path="/pipeline-generator" element={<AppShell><PipelineGenerator /></AppShell>} />
             <Route path="/kpi-generator" element={<AppShell><KPIGenerator /></AppShell>} />
             <Route path="/programs" element={<AppShell><Programs /></AppShell>} />
-            <Route path="/measures" element={<AppShell><EnDeveloppement titre="Mesures préventives" /></AppShell>} />
-            <Route path="/reports" element={<AppShell><EnDeveloppement titre="Rapports" /></AppShell>} />
-            <Route path="/calendar" element={<AppShell><EnDeveloppement titre="Calendrier" /></AppShell>} />
-            <Route path="/users" element={<AppShell><EnDeveloppement titre="Utilisateurs" /></AppShell>} />
-            <Route path="/settings" element={<AppShell><EnDeveloppement titre="Paramètres" /></AppShell>} />
+            {/* Les cinq routes « module en développement » (mesures, rapports,
+                calendrier, utilisateurs, paramètres) ont été retirées : une
+                navigation est une promesse, chaque entrée doit tenir la sienne.
+                Elles reviendront quand les écrans existeront réellement. */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
