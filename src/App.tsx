@@ -10,6 +10,7 @@ import { RequireAuth } from "@/components/RequireAuth";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import AuthReset from "./pages/AuthReset";
 import RiskRegistry from "./pages/RiskRegistry";
 import ProgramGenerator from "./pages/ProgramGenerator";
 import SectorGenerator from "./pages/SectorGenerator";
@@ -54,8 +55,12 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <Routes>
-            {/* Seule route accessible sans session */}
+            {/* Seules routes accessibles sans session.
+                `/auth/reset` reçoit le lien de réinitialisation : la placer
+                derrière RequireAuth la rendrait inatteignable au moment précis
+                où l'utilisateur n'a plus de mot de passe. */}
             <Route path="/auth" element={<Auth />} />
+            <Route path="/auth/reset" element={<AuthReset />} />
 
             <Route path="/" element={<AppShell><Index /></AppShell>} />
             <Route path="/risks" element={<AppShell><RiskRegistry /></AppShell>} />

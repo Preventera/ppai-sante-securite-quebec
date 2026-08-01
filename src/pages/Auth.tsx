@@ -6,26 +6,33 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Shield, Loader2, AlertTriangle, MailCheck } from 'lucide-react'
+import { Shield, Loader2, AlertTriangle, MailCheck, KeyRound, ArrowLeft } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 
 /**
- * Connexion et création de compte.
+ * Connexion, création de compte et demande de réinitialisation.
  *
  * L'inscription crée l'organisation en même temps que le compte : le premier
  * utilisateur d'une entreprise en devient administrateur. Le cloisonnement des
  * données repose ensuite sur ce rattachement.
+ *
+ * La réinitialisation se limite ici à l'envoi du courriel ; la saisie du
+ * nouveau mot de passe se fait sur `/auth/reset`, au retour du lien.
  */
+type Ecran = 'formulaires' | 'oubli' | 'courrielEnvoye' | 'confirmationInscription'
+
 const Auth = () => {
-  const { session, loading, demoMode, signIn, signUp } = useAuth()
+  const { session, loading, demoMode, signIn, signUp, demanderReinitialisation } = useAuth()
   const location = useLocation()
 
   const [error, setError] = useState<string | null>(null)
-  const [confirmation, setConfirmation] = useState(false)
+  const [ecran, setEcran] = useState<Ecran>('formulaires')
   const [submitting, setSubmitting] = useState(false)
 
   const [loginEmail, setLoginEmail] = useState('')
   const [loginPassword, setLoginPassword] = useState('')
+
+  const [oubliEmail, setOubliEmail] = useState('')
 
   const [signupEmail, setSignupEmail] = useState('')
   const [signupPassword, setSignupPassword] = useState('')
@@ -73,12 +80,31 @@ const Auth = () => {
         organizationName: organizationName.trim(),
         fullName: fullName.trim()
       })
-      if (needsConfirmation) setConfirmation(true)
+      if (needsConfirmation) setEcran('confirmationInscription')
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Création du compte impossible')
     } finally {
       setSubmitting(false)
     }
+  }
+
+  const handleOubli = async (event: React.FormEvent) => {
+    event.preventDefault()
+    setError(null)
+    setSubmitting(true)
+    try {
+      await demanderReinitialisation(oubliEmail.trim())
+      setEcran('courrielEnvoye')
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Envoi du courriel impossible")
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const revenirALaConnexion = () => {
+    setError(null)
+    setEcran('formulaires')
   }
 
   return (
@@ -92,7 +118,7 @@ const Auth = () => {
           <p className="text-gray-600 mt-1">Prevention Program AI — santé et sécurité au travail</p>
         </div>
 
-        {confirmation ? (
+        {ecran === 'confirmationInscription' ? (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -105,9 +131,81 @@ const Auth = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button variant="outline" className="w-full" onClick={() => setConfirmation(false)}>
+              <Button variant="outline" className="w-full" onClick={revenirALaConnexion}>
                 Retour à la connexion
               </Button>
+            </CardContent>
+          </Card>
+        ) : ecran === 'courrielEnvoye' ? (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MailCheck className="w-5 h-5 text-green-600" />
+                Courriel envoyé
+              </CardTitle>
+              <CardDescription>
+                {/* Formulation volontairement indifférente à l'existence du
+                    compte : confirmer qu'une adresse est inscrite renseignerait
+                    un attaquant sur les comptes valides. */}
+                Si un compte existe pour <strong>{oubliEmail}</strong>, un lien de
+                réinitialisation vient d'y être envoyé. Ce lien est valable une heure
+                et ne peut servir qu'une fois.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <p className="text-xs text-gray-500">
+                Rien reçu ? Vérifiez les indésirables, puis réessayez dans quelques minutes.
+              </p>
+              <Button variant="outline" className="w-full" onClick={revenirALaConnexion}>
+                Retour à la connexion
+              </Button>
+            </CardContent>
+          </Card>
+        ) : ecran === 'oubli' ? (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <KeyRound className="w-5 h-5 text-sst-blue" />
+                Mot de passe oublié
+              </CardTitle>
+              <CardDescription>
+                Indiquez l'adresse courriel de votre compte. Vous recevrez un lien
+                permettant de choisir un nouveau mot de passe.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {error && (
+                <Alert variant="destructive" className="mb-4">
+                  <AlertTriangle className="w-4 h-4" />
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+              <form onSubmit={handleOubli} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="oubli-email">Courriel</Label>
+                  <Input
+                    id="oubli-email"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    value={oubliEmail}
+                    onChange={(e) => setOubliEmail(e.target.value)}
+                  />
+                </div>
+                <Button type="submit" className="w-full" disabled={submitting}>
+                  {submitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                  Envoyer le lien de réinitialisation
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="w-full"
+                  onClick={revenirALaConnexion}
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Retour à la connexion
+                </Button>
+              </form>
             </CardContent>
           </Card>
         ) : (
@@ -154,6 +252,19 @@ const Auth = () => {
                       {submitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                       Se connecter
                     </Button>
+                    <button
+                      type="button"
+                      className="w-full text-sm text-sst-blue hover:underline"
+                      onClick={() => {
+                        setError(null)
+                        // L'adresse déjà saisie est reprise : la ressaisir
+                        // n'apporte rien et fait perdre le fil.
+                        setOubliEmail(loginEmail)
+                        setEcran('oubli')
+                      }}
+                    >
+                      Mot de passe oublié ?
+                    </button>
                   </form>
                 </TabsContent>
 
