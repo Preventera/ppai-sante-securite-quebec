@@ -1,4 +1,4 @@
-import { Home, Shield, AlertTriangle, Wand2, Building, Workflow, Calculator, LogOut, KeyRound, Users as UsersIcon, Handshake } from "lucide-react";
+import { Home, Shield, AlertTriangle, Wand2, LogOut, KeyRound, Users as UsersIcon, Handshake, Megaphone, Inbox } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
@@ -35,13 +35,21 @@ const TOUS: RoleApplicatif[] = ["admin", "preventionniste", "comite", "membre"];
 const REDACTEURS: RoleApplicatif[] = ["admin", "preventionniste"];
 const CONSULTATION: RoleApplicatif[] = ["admin", "preventionniste", "comite"];
 
+/**
+ * Adresses couvertes par l'entrée « Générer un document » : les quatre
+ * parcours historiques restent accessibles, mais une seule entrée de menu
+ * les représente — et reste allumée quand on navigue dans l'un d'eux.
+ */
+const ROUTES_GENERATION = [
+  "/generer", "/generator", "/sector-generator", "/pipeline-generator", "/kpi-generator",
+];
+
 const navigationItems = [
   { title: "Tableau de bord", url: "/", icon: Home, roles: TOUS },
+  { title: "Signaler un risque", url: "/signaler", icon: Megaphone, roles: TOUS },
   { title: "Registre des risques", url: "/risks", icon: AlertTriangle, roles: CONSULTATION },
-  { title: "Générateur CNESST", url: "/generator", icon: Wand2, roles: REDACTEURS },
-  { title: "Générateur par Secteur", url: "/sector-generator", icon: Building, roles: REDACTEURS },
-  { title: "Pipeline Générateur PPAI", url: "/pipeline-generator", icon: Workflow, roles: REDACTEURS },
-  { title: "Générateur KPI & Mapping", url: "/kpi-generator", icon: Calculator, roles: REDACTEURS },
+  { title: "Signalements", url: "/signalements", icon: Inbox, roles: REDACTEURS },
+  { title: "Générer un document", url: "/generer", icon: Wand2, roles: REDACTEURS },
   { title: "Programmes SST", url: "/programs", icon: Shield, roles: TOUS },
 ];
 
@@ -81,12 +89,10 @@ export function AppSidebar() {
     <Sidebar className="border-r border-border bg-white">
       <SidebarHeader className="px-6 py-4 border-b border-border">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-sst-blue rounded-lg flex items-center justify-center">
-            <Shield className="w-5 h-5 text-white" />
-          </div>
+          <img src="/agenticx5.svg" alt="AgenticX5" className="w-10 h-10" />
           <div>
             <h1 className="font-bold text-lg text-sst-blue">PPAI</h1>
-            <p className="text-xs text-gray-500">Prevention Program AI</p>
+            <p className="text-xs text-gray-500">par AgenticX5</p>
           </div>
         </div>
       </SidebarHeader>
@@ -104,7 +110,10 @@ export function AppSidebar() {
                     asChild
                     className={cn(
                       "w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors",
-                      location.pathname === item.url && "bg-sst-blue text-white hover:bg-sst-blue/90"
+                      (item.url === "/generer"
+                        ? ROUTES_GENERATION.includes(location.pathname)
+                        : location.pathname === item.url) &&
+                        "bg-sst-blue text-white hover:bg-sst-blue/90"
                     )}
                   >
                     <Link to={item.url} className="flex items-center gap-3">
@@ -179,7 +188,7 @@ export function AppSidebar() {
         )}
         <div className="text-xs text-gray-500">
           <p>Conforme CNESST</p>
-          <p>Version 1.0.0</p>
+          <p>© 2026 Preventera · AgenticX5 — Tous droits réservés</p>
         </div>
       </SidebarFooter>
     </Sidebar>

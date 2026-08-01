@@ -86,19 +86,26 @@ interface AddRiskModalProps {
   risk?: Risk;
   /** Déclencheur personnalisé (bouton d'édition d'une ligne, par exemple). */
   trigger?: React.ReactNode;
+  /**
+   * Pré-remplissage en mode création — la qualification d'un signalement
+   * apporte déjà une description, autant ne pas la faire ressaisir.
+   */
+  valeursInitiales?: Partial<Pick<FormState, "name" | "measures" | "phase" | "category">>;
 }
 
-export function AddRiskModal({ onSave, risk, trigger }: AddRiskModalProps) {
+export function AddRiskModal({ onSave, risk, trigger, valeursInitiales }: AddRiskModalProps) {
   const isEdit = Boolean(risk);
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState<FormState>(risk ? fromRisk(risk) : emptyForm);
+  const [form, setForm] = useState<FormState>(
+    risk ? fromRisk(risk) : { ...emptyForm, ...valeursInitiales }
+  );
   const [errors, setErrors] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
 
   // Réaligne le formulaire sur le risque courant à chaque ouverture.
   useEffect(() => {
     if (open) {
-      setForm(risk ? fromRisk(risk) : emptyForm);
+      setForm(risk ? fromRisk(risk) : { ...emptyForm, ...valeursInitiales });
       setErrors([]);
     }
   }, [open, risk]);

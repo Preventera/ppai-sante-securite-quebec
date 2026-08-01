@@ -121,6 +121,49 @@ export type Database = {
         }
         Relationships: []
       }
+      signalements: {
+        Row: {
+          id: string
+          organization_id: string
+          reporter_id: string
+          description: string
+          lieu: string | null
+          statut: string
+          decision_note: string | null
+          risque_code: string | null
+          created_at: string
+          traite_le: string | null
+        }
+        Insert: {
+          id?: string
+          // Imposés par le déclencheur `garde_signalements` côté base :
+          // facultatifs à l'insertion, systématiquement écrasés.
+          organization_id?: string
+          reporter_id?: string
+          description: string
+          lieu?: string | null
+          statut?: string
+          decision_note?: string | null
+          risque_code?: string | null
+          created_at?: string
+          traite_le?: string | null
+        }
+        Update: {
+          statut?: string
+          decision_note?: string | null
+          risque_code?: string | null
+          traite_le?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "signalements_reporter_id_fkey"
+            columns: ["reporter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       risks: {
         Row: {
           id: string

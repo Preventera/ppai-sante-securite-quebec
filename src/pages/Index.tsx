@@ -27,6 +27,7 @@ import {
   CheckCircle2
 } from "lucide-react";
 import { useRisks } from "@/hooks/useRisks";
+import { ProchainsGestes } from "@/components/ProchainsGestes";
 import {
   calculateRiskSummary,
   calculateRiskReductionRate,
@@ -103,12 +104,14 @@ const Index = () => {
             </div>
           </div>
           <Button asChild>
-            <Link to="/generator">
+            <Link to="/generer">
               Générer un programme
               <ArrowRight className="w-4 h-4 ml-2" />
             </Link>
           </Button>
         </div>
+
+        <ProchainsGestes />
 
         {risks.length === 0 ? (
           <Card>

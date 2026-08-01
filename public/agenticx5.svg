@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="AgenticX5">
+  <!--
+    Marque AgenticX5, recréée en vectoriel d'après le logo fourni :
+    anneau néon (jaune-vert vers cyan vers magenta), profil humain traversé
+    de circuits, nœud lumineux cyan. Le vectoriel reste net à toutes les
+    tailles d'interface, du favicon à l'écran de connexion.
+  -->
+  <defs>
+    <linearGradient id="anneau" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#c8f542"/>
+      <stop offset="45%" stop-color="#35e0d0"/>
+      <stop offset="100%" stop-color="#b44df0"/>
+    </linearGradient>
+    <linearGradient id="silhouette" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e8f542"/>
+      <stop offset="60%" stop-color="#35e0d0"/>
+      <stop offset="100%" stop-color="#8a3ff0"/>
+    </linearGradient>
+    <radialGradient id="fond" cx="50%" cy="42%" r="75%">
+      <stop offset="0%" stop-color="#3d2a6e"/>
+      <stop offset="100%" stop-color="#241448"/>
+    </radialGradient>
+  </defs>
+
+  <circle cx="256" cy="256" r="248" fill="url(#fond)"/>
+  <g transform="translate(56.32 0) scale(0.78)">
+  <circle cx="256" cy="256" r="212" fill="none" stroke="url(#anneau)" stroke-width="10"/>
+
+  <!-- Profil humain tourné vers la droite -->
+  <path
+    d="M208 118
+       C 262 96 318 118 336 168
+       C 348 200 344 220 338 238
+       L 356 268 C 359 273 356 279 350 280 L 338 283
+       L 338 306 C 338 316 330 323 320 321 L 300 317
+       C 296 336 288 352 274 364
+       L 274 400 L 196 400 L 196 356
+       C 168 332 152 300 152 262
+       C 152 196 168 134 208 118 Z"
+    fill="#131028" stroke="url(#silhouette)" stroke-width="7" stroke-linejoin="round"/>
+
+  <!-- Circuits internes -->
+  <g stroke="#35e0d0" stroke-width="5" fill="none" stroke-linecap="round">
+    <path d="M232 214 L232 168 L260 148"/>
+    <path d="M232 214 L232 290 L214 312"/>
+    <path d="M232 244 L282 244"/>
+    <path d="M260 214 L296 214 L310 232"/>
+    <path d="M214 190 L186 190"/>
+  </g>
+  <circle cx="232" cy="214" r="26" fill="#35e0d0"/>
+  <circle cx="232" cy="214" r="14" fill="#131028"/>
+  <circle cx="260" cy="148" r="7" fill="#c8f542"/>
+  <circle cx="214" cy="312" r="7" fill="#b44df0"/>
+  <circle cx="282" cy="244" r="7" fill="#35e0d0"/>
+  <circle cx="310" cy="232" r="7" fill="#35e0d0"/>
+  <circle cx="186" cy="190" r="7" fill="#c8f542"/>
+
+  <!-- Circuits externes, de part et d'autre de l'anneau -->
+  <g stroke="#c8f542" stroke-width="5" fill="none" stroke-linecap="round">
+    <path d="M118 150 L86 150"/>
+    <path d="M110 214 L74 214"/>
+    <path d="M118 342 L88 342"/>
+  </g>
+  <g stroke="#35e0d0" stroke-width="5" fill="none" stroke-linecap="round">
+    <path d="M394 150 L426 150"/>
+    <path d="M402 214 L438 214"/>
+    <path d="M394 342 L424 342"/>
+  </g>
+  <circle cx="86" cy="150" r="8" fill="#c8f542"/>
+  <circle cx="74" cy="214" r="8" fill="#c8f542"/>
+  <circle cx="88" cy="342" r="8" fill="#b44df0"/>
+  <circle cx="426" cy="150" r="8" fill="#35e0d0"/>
+  <circle cx="438" cy="214" r="8" fill="#35e0d0"/>
+  <circle cx="424" cy="342" r="8" fill="#b44df0"/>
+  </g>
+
+  <!-- Mot-symbole -->
+  <text x="256" y="450" text-anchor="middle"
+        font-family="Arial, Helvetica, sans-serif" font-size="52" font-weight="800"
+        letter-spacing="2">
+    <tspan fill="#ffffff">AGENTIC</tspan><tspan fill="#e94fd4">X5</tspan>
+  </text>
+</svg>
