@@ -1,7 +1,10 @@
-import { Home, Shield, AlertTriangle, Wand2, Building, Workflow, Calculator, LogOut, KeyRound } from "lucide-react";
+import { Home, Shield, AlertTriangle, Wand2, Building, Workflow, Calculator, LogOut, KeyRound, Users as UsersIcon, Handshake } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import { roleEffectif, peutAdministrer, LIBELLE_ROLE, type RoleApplicatif } from "@/lib/roles";
+import { determinerMecanismes } from "@/lib/lmrsst";
+import { secteurPourCode } from "@/lib/scianNiveaux";
 import {
   Sidebar,
   SidebarContent,
@@ -16,62 +19,58 @@ import {
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 
+/**
+ * Navigation composée sur deux axes.
+ *
+ * Axe 1 — le rôle : chaque entrée déclare qui la voit. Un travailleur n'a que
+ * faire de quatre générateurs dont chaque action lui serait refusée par la
+ * base ; le comité consulte mais ne rédige pas.
+ *
+ * Axe 2 — l'assujettissement : l'entrée de participation se nomme
+ * « Comité SST » ou « Agent de liaison » selon ce que `determinerMecanismes()`
+ * conclut de l'effectif déclaré. On ne montre jamais un mécanisme auquel
+ * l'établissement n'est pas assujetti.
+ */
+const TOUS: RoleApplicatif[] = ["admin", "preventionniste", "comite", "membre"];
+const REDACTEURS: RoleApplicatif[] = ["admin", "preventionniste"];
+const CONSULTATION: RoleApplicatif[] = ["admin", "preventionniste", "comite"];
+
 const navigationItems = [
-  {
-    title: "Tableau de bord",
-    url: "/",
-    icon: Home,
-  },
-  {
-    title: "Registre des risques",
-    url: "/risks",
-    icon: AlertTriangle,
-  },
-  {
-    title: "Générateur CNESST",
-    url: "/generator",
-    icon: Wand2,
-  },
-  {
-    title: "Générateur par Secteur",
-    url: "/sector-generator",
-    icon: Building,
-  },
-  {
-    title: "Pipeline Générateur PPAI",
-    url: "/pipeline-generator",
-    icon: Workflow,
-  },
-  {
-    title: "Générateur KPI & Mapping",
-    url: "/kpi-generator",
-    icon: Calculator,
-  },
-  {
-    title: "Programmes SST",
-    url: "/programs",
-    icon: Shield,
-  },
+  { title: "Tableau de bord", url: "/", icon: Home, roles: TOUS },
+  { title: "Registre des risques", url: "/risks", icon: AlertTriangle, roles: CONSULTATION },
+  { title: "Générateur CNESST", url: "/generator", icon: Wand2, roles: REDACTEURS },
+  { title: "Générateur par Secteur", url: "/sector-generator", icon: Building, roles: REDACTEURS },
+  { title: "Pipeline Générateur PPAI", url: "/pipeline-generator", icon: Workflow, roles: REDACTEURS },
+  { title: "Générateur KPI & Mapping", url: "/kpi-generator", icon: Calculator, roles: REDACTEURS },
+  { title: "Programmes SST", url: "/programs", icon: Shield, roles: TOUS },
 ];
 
 /**
- * Libellé du rôle applicatif, affiché sous l'identité.
+ * Libellé de l'entrée de participation selon la situation de l'établissement.
  *
- * `profiles.role` existait en base depuis la migration 003 sans qu'aucun
- * écran ne le lise : la section « Administration » s'affichait pour tout le
- * monde, vers des modules vides. La section a été retirée avec les routes
- * mortes ; le rôle devient visible ici, en attendant que les écrans
- * d'administration réels le consomment.
+ * Effectif inconnu : libellé neutre — la page sert alors à le déclarer.
  */
-const LIBELLE_ROLE: Record<string, string> = {
-  admin: "Administration",
-  membre: "Membre",
-};
+function libelleParticipation(effectif: number | null | undefined, scian: string | null | undefined): string {
+  if (!effectif || effectif <= 0) return "Participation SST";
+  const mecanismes = determinerMecanismes({
+    effectif,
+    niveauRisque: secteurPourCode(scian)?.niveau,
+  });
+  return mecanismes.participation.comiteSanteSecurite ? "Comité SST" : "Agent de liaison";
+}
 
 export function AppSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { organization, profile, user, demoMode, signOut } = useAuth();
+
+  const role = roleEffectif(profile?.role, demoMode);
+  const entrees = navigationItems.filter((item) => item.roles.includes(role));
+  const entreeParticipation = {
+    title: libelleParticipation(organization?.employee_count, organization?.scian_code),
+    url: "/participation",
+    icon: Handshake,
+  };
 
   const handleSignOut = async () => {
     await signOut();
@@ -99,8 +98,8 @@ export function AppSidebar() {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navigationItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
+              {[...entrees, entreeParticipation].map((item) => (
+                <SidebarMenuItem key={item.url}>
                   <SidebarMenuButton
                     asChild
                     className={cn(
@@ -119,6 +118,31 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
+        {peutAdministrer(role) && (
+          <SidebarGroup className="mt-8">
+            <SidebarGroupLabel className="text-gray-500 font-medium text-xs uppercase tracking-wide mb-3">
+              Administration
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    asChild
+                    className={cn(
+                      "w-full justify-start px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors",
+                      location.pathname === "/users" && "bg-sst-blue text-white hover:bg-sst-blue/90"
+                    )}
+                  >
+                    <Link to="/users" className="flex items-center gap-3">
+                      <UsersIcon className="w-4 h-4" />
+                      <span className="text-sm font-medium">Utilisateurs</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
 
       <SidebarFooter className="px-6 py-4 border-t border-border space-y-3">
@@ -132,11 +156,7 @@ export function AppSidebar() {
               <p className="text-gray-500 truncate" title={user?.email ?? ''}>
                 {profile?.full_name || user?.email}
               </p>
-              {profile?.role && (
-                <p className="text-gray-400">
-                  {LIBELLE_ROLE[profile.role] ?? profile.role}
-                </p>
-              )}
+              <p className="text-gray-400">{LIBELLE_ROLE[role]}</p>
             </div>
             {/* Changer son mot de passe sans passer par « mot de passe oublié » :
                 le même écran sert les deux cas. */}

@@ -17,6 +17,8 @@ import { AlertTriangle, Users, Target, BarChart3, Loader2, Plus, RotateCcw } fro
 
 import { useRisks, useRiskMutations, useBackendMode } from "@/hooks/useRisks";
 import { calculateRiskSummary, filterRisksBySearch } from "@/utils/riskCalculations";
+import { useAuth } from "@/contexts/AuthContext";
+import { roleEffectif, peutRediger } from "@/lib/roles";
 
 const RiskRegistry = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -24,6 +26,12 @@ const RiskRegistry = () => {
   const { data: risks = [], isLoading, isError, error, refetch } = useRisks();
   const { data: backendMode } = useBackendMode();
   const { createRisk, updateRisk, deleteRisk, importRisks, resetDemoRegistry } = useRiskMutations();
+  const { profile, demoMode } = useAuth();
+
+  // Le comité et les membres consultent ; la base refuserait de toute façon
+  // leurs écritures (migration 005). Masquer les actions leur épargne des
+  // erreurs, ça ne les protège de rien.
+  const redacteur = peutRediger(roleEffectif(profile?.role, demoMode));
 
   const filteredRisks = useMemo(
     () => filterRisksBySearch(risks, searchTerm),
@@ -63,14 +71,14 @@ const RiskRegistry = () => {
     );
   }
 
-  const addRiskTrigger = (
+  const addRiskTrigger = redacteur ? (
     <div className="flex flex-wrap gap-2">
       {/* Les propositions sectorielles arrivent en lot : `importRisks` évite
           une requête par risque adopté. */}
       <ProposerRisquesSecteur onAdopter={(risques) => importRisks.mutateAsync(risques)} />
       <AddRiskModal onSave={(input) => createRisk.mutateAsync(input)} />
     </div>
-  );
+  ) : null;
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -244,6 +252,7 @@ const RiskRegistry = () => {
             <RiskTable
               risks={risks}
               searchTerm={searchTerm}
+              lectureSeule={!redacteur}
               onUpdate={(code, changes) => updateRisk.mutateAsync({ code, changes })}
               onDelete={(code) => deleteRisk.mutateAsync(code)}
             />

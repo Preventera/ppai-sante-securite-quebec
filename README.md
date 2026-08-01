@@ -90,6 +90,25 @@ permissives initiales par un cloisonnement strict :
 - Chaque compte est rattaché à une **organisation** via la table `profiles`.
   À l'inscription, un déclencheur crée l'organisation et le profil de façon
   atomique ; le premier compte en est administrateur.
+- Chaque compte porte un **rôle applicatif** appliqué par les politiques RLS
+  (migration `20241001000005_roles_applicatifs.sql`) :
+
+  | Rôle | Libellé | Ce que la base lui permet |
+  | --- | --- | --- |
+  | `admin` | Direction | Tout, plus l'attribution des rôles (écran Utilisateurs) |
+  | `preventionniste` | Responsable SST | Écrire dans le registre, générer les documents |
+  | `comite` | Comité / RSS | Lire le registre et les programmes |
+  | `membre` | Membre | Lire les programmes |
+
+  Deux garde-fous, appliqués par déclencheur côté base : personne ne peut
+  changer **son propre** rôle (une organisation ne doit pas perdre son dernier
+  administrateur par erreur), et seuls les admins changent celui des autres.
+  Voie de secours : l'éditeur SQL du tableau de bord Supabase n'est pas soumis
+  à ces gardes — `UPDATE profiles SET role = 'admin' WHERE email = '…';`.
+- L'**effectif** et le **code SCIAN** de l'organisation se déclarent sur la
+  page Participation (direction et responsable SST seulement) : ils
+  déterminent les mécanismes exigés, et l'entrée de menu correspondante —
+  « Comité SST » à 20 travailleurs et plus, « Agent de liaison » en dessous.
 - Les politiques RLS de `risks`, `prevention_programs`, `establishments` et
   `agent_executions` filtrent sur `auth_organization_id()`. Une entreprise ne
   peut ni lire, ni modifier, ni supprimer les données d'une autre.

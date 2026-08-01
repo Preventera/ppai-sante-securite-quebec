@@ -7,6 +7,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { RequireAuth } from "@/components/RequireAuth";
+import { RequireRole } from "@/components/RequireRole";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -17,6 +18,8 @@ import SectorGenerator from "./pages/SectorGenerator";
 import PipelineGenerator from "./pages/PipelineGenerator";
 import KPIGenerator from "./pages/KPIGenerator";
 import Programs from "./pages/Programs";
+import Participation from "./pages/Participation";
+import Users from "./pages/Users";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -62,8 +65,13 @@ const App = () => (
             <Route path="/pipeline-generator" element={<AppShell><PipelineGenerator /></AppShell>} />
             <Route path="/kpi-generator" element={<AppShell><KPIGenerator /></AppShell>} />
             <Route path="/programs" element={<AppShell><Programs /></AppShell>} />
-            {/* Les cinq routes « module en développement » (mesures, rapports,
-                calendrier, utilisateurs, paramètres) ont été retirées : une
+            <Route path="/participation" element={<AppShell><Participation /></AppShell>} />
+            {/* La gestion des comptes engage l'organisation : seule la
+                direction y accède. La base l'impose de toute façon
+                (migration 005) — la garde évite un écran où tout échouerait. */}
+            <Route path="/users" element={<AppShell><RequireRole roles={["admin"]}><Users /></RequireRole></AppShell>} />
+            {/* Les routes « module en développement » restantes (mesures,
+                rapports, calendrier, paramètres) ont été retirées : une
                 navigation est une promesse, chaque entrée doit tenir la sienne.
                 Elles reviendront quand les écrans existeront réellement. */}
             <Route path="*" element={<NotFound />} />
