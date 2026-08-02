@@ -26,11 +26,22 @@
  *   pratique conseille est dangereux. Chaque mesure porte donc sa `nature`.
  *
  * CE QUE CE MODULE NE FAIT PAS : INVENTER DES NUMÉROS D'ARTICLES
- *   Les instruments sont nommés (« RSST — qualité du milieu de travail »),
- *   jamais cités à l'article près. Écrire « RSST art. 2.9.1 » de mémoire dans
- *   un produit de conformité serait la faute que le refus de dériver une
- *   probabilité évite ailleurs. Le champ `fondement` nomme l'instrument ;
- *   `articleVerifie` reste faux tant que le texte n'a pas été consulté.
+ *   Écrire « RSST art. 2.9.1 » de mémoire dans un produit de conformité serait
+ *   la faute que le refus de dériver une probabilité évite ailleurs.
+ *
+ *   Les textes officiels du RSST et du CSTC ayant été dépouillés, 65 mesures
+ *   portent désormais l'article qui les fonde — RSST art. 141.3 pour l'affichage
+ *   des zones à protection auditive obligatoire, art. 177 pour les protecteurs
+ *   de machines, CSTC art. 2.10.15 pour les systèmes d'ancrage. Chacun a été
+ *   lu avant d'être écrit, et chacun est vérifié par
+ *   `scripts/verifier_citations.py` contre la liste réelle des articles en
+ *   vigueur : un numéro inexistant ou abrogé fait échouer le contrôle.
+ *
+ *   37 obligations restent nommées sans article. Ce n'est pas un oubli : soit
+ *   leur instrument n'a pas d'index — la LMRSST, la Loi sur les normes du
+ *   travail —, soit aucun article isolé ne les fonde proprement. Les laisser au
+ *   niveau de l'instrument vaut mieux que de leur coller le numéro le plus
+ *   plausible.
  *
  * POURQUOI EN TYPESCRIPT ET NON EN BASE
  *   Ce référentiel est statique et partagé : il évolue avec la réglementation,
@@ -136,15 +147,15 @@ export const CATEGORIES: readonly CategorieRisque[] = [
     asp: [{ nom: 'ASFETM · MultiPrévention', portee: 'Secteur manufacturier — métal, textile, imprimerie' }],
     mesures: [
       { niveau: 1, libelle: 'Retirer le produit dangereux du procédé', nature: 'obligation', fondement: 'RMPPÉ — hiérarchie des mesures de prévention' },
-      { niveau: 2, libelle: 'Substituer un produit moins nocif à fonction équivalente', nature: 'obligation', fondement: 'RMPPÉ — hiérarchie des mesures de prévention' },
-      { niveau: 3, libelle: "Capter le contaminant à la source ; ventilation locale et générale", nature: 'obligation', fondement: 'RSST — qualité du milieu de travail' },
+      { niveau: 2, libelle: 'Substituer un produit moins nocif à fonction équivalente', nature: 'obligation', fondement: 'RSST, art. 39' },
+      { niveau: 3, libelle: "Capter le contaminant à la source ; ventilation locale et générale", nature: 'obligation', fondement: 'RSST, art. 107' },
       { niveau: 3, libelle: 'Enceinte fermée ou procédé en circuit clos', nature: 'recommandation' },
       { niveau: 4, libelle: "Étiquetage SIMDUT des contenants, y compris les contenants de transfert", nature: 'obligation', fondement: 'SIMDUT / Loi sur les produits dangereux' },
-      { niveau: 4, libelle: 'Affichage des zones à accès restreint et du port obligatoire des protections', nature: 'obligation', fondement: 'RSST' },
+      { niveau: 4, libelle: 'Affichage des zones à accès restreint et du port obligatoire des protections', nature: 'obligation', fondement: 'RSST, art. 95' },
       { niveau: 5, libelle: "Limiter la durée et la fréquence d'exposition ; rotation du personnel", nature: 'recommandation' },
       { niveau: 5, libelle: 'Fiches de données de sécurité accessibles et formation des travailleurs exposés', nature: 'obligation', fondement: 'SIMDUT / Loi sur les produits dangereux' },
-      { niveau: 6, libelle: "Appareils de protection respiratoire choisis et entretenus selon CSA Z94.4", nature: 'obligation', fondement: 'RSST — renvoi à la norme CSA Z94.4' },
-      { niveau: 6, libelle: 'Gants, lunettes et vêtements adaptés au produit manipulé', nature: 'obligation', fondement: 'RSST' }
+      { niveau: 6, libelle: "Appareils de protection respiratoire choisis et entretenus selon CSA Z94.4", nature: 'obligation', fondement: 'RSST, art. 45' },
+      { niveau: 6, libelle: 'Gants, lunettes et vêtements adaptés au produit manipulé', nature: 'obligation', fondement: 'RSST, art. 343 et 345' }
     ]
   },
   {
@@ -165,12 +176,12 @@ export const CATEGORIES: readonly CategorieRisque[] = [
     mesures: [
       { niveau: 1, libelle: 'Retirer la source de contamination', nature: 'obligation', fondement: 'RMPPÉ — hiérarchie des mesures de prévention' },
       { niveau: 2, libelle: 'Procédé ou matériel moins exposant — dispositifs de sécurité intégrés aux aiguilles', nature: 'recommandation' },
-      { niveau: 3, libelle: 'Confinement, ventilation et pression différentielle des locaux à risque', nature: 'obligation', fondement: 'RSST' },
+      { niveau: 3, libelle: 'Confinement, ventilation et pression différentielle des locaux à risque', nature: 'obligation', fondement: 'RSST, art. 107' },
       { niveau: 3, libelle: "Contenants pour objets piquants ou tranchants au point d'utilisation", nature: 'obligation', fondement: 'RSST' },
       { niveau: 4, libelle: 'Signalisation des zones de confinement et des contenants biorisque', nature: 'obligation', fondement: 'RSST' },
       { niveau: 5, libelle: "Protocoles d'hygiène des mains, vaccination offerte, formation", nature: 'obligation', fondement: 'RSST — dispositions biologiques' },
       { niveau: 5, libelle: "Procédure de prise en charge après exposition accidentelle", nature: 'obligation', fondement: 'RSST' },
-      { niveau: 6, libelle: 'Masques, gants, blouses et protection oculaire selon le niveau d’exposition', nature: 'obligation', fondement: 'RSST' }
+      { niveau: 6, libelle: 'Masques, gants, blouses et protection oculaire selon le niveau d’exposition', nature: 'obligation', fondement: 'RSST, art. 45, 343 et 345' }
     ]
   },
   {
@@ -193,15 +204,15 @@ export const CATEGORIES: readonly CategorieRisque[] = [
     asp: [{ nom: 'Selon le secteur', portee: 'Construction, mines, transport — voir l’ASP correspondante' }],
     mesures: [
       { niveau: 1, libelle: "Supprimer la source de bruit, de vibration ou de rayonnement", nature: 'obligation', fondement: 'RMPPÉ — hiérarchie des mesures de prévention' },
-      { niveau: 2, libelle: 'Remplacer par un équipement moins bruyant ou moins vibrant', nature: 'obligation', fondement: 'RMPPÉ — hiérarchie des mesures de prévention' },
-      { niveau: 3, libelle: 'Encoffrement acoustique, écrans, isolation des postes', nature: 'obligation', fondement: 'RSST — bruit' },
-      { niveau: 3, libelle: 'Ventilation, chauffage ou refroidissement des ambiances de travail', nature: 'obligation', fondement: 'RSST — ambiances thermiques' },
-      { niveau: 4, libelle: 'Affichage des zones où la protection auditive est obligatoire', nature: 'obligation', fondement: 'RSST — bruit' },
-      { niveau: 4, libelle: "Signalisation et permis d'entrée en espace clos", nature: 'obligation', fondement: 'RSST — espaces clos' },
+      { niveau: 2, libelle: 'Remplacer par un équipement moins bruyant ou moins vibrant', nature: 'obligation', fondement: 'RSST, art. 135' },
+      { niveau: 3, libelle: 'Encoffrement acoustique, écrans, isolation des postes', nature: 'obligation', fondement: 'RSST, art. 135' },
+      { niveau: 3, libelle: 'Ventilation, chauffage ou refroidissement des ambiances de travail', nature: 'obligation', fondement: 'RSST, art. 101 et 116' },
+      { niveau: 4, libelle: 'Affichage des zones où la protection auditive est obligatoire', nature: 'obligation', fondement: 'RSST, art. 141.3' },
+      { niveau: 4, libelle: "Signalisation et permis d'entrée en espace clos", nature: 'obligation', fondement: 'RSST, art. 300' },
       { niveau: 5, libelle: "Rotation, pauses et limitation du temps d'exposition", nature: 'recommandation' },
       { niveau: 5, libelle: 'Surveillance de l’exposition et audiométrie de suivi', nature: 'recommandation' },
-      { niveau: 6, libelle: 'Protecteurs auditifs adaptés au niveau mesuré (CSA Z94.2)', nature: 'obligation', fondement: 'RSST — bruit' },
-      { niveau: 6, libelle: 'Vêtements thermiques, protection contre les rayonnements', nature: 'obligation', fondement: 'RSST' }
+      { niveau: 6, libelle: 'Protecteurs auditifs adaptés au niveau mesuré (CSA Z94.2)', nature: 'obligation', fondement: 'RSST, art. 141 et 141.1' },
+      { niveau: 6, libelle: 'Vêtements thermiques, protection contre les rayonnements', nature: 'obligation', fondement: 'RSST, art. 345' }
     ]
   },
   {
@@ -222,7 +233,7 @@ export const CATEGORIES: readonly CategorieRisque[] = [
     mesures: [
       { niveau: 1, libelle: 'Reconcevoir la tâche ou le poste pour supprimer la contrainte', nature: 'obligation', fondement: 'RMPPÉ — hiérarchie des mesures de prévention' },
       { niveau: 2, libelle: 'Méthode de travail alternative ; réduire la masse unitaire des charges', nature: 'obligation', fondement: 'RMPPÉ — hiérarchie des mesures de prévention' },
-      { niveau: 3, libelle: 'Aides mécaniques : lève-personne, palan, convoyeur, table élévatrice', nature: 'obligation', fondement: 'RSST — manutention' },
+      { niveau: 3, libelle: 'Aides mécaniques : lève-personne, palan, convoyeur, table élévatrice', nature: 'obligation', fondement: 'RSST, art. 166' },
       { niveau: 3, libelle: 'Ajuster hauteurs de travail, atteintes et sièges', nature: 'recommandation' },
       { niveau: 4, libelle: 'Indiquer la masse des charges et les points de préhension', nature: 'recommandation' },
       { niveau: 5, libelle: 'Rotation des tâches, pauses, alternance des postures', nature: 'recommandation' },
@@ -254,14 +265,14 @@ export const CATEGORIES: readonly CategorieRisque[] = [
     mesures: [
       { niveau: 1, libelle: 'Conception intrinsèquement sûre — supprimer la zone dangereuse', nature: 'obligation', fondement: 'RMPPÉ — hiérarchie des mesures de prévention' },
       { niveau: 2, libelle: 'Remplacer par un équipement à risque réduit', nature: 'obligation', fondement: 'RMPPÉ — hiérarchie des mesures de prévention' },
-      { niveau: 3, libelle: 'Protecteurs fixes ou avec dispositif d’interverrouillage (CSA Z432)', nature: 'obligation', fondement: 'RSST — machines' },
-      { niveau: 3, libelle: 'Dispositifs de cadenassage des énergies dangereuses (CSA Z460)', nature: 'obligation', fondement: 'RSST — maîtrise des énergies' },
-      { niveau: 3, libelle: 'Arrêts d’urgence accessibles depuis chaque poste de conduite', nature: 'obligation', fondement: 'RSST — machines' },
-      { niveau: 4, libelle: 'Marquage des zones dangereuses et des points de cadenassage', nature: 'obligation', fondement: 'RSST' },
-      { niveau: 4, libelle: 'Avertisseurs sonores et lumineux de mise en marche', nature: 'obligation', fondement: 'RSST' },
-      { niveau: 5, libelle: 'Procédure de cadenassage écrite, propre à chaque machine', nature: 'obligation', fondement: 'RSST — maîtrise des énergies' },
+      { niveau: 3, libelle: 'Protecteurs fixes ou avec dispositif d’interverrouillage (CSA Z432)', nature: 'obligation', fondement: 'RSST, art. 177' },
+      { niveau: 3, libelle: 'Dispositifs de cadenassage des énergies dangereuses (CSA Z460)', nature: 'obligation', fondement: 'RSST, art. 200 et 201' },
+      { niveau: 3, libelle: 'Arrêts d’urgence accessibles depuis chaque poste de conduite', nature: 'obligation', fondement: 'RSST, art. 193' },
+      { niveau: 4, libelle: 'Marquage des zones dangereuses et des points de cadenassage', nature: 'obligation', fondement: 'RSST, art. 178' },
+      { niveau: 4, libelle: 'Avertisseurs sonores et lumineux de mise en marche', nature: 'obligation', fondement: 'RSST, art. 192' },
+      { niveau: 5, libelle: 'Procédure de cadenassage écrite, propre à chaque machine', nature: 'obligation', fondement: 'RSST, art. 200' },
       { niveau: 5, libelle: 'Formation et habilitation des opérateurs ; permis de travail', nature: 'obligation', fondement: 'LSST — obligation de formation et d’information' },
-      { niveau: 6, libelle: 'Visière, gants anti-coupure, chaussures de sécurité — dernier recours', nature: 'obligation', fondement: 'RSST' }
+      { niveau: 6, libelle: 'Visière, gants anti-coupure, chaussures de sécurité — dernier recours', nature: 'obligation', fondement: 'RSST, art. 343, 344 et 345' }
     ]
   },
   {
@@ -468,7 +479,7 @@ export const MESURES_PAR_GENRE: Record<string, MesureGenre[]> = {
   'EFFORT EXCESSIF': [
     m(1, "Supprimer la manutention manuelle par reconception du flux", 'obligation', 'RMPPÉ — hiérarchie des mesures'),
     m(2, "Fractionner les charges ; réduire la masse unitaire", 'obligation', 'RMPPÉ — hiérarchie des mesures'),
-    m(3, "Aides mécaniques : palan, table élévatrice, chariot, lève-personne", 'obligation', 'RSST — manutention', 'CSA Z1004 · ASSTSAS'),
+    m(3, "Aides mécaniques : palan, table élévatrice, chariot, lève-personne", 'obligation', 'RSST, art. 166', 'CSA Z1004 · ASSTSAS'),
     m(3, "Rapprocher les points de prise et de dépose ; supprimer les torsions", 'recommandation', undefined, 'IRSST — ergonomie'),
     m(4, "Indiquer la masse des charges et les points de préhension", 'recommandation'),
     m(5, "Rotation des tâches ; limiter la fréquence et la durée des efforts", 'recommandation'),
@@ -478,7 +489,7 @@ export const MESURES_PAR_GENRE: Record<string, MesureGenre[]> = {
   'REACTION DU CORPS': [
     m(1, "Éliminer les postures contraignantes par reconception du poste", 'obligation', 'RMPPÉ — hiérarchie des mesures'),
     m(2, "Méthode de travail alternative supprimant le geste en cause", 'obligation', 'RMPPÉ — hiérarchie des mesures'),
-    m(3, "Ajuster hauteurs de travail, atteintes, sièges et appuis", 'obligation', 'RSST', 'CSA Z1004'),
+    m(3, "Ajuster hauteurs de travail, atteintes, sièges et appuis", 'obligation', 'RSST, art. 168 et 170', 'CSA Z1004'),
     m(3, "Supprimer les obstacles imposant contorsions et rattrapages", 'recommandation', undefined, 'IRSST — ergonomie'),
     m(4, "Signaler les zones exiguës et les passages à dégagement réduit", 'recommandation'),
     m(5, "Alternance des postures ; pauses de récupération", 'recommandation'),
@@ -496,98 +507,98 @@ export const MESURES_PAR_GENRE: Record<string, MesureGenre[]> = {
   ],
   'CHUTE AU MEME NIVEAU': [
     m(1, "Supprimer dénivellations, seuils et obstacles des voies de circulation", 'obligation', 'RMPPÉ — hiérarchie des mesures'),
-    m(2, "Revêtement de sol à coefficient de friction adapté à l'activité", 'obligation', 'RSST'),
-    m(3, "Drainage et captation des liquides répandus ; tapis absorbants", 'obligation', 'RSST'),
-    m(3, "Éclairage suffisant des voies de circulation et des escaliers", 'obligation', 'RSST — éclairage'),
-    m(4, "Marquage des dénivellations résiduelles et des sols glissants", 'obligation', 'RSST'),
-    m(5, "Programme d'entretien, de nettoyage et de déneigement des passages", 'obligation', 'RSST', 'IRSST — prévention des chutes'),
-    m(5, "Rangement : dégagement permanent des voies de circulation", 'obligation', 'RSST'),
+    m(2, "Revêtement de sol à coefficient de friction adapté à l'activité", 'obligation', 'RSST, art. 14'),
+    m(3, "Drainage et captation des liquides répandus ; tapis absorbants", 'obligation', 'RSST, art. 14'),
+    m(3, "Éclairage suffisant des voies de circulation et des escaliers", 'obligation', 'RSST, art. 125'),
+    m(4, "Marquage des dénivellations résiduelles et des sols glissants", 'obligation', 'RSST, art. 7'),
+    m(5, "Programme d'entretien, de nettoyage et de déneigement des passages", 'obligation', 'RSST, art. 15 et 17', 'IRSST — prévention des chutes'),
+    m(5, "Rangement : dégagement permanent des voies de circulation", 'obligation', 'RSST, art. 15'),
     m(6, "Chaussures à semelle antidérapante adaptée au sol", 'obligation', 'RSST')
   ],
   'CHUTE A UN NIVEAU INFERIEUR': [
     m(1, "Concevoir le travail au sol ; supprimer le travail en hauteur", 'obligation', 'RMPPÉ — hiérarchie des mesures'),
     m(2, "Plateforme élévatrice ou échafaudage plutôt qu'échelle", 'obligation', 'CSTC'),
-    m(3, "Garde-corps sur toute ouverture, plancher de travail et bord libre", 'obligation', 'RSST · CSTC'),
+    m(3, "Garde-corps sur toute ouverture, plancher de travail et bord libre", 'obligation', 'RSST, art. 33.3 · CSTC, art. 2.9.1'),
     m(3, "Couverture solide et fixée des ouvertures de plancher", 'obligation', 'CSTC'),
-    m(3, "Points d'ancrage conçus et vérifiés pour l'arrêt de chute", 'obligation', 'CSTC', 'CSA Z259'),
+    m(3, "Points d'ancrage conçus et vérifiés pour l'arrêt de chute", 'obligation', 'CSTC, art. 2.10.15', 'CSA Z259'),
     m(4, "Baliser et signaler les zones de travail en hauteur et les ouvertures", 'obligation', 'CSTC'),
     m(5, "Plan de travail en hauteur ; plan de sauvetage après suspension", 'obligation', 'CSTC', 'ASP Construction'),
-    m(6, "Harnais complet et absorbeur d'énergie, inspectés avant chaque usage", 'obligation', 'CSTC', 'CSA Z259')
+    m(6, "Harnais complet et absorbeur d'énergie, inspectés avant chaque usage", 'obligation', 'RSST, art. 347 · CSTC, art. 2.10.12', 'CSA Z259')
   ],
   'FRAPPE PAR UN OBJET': [
     m(1, "Supprimer le stockage et la manutention au-dessus des postes occupés", 'obligation', 'RMPPÉ — hiérarchie des mesures'),
     m(2, "Manutention mécanisée plutôt que portée à bras", 'obligation', 'RMPPÉ — hiérarchie des mesures'),
-    m(3, "Filets, plinthes et garde-corps pleins contre la chute d'objets", 'obligation', 'CSTC'),
-    m(3, "Arrimage des charges ; rayonnages ancrés et charge maximale respectée", 'obligation', 'RSST'),
+    m(3, "Filets, plinthes et garde-corps pleins contre la chute d'objets", 'obligation', 'RSST, art. 10 · CSTC, art. 2.9.3'),
+    m(3, "Arrimage des charges ; rayonnages ancrés et charge maximale respectée", 'obligation', 'RSST, art. 288 à 290'),
     m(4, "Baliser les zones de manœuvre de grue et de levage", 'obligation', 'CSTC'),
     m(5, "Interdiction de circuler sous une charge suspendue", 'obligation', 'CSTC'),
-    m(5, "Signaleur formé pour les manœuvres à visibilité réduite", 'obligation', 'CSTC', 'ASP Construction'),
-    m(6, "Casque de protection ; chaussures à embout protecteur", 'obligation', 'RSST · CSTC', 'CSA Z94.1')
+    m(5, "Signaleur formé pour les manœuvres à visibilité réduite", 'obligation', 'CSTC, art. 2.8.3 et 2.8.4', 'ASP Construction'),
+    m(6, "Casque de protection ; chaussures à embout protecteur", 'obligation', 'RSST, art. 341 et 344 · CSTC, art. 2.10.3 et 2.10.6', 'CSA Z94.1')
   ],
   'HEURTER UN OBJET': [
     m(1, "Reconcevoir les circulations pour supprimer les obstacles fixes", 'obligation', 'RMPPÉ — hiérarchie des mesures'),
-    m(3, "Dégager les hauteurs libres et élargir les passages", 'obligation', 'RSST'),
+    m(3, "Dégager les hauteurs libres et élargir les passages", 'obligation', 'RSST, art. 15'),
     m(3, "Protection des angles saillants et des parties basses", 'recommandation'),
     m(4, "Marquage contrasté des obstacles et des hauteurs réduites", 'obligation', 'RSST'),
-    m(5, "Séparation des flux piétons et véhicules", 'obligation', 'RSST'),
-    m(6, "Casque lorsque le dégagement en hauteur reste insuffisant", 'obligation', 'RSST')
+    m(5, "Séparation des flux piétons et véhicules", 'obligation', 'RSST, art. 7 · CSTC, art. 2.8.2'),
+    m(6, "Casque lorsque le dégagement en hauteur reste insuffisant", 'obligation', 'RSST, art. 341')
   ],
   'COINCE,ECRASE PAR EQUIPEMENT,OBJET': [
     m(1, "Conception supprimant la zone de coincement", 'obligation', 'RMPPÉ — hiérarchie des mesures', 'ISO 12100'),
     m(2, "Équipement à énergie ou à course réduite", 'obligation', 'RMPPÉ — hiérarchie des mesures'),
-    m(3, "Protecteurs fixes ou à interverrouillage sur les zones dangereuses", 'obligation', 'RSST — machines', 'CSA Z432 · ISO 12100'),
-    m(3, "Dispositifs de cadenassage des énergies dangereuses", 'obligation', 'RSST', 'CSA Z460'),
-    m(3, "Arrêts d'urgence accessibles depuis chaque poste", 'obligation', 'RSST — machines'),
+    m(3, "Protecteurs fixes ou à interverrouillage sur les zones dangereuses", 'obligation', 'RSST, art. 177', 'CSA Z432 · ISO 12100'),
+    m(3, "Dispositifs de cadenassage des énergies dangereuses", 'obligation', 'RSST, art. 200 et 201', 'CSA Z460'),
+    m(3, "Arrêts d'urgence accessibles depuis chaque poste", 'obligation', 'RSST, art. 193'),
     m(4, "Marquage des zones de coincement et des points de cadenassage", 'obligation', 'RSST'),
-    m(5, "Procédure de cadenassage écrite et propre à chaque machine", 'obligation', 'RSST', 'CSA Z460'),
+    m(5, "Procédure de cadenassage écrite et propre à chaque machine", 'obligation', 'RSST, art. 200', 'CSA Z460'),
     m(5, "Habilitation des opérateurs et des personnes chargées de l'entretien", 'obligation', "LSST — formation et information"),
-    m(6, "Gants adaptés — jamais près d'organes en rotation", 'obligation', 'RSST')
+    m(6, "Gants adaptés — jamais près d'organes en rotation", 'obligation', 'RSST, art. 345')
   ],
   'FROTTEM.,ABRAS.PAR FRICTION,PRESSION': [
     m(1, "Supprimer le contact avec les surfaces abrasives ou sous pression", 'obligation', 'RMPPÉ — hiérarchie des mesures'),
     m(3, "Capotage des organes abrasifs ; limitation des pressions accessibles", 'obligation', 'RSST — machines', 'CSA Z432'),
     m(4, "Signaler les surfaces abrasives et les circuits sous pression", 'obligation', 'RSST'),
     m(5, "Procédure de purge avant toute intervention sur circuit sous pression", 'obligation', 'RSST', 'CSA Z460'),
-    m(6, "Gants anti-coupure et anti-abrasion adaptés à la tâche", 'obligation', 'RSST')
+    m(6, "Gants anti-coupure et anti-abrasion adaptés à la tâche", 'obligation', 'RSST, art. 345')
   ],
   'EXPOSITION AU BRUIT': [
     m(1, "Supprimer la source sonore ou l'éloigner des postes occupés", 'obligation', 'RMPPÉ — hiérarchie des mesures'),
-    m(2, "Équipement moins bruyant ; procédé silencieux à performance égale", 'obligation', 'RSST — bruit'),
-    m(3, "Encoffrement acoustique, écrans, silencieux, traitement des parois", 'obligation', 'RSST — bruit', 'IRSST — acoustique'),
+    m(2, "Équipement moins bruyant ; procédé silencieux à performance égale", 'obligation', 'RSST, art. 135'),
+    m(3, "Encoffrement acoustique, écrans, silencieux, traitement des parois", 'obligation', 'RSST, art. 135', 'IRSST — acoustique'),
     m(3, "Cabines de conduite ou de contrôle insonorisées", 'recommandation'),
-    m(4, "Affichage des zones où la protection auditive est obligatoire", 'obligation', 'RSST — bruit'),
-    m(5, "Mesurage de l'exposition ; limitation du temps en zone bruyante", 'obligation', 'RSST — bruit'),
+    m(4, "Affichage des zones où la protection auditive est obligatoire", 'obligation', 'RSST, art. 141.3'),
+    m(5, "Mesurage de l'exposition ; limitation du temps en zone bruyante", 'obligation', 'RSST, art. 136 et 138'),
     m(5, "Audiométrie de suivi et information des travailleurs exposés", 'recommandation', undefined, 'INSPQ · IRSST'),
-    m(6, "Protecteurs auditifs choisis selon l'atténuation requise", 'obligation', 'RSST — bruit', 'CSA Z94.2')
+    m(6, "Protecteurs auditifs choisis selon l'atténuation requise", 'obligation', 'RSST, art. 141 et 141.1', 'CSA Z94.2')
   ],
   'CONTACT AVEC TEMPERATURES EXTREMES': [
     m(1, "Supprimer le contact avec les surfaces ou fluides à température extrême", 'obligation', 'RMPPÉ — hiérarchie des mesures'),
     m(2, "Procédé à température modérée ; refroidissement avant intervention", 'obligation', 'RMPPÉ — hiérarchie des mesures'),
-    m(3, "Calorifugeage, écrans thermiques, ventilation ou chauffage d'ambiance", 'obligation', 'RSST — ambiances thermiques'),
+    m(3, "Calorifugeage, écrans thermiques, ventilation ou chauffage d'ambiance", 'obligation', 'RSST, art. 124'),
     m(3, "Aires de récupération tempérées à proximité des postes", 'obligation', 'RSST'),
     m(4, "Signaler les surfaces chaudes ou froides accessibles", 'obligation', 'RSST'),
-    m(5, "Régime d'alternance travail-repos selon la contrainte thermique", 'obligation', 'RSST', 'INSPQ — chaleur'),
+    m(5, "Régime d'alternance travail-repos selon la contrainte thermique", 'obligation', 'RSST, art. 123 et 124', 'INSPQ — chaleur'),
     m(5, "Hydratation, acclimatation et surveillance mutuelle", 'obligation', 'RSST', 'CSA Z1010'),
-    m(6, "Vêtements et gants isolants adaptés à la température", 'obligation', 'RSST')
+    m(6, "Vêtements et gants isolants adaptés à la température", 'obligation', 'RSST, art. 345')
   ],
   'CONTACT AVEC LE COURANT ELECTRIQUE': [
     m(1, "Travailler hors tension — consignation avant toute intervention", 'obligation', 'RSST', 'CSA Z462'),
     m(2, "Très basse tension de sécurité lorsque la fonction le permet", 'obligation', 'RMPPÉ — hiérarchie des mesures'),
-    m(3, "Mise à la terre, différentiels, enveloppes et distances de sécurité", 'obligation', 'RSST · CSTC', 'CSA Z462'),
-    m(3, "Cadenassage des sources d'alimentation avec vérification d'absence de tension", 'obligation', 'RSST', 'CSA Z460 · Z462'),
+    m(3, "Mise à la terre, différentiels, enveloppes et distances de sécurité", 'obligation', 'RSST, art. 235 · CSTC, art. 5.2.1', 'CSA Z462'),
+    m(3, "Cadenassage des sources d'alimentation avec vérification d'absence de tension", 'obligation', 'RSST, art. 200 et 201', 'CSA Z460 · Z462'),
     m(4, "Étiquetage des circuits, des tableaux et des points de coupure", 'obligation', 'RSST', 'CSA Z462'),
     m(5, "Habilitation électrique ; permis et analyse de risque avant travail sous tension", 'obligation', 'RSST', 'CSA Z462'),
-    m(6, "Gants isolants, écran facial et vêtements résistants à l'arc", 'obligation', 'RSST', 'CSA Z462')
+    m(6, "Gants isolants, écran facial et vêtements résistants à l'arc", 'obligation', 'RSST, art. 343 et 345', 'CSA Z462')
   ],
   'EXPOS. SUBST. CAUST.,NOCIVE,ALLERG.': [
     m(1, "Retirer la substance du procédé", 'obligation', 'RMPPÉ — hiérarchie des mesures'),
-    m(2, "Substituer un produit moins nocif à fonction équivalente", 'obligation', 'RSST', 'Reptox'),
-    m(3, "Captation à la source ; enceinte fermée ; ventilation générale", 'obligation', 'RSST — qualité du milieu'),
-    m(3, "Douches et rince-œil d'urgence accessibles", 'obligation', 'RSST'),
+    m(2, "Substituer un produit moins nocif à fonction équivalente", 'obligation', 'RSST, art. 39', 'Reptox'),
+    m(3, "Captation à la source ; enceinte fermée ; ventilation générale", 'obligation', 'RSST, art. 107'),
+    m(3, "Douches et rince-œil d'urgence accessibles", 'obligation', 'RSST, art. 75 et 76'),
     m(4, "Étiquetage SIMDUT de tous les contenants, transferts compris", 'obligation', 'SIMDUT / Loi sur les produits dangereux'),
     m(5, "Fiches de données de sécurité accessibles ; formation des personnes exposées", 'obligation', 'SIMDUT / Loi sur les produits dangereux', 'Reptox'),
-    m(5, "Surveillance de l'exposition par rapport aux valeurs limites", 'obligation', 'RSST — qualité du milieu', 'IRSST — hygiène industrielle'),
-    m(6, "Protection respiratoire, gants et lunettes choisis selon la substance", 'obligation', 'RSST', 'CSA Z94.4 · Reptox')
+    m(5, "Surveillance de l'exposition par rapport aux valeurs limites", 'obligation', 'RSST, art. 43 et 44', 'IRSST — hygiène industrielle'),
+    m(6, "Protection respiratoire, gants et lunettes choisis selon la substance", 'obligation', 'RSST, art. 45, 343 et 345', 'CSA Z94.4 · Reptox')
   ],
   'VOIES FAIT,ACTE VIOLENT PAR PERSONNE': [
     m(1, "Reconcevoir l'organisation supprimant l'exposition — file d'attente, encaissement", 'obligation', 'RMPPÉ — hiérarchie des mesures'),
@@ -610,11 +621,11 @@ export const MESURES_PAR_GENRE: Record<string, MesureGenre[]> = {
   'ACCIDENT DE LA ROUTE': [
     m(1, "Supprimer le déplacement — visioconférence, livraison groupée", 'obligation', 'RMPPÉ — hiérarchie des mesures'),
     m(2, "Transport confié à un tiers spécialisé lorsque c'est possible", 'recommandation'),
-    m(3, "Entretien préventif documenté ; aides à la conduite ; arrimage des charges", 'obligation', 'RSST', 'Via Prévention'),
-    m(4, "Signalisation et balisage des aires de manœuvre et de recul", 'obligation', 'RSST · CSTC'),
+    m(3, "Entretien préventif documenté ; aides à la conduite ; arrimage des charges", 'obligation', 'RSST, art. 272', 'Via Prévention'),
+    m(4, "Signalisation et balisage des aires de manœuvre et de recul", 'obligation', 'RSST, art. 284 · CSTC, art. 2.8.2'),
     m(5, "Politique de conduite : vitesse, fatigue, téléphone, alcool et drogues", 'obligation', 'LSST', 'Via Prévention'),
     m(5, "Planification des trajets et des heures de conduite", 'recommandation'),
-    m(6, "Ceinture, vêtement à haute visibilité hors du véhicule", 'obligation', 'RSST · CSTC')
+    m(6, "Ceinture, vêtement à haute visibilité hors du véhicule", 'obligation', 'RSST, art. 280 · CSTC, art. 10.4.1')
   ],
   'ATTAQUE PAR DES ANIMAUX': [
     m(1, "Séparer physiquement les travailleurs des animaux", 'obligation', 'RMPPÉ — hiérarchie des mesures'),
