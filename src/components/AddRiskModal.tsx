@@ -9,6 +9,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Plus, Loader2, AlertTriangle } from "lucide-react";
 import { Risk, RiskSector, RiskStatus } from "@/types/risk";
 import { RiskInput } from "@/services/riskService";
+import { MesuresProposees } from "@/components/MesuresProposees";
+import { CATEGORIES_SAISIE } from "@/lib/prevention";
 import { validateRisk } from "@/utils/riskCalculations";
 
 const phases = [
@@ -24,14 +26,10 @@ const phases = [
   "Réfection toiture"
 ];
 
-const categories = [
-  "Chute (CSTC)",
-  "Équipements de levage",
-  "Électricité (CSTC)",
-  "Incendies et explosions",
-  "Creusement, excavation",
-  "Autres risques professionnels"
-];
+// Les catégories de prévention d'abord : ce sont elles qui ouvrent l'accès aux
+// moyens de prévention du RMPPÉ. Les libellés hérités suivent, pour qu'un
+// risque ancien ne perde pas sa catégorie à la modification.
+const categories = CATEGORIES_SAISIE;
 
 const sectors: RiskSector[] = ["Construction", "Électricité", "Sécurité", "Santé"];
 
@@ -291,10 +289,25 @@ export function AddRiskModal({ onSave, risk, trigger, valeursInitiales }: AddRis
             <Label htmlFor="measures">Mesures de prévention *</Label>
             <Textarea
               id="measures"
-              placeholder="Ex: Balisage zone de sécurité + formation opérateur (CSTC art. 3.9.1)..."
+              placeholder="Décrivez les mesures, ou reprenez celles proposées ci-dessous."
               value={form.measures}
               onChange={(e) => setForm(prev => ({ ...prev, measures: e.target.value }))}
-              rows={2}
+              rows={4}
+            />
+          </div>
+
+          {/* Les moyens de prévention de la catégorie retenue, dans l'ordre de
+              priorité du RMPPÉ art. 6. Le champ reste libre : la proposition
+              alimente la rédaction, elle ne la remplace pas. */}
+          <div className="rounded-lg border p-3 bg-gray-50">
+            <MesuresProposees
+              categorie={form.category}
+              onAjouter={(texte) =>
+                setForm(prev => ({
+                  ...prev,
+                  measures: prev.measures.trim() ? `${prev.measures.trim()}\n${texte}` : texte
+                }))
+              }
             />
           </div>
 

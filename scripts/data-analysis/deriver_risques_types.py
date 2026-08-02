@@ -200,7 +200,11 @@ def lire(chemins: list[Path], correspondance: dict[str, str | None],
     exclues_covid = 0
 
     for chemin in chemins:
-        annee = "".join(c for c in chemin.stem if c.isdigit())[:4]
+        # L'année ne se déduit PAS du nom de fichier : concaténer ses chiffres
+        # captait le préfixe aléatoire des fichiers téléversés
+        # (« c7fc12bd-lesions2017 » donnait « 7122 »). Les fichiers publiés ne
+        # portent aucune colonne d'année ; on n'en invente donc pas.
+        annee = ""
         with chemin.open(encoding="utf-8-sig", newline="") as fichier:
             for ligne in csv.DictReader(fichier):
                 secteur = (ligne.get(correspondance["secteur"]) or "").strip()
@@ -353,13 +357,18 @@ def main() -> int:
     for secteur in sorted(par_secteur):
         for e in par_secteur[secteur]:
             libelle = e["genre"] or e["agent"]
+            # CE CHAMP NE CONTIENT PAS DE MESURES DE PRÉVENTION, et ne doit
+            # pas prétendre en contenir. Il décrit d'où vient la fiche : agent
+            # causal, nature et siège de lésion observés, base de la gravité
+            # proposée. Les moyens de prévention viennent de `src/lib/prevention.ts`,
+            # rangés selon la hiérarchie de l'article 6 du RMPPÉ.
             mesures = (
-                f"Agent causal dominant : {e['agent']}. "
+                f"Origine de la proposition — agent causal dominant : {e['agent']}. "
                 f"Nature de lésion dominante : {e['nature'] or 'non précisée'}. "
                 f"Siège dominant : {e['siege'] or 'non précisé'}. "
                 f"Gravité proposée d'après {e['justification']}. "
-                f"Observé sur {', '.join(e['annees']) or 'période non précisée'}. "
-                "À valider et compléter par l'employeur pour son établissement."
+                "Les moyens de prévention applicables sont proposés par l'application, "
+                "selon la hiérarchie de l'article 6 du RMPPÉ."
             )
             sortie.append(
                 "INSERT INTO risk_templates "
