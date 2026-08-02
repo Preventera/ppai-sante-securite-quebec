@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  id="defs_assujettissement-reglementaire" targetNamespace="http://agenticx5.com/ppai/bpmn">
+  <!-- P2 — Assujettissement réglementaire — © 2026 Preventera / AgenticX5. Généré par scripts/bpmn/generer_bpmn.py -->
+  <bpmn:collaboration id="collab_assujettissement-reglementaire">
+    <bpmn:participant id="pool_assujettissement-reglementaire" name="P2 — Assujettissement réglementaire" processRef="proc_assujettissement-reglementaire" />
+  </bpmn:collaboration>
+  <bpmn:process id="proc_assujettissement-reglementaire" isExecutable="false">
+    <bpmn:laneSet id="laneset_assujettissement-reglementaire">
+      <bpmn:lane id="lane_assujettissement-reglementaire_0" name="Direction / Responsable SST">
+        <bpmn:flowNodeRef>p2_debut</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p2_saisir</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p2_fin</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="lane_assujettissement-reglementaire_1" name="Application PPAI">
+        <bpmn:flowNodeRef>p2_calcul</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p2_seuil</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p2_programme</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p2_plan</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p2_menu</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="lane_assujettissement-reglementaire_2" name="Référentiel CNESST">
+        <bpmn:flowNodeRef>p2_niveau</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p2_modalites</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="p2_debut" name="Établissement à qualifier">
+      <bpmn:outgoing>flow_assujettissement-reglementaire_0</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="p2_saisir" name="Déclarer l&#x27;effectif et le sous-secteur SCIAN">
+      <bpmn:incoming>flow_assujettissement-reglementaire_0</bpmn:incoming>
+      <bpmn:outgoing>flow_assujettissement-reglementaire_1</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="p2_niveau" name="Résoudre le niveau (annexe I, 102 sous-secteurs)">
+      <bpmn:incoming>flow_assujettissement-reglementaire_1</bpmn:incoming>
+      <bpmn:outgoing>flow_assujettissement-reglementaire_2</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="p2_calcul" name="determinerMecanismes()">
+      <bpmn:incoming>flow_assujettissement-reglementaire_2</bpmn:incoming>
+      <bpmn:outgoing>flow_assujettissement-reglementaire_3</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="p2_seuil" name="20 travailleurs ou plus ?">
+      <bpmn:incoming>flow_assujettissement-reglementaire_3</bpmn:incoming>
+      <bpmn:outgoing>flow_assujettissement-reglementaire_4</bpmn:outgoing>
+      <bpmn:outgoing>flow_assujettissement-reglementaire_7</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="p2_programme" name="Programme de prévention + comité + représentant">
+      <bpmn:incoming>flow_assujettissement-reglementaire_4</bpmn:incoming>
+      <bpmn:outgoing>flow_assujettissement-reglementaire_5</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="p2_modalites" name="Composition (art. 7) Réunions (art. 19) Libération (art. 33)">
+      <bpmn:incoming>flow_assujettissement-reglementaire_5</bpmn:incoming>
+      <bpmn:outgoing>flow_assujettissement-reglementaire_6</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="p2_plan" name="Plan d&#x27;action + agent de liaison">
+      <bpmn:incoming>flow_assujettissement-reglementaire_7</bpmn:incoming>
+      <bpmn:outgoing>flow_assujettissement-reglementaire_8</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="p2_menu" name="Renommer l&#x27;entrée de menu selon le mécanisme retenu">
+      <bpmn:incoming>flow_assujettissement-reglementaire_6</bpmn:incoming>
+      <bpmn:incoming>flow_assujettissement-reglementaire_8</bpmn:incoming>
+      <bpmn:outgoing>flow_assujettissement-reglementaire_9</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="p2_fin" name="Obligations connues">
+      <bpmn:incoming>flow_assujettissement-reglementaire_9</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="flow_assujettissement-reglementaire_0" sourceRef="p2_debut" targetRef="p2_saisir" />
+    <bpmn:sequenceFlow id="flow_assujettissement-reglementaire_1" sourceRef="p2_saisir" targetRef="p2_niveau" />
+    <bpmn:sequenceFlow id="flow_assujettissement-reglementaire_2" sourceRef="p2_niveau" targetRef="p2_calcul" />
+    <bpmn:sequenceFlow id="flow_assujettissement-reglementaire_3" sourceRef="p2_calcul" targetRef="p2_seuil" />
+    <bpmn:sequenceFlow id="flow_assujettissement-reglementaire_4" sourceRef="p2_seuil" targetRef="p2_programme" name="oui" />
+    <bpmn:sequenceFlow id="flow_assujettissement-reglementaire_5" sourceRef="p2_programme" targetRef="p2_modalites" />
+    <bpmn:sequenceFlow id="flow_assujettissement-reglementaire_6" sourceRef="p2_modalites" targetRef="p2_menu" />
+    <bpmn:sequenceFlow id="flow_assujettissement-reglementaire_7" sourceRef="p2_seuil" targetRef="p2_plan" name="non" />
+    <bpmn:sequenceFlow id="flow_assujettissement-reglementaire_8" sourceRef="p2_plan" targetRef="p2_menu" />
+    <bpmn:sequenceFlow id="flow_assujettissement-reglementaire_9" sourceRef="p2_menu" targetRef="p2_fin" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="diag_assujettissement-reglementaire">
+    <bpmndi:BPMNPlane id="plane_assujettissement-reglementaire" bpmnElement="collab_assujettissement-reglementaire">
+      <bpmndi:BPMNShape id="shape_pool_assujettissement-reglementaire" bpmnElement="pool_assujettissement-reglementaire" isHorizontal="true">
+        <dc:Bounds x="160" y="60" width="1880" height="680" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_lane_assujettissement-reglementaire_0" bpmnElement="lane_assujettissement-reglementaire_0" isHorizontal="true">
+        <dc:Bounds x="190" y="60" width="1850" height="170" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_lane_assujettissement-reglementaire_1" bpmnElement="lane_assujettissement-reglementaire_1" isHorizontal="true">
+        <dc:Bounds x="190" y="230" width="1850" height="340" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_lane_assujettissement-reglementaire_2" bpmnElement="lane_assujettissement-reglementaire_2" isHorizontal="true">
+        <dc:Bounds x="190" y="570" width="1850" height="170" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p2_debut" bpmnElement="p2_debut">
+        <dc:Bounds x="282" y="127" width="36" height="36" />
+          <bpmndi:BPMNLabel><dc:Bounds x="252" y="167" width="96" height="28" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p2_saisir" bpmnElement="p2_saisir">
+        <dc:Bounds x="425" y="105" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p2_niveau" bpmnElement="p2_niveau">
+        <dc:Bounds x="625" y="615" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p2_calcul" bpmnElement="p2_calcul">
+        <dc:Bounds x="825" y="275" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p2_seuil" bpmnElement="p2_seuil">
+        <dc:Bounds x="1075" y="290" width="50" height="50" />
+          <bpmndi:BPMNLabel><dc:Bounds x="1045" y="344" width="110" height="28" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p2_programme" bpmnElement="p2_programme">
+        <dc:Bounds x="1225" y="275" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p2_modalites" bpmnElement="p2_modalites">
+        <dc:Bounds x="1425" y="615" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p2_plan" bpmnElement="p2_plan">
+        <dc:Bounds x="1225" y="445" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p2_menu" bpmnElement="p2_menu">
+        <dc:Bounds x="1625" y="275" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p2_fin" bpmnElement="p2_fin">
+        <dc:Bounds x="1882" y="127" width="36" height="36" />
+          <bpmndi:BPMNLabel><dc:Bounds x="1852" y="167" width="96" height="28" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="edge_assujettissement-reglementaire_0" bpmnElement="flow_assujettissement-reglementaire_0">
+        <di:waypoint x="318" y="145" />
+        <di:waypoint x="371" y="145" />
+        <di:waypoint x="371" y="145" />
+        <di:waypoint x="425" y="145" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_assujettissement-reglementaire_1" bpmnElement="flow_assujettissement-reglementaire_1">
+        <di:waypoint x="575" y="145" />
+        <di:waypoint x="600" y="145" />
+        <di:waypoint x="600" y="655" />
+        <di:waypoint x="625" y="655" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_assujettissement-reglementaire_2" bpmnElement="flow_assujettissement-reglementaire_2">
+        <di:waypoint x="775" y="655" />
+        <di:waypoint x="800" y="655" />
+        <di:waypoint x="800" y="315" />
+        <di:waypoint x="825" y="315" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_assujettissement-reglementaire_3" bpmnElement="flow_assujettissement-reglementaire_3">
+        <di:waypoint x="975" y="315" />
+        <di:waypoint x="1025" y="315" />
+        <di:waypoint x="1025" y="315" />
+        <di:waypoint x="1075" y="315" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_assujettissement-reglementaire_4" bpmnElement="flow_assujettissement-reglementaire_4">
+        <di:waypoint x="1125" y="315" />
+        <di:waypoint x="1175" y="315" />
+        <di:waypoint x="1175" y="315" />
+        <di:waypoint x="1225" y="315" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1179" y="293" width="60" height="18" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_assujettissement-reglementaire_5" bpmnElement="flow_assujettissement-reglementaire_5">
+        <di:waypoint x="1375" y="315" />
+        <di:waypoint x="1400" y="315" />
+        <di:waypoint x="1400" y="655" />
+        <di:waypoint x="1425" y="655" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_assujettissement-reglementaire_6" bpmnElement="flow_assujettissement-reglementaire_6">
+        <di:waypoint x="1575" y="655" />
+        <di:waypoint x="1600" y="655" />
+        <di:waypoint x="1600" y="315" />
+        <di:waypoint x="1625" y="315" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_assujettissement-reglementaire_7" bpmnElement="flow_assujettissement-reglementaire_7">
+        <di:waypoint x="1125" y="315" />
+        <di:waypoint x="1175" y="315" />
+        <di:waypoint x="1175" y="485" />
+        <di:waypoint x="1225" y="485" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1179" y="463" width="60" height="18" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_assujettissement-reglementaire_8" bpmnElement="flow_assujettissement-reglementaire_8">
+        <di:waypoint x="1375" y="485" />
+        <di:waypoint x="1500" y="485" />
+        <di:waypoint x="1500" y="315" />
+        <di:waypoint x="1625" y="315" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_assujettissement-reglementaire_9" bpmnElement="flow_assujettissement-reglementaire_9">
+        <di:waypoint x="1775" y="315" />
+        <di:waypoint x="1828" y="315" />
+        <di:waypoint x="1828" y="145" />
+        <di:waypoint x="1882" y="145" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

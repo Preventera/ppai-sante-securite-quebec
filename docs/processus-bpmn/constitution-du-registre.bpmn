@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  id="defs_constitution-du-registre" targetNamespace="http://agenticx5.com/ppai/bpmn">
+  <!-- P3 — Constitution du registre par propositions sectorielles — © 2026 Preventera / AgenticX5. Généré par scripts/bpmn/generer_bpmn.py -->
+  <bpmn:collaboration id="collab_constitution-du-registre">
+    <bpmn:participant id="pool_constitution-du-registre" name="P3 — Constitution du registre par propositions sectorielles" processRef="proc_constitution-du-registre" />
+  </bpmn:collaboration>
+  <bpmn:process id="proc_constitution-du-registre" isExecutable="false">
+    <bpmn:laneSet id="laneset_constitution-du-registre">
+      <bpmn:lane id="lane_constitution-du-registre_0" name="Responsable SST">
+        <bpmn:flowNodeRef>p3_debut</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p3_ouvrir</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p3_secteur</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p3_orientation</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p3_domaine</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p3_coter</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p3_fin</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p3_fin_vide</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="lane_constitution-du-registre_1" name="Application PPAI">
+        <bpmn:flowNodeRef>p3_plurivoque</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p3_vide</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p3_avertir</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p3_bloquer</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p3_adopter</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="lane_constitution-du-registre_2" name="Référentiel CNESST">
+        <bpmn:flowNodeRef>p3_charger</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="p3_debut" name="Registre à constituer">
+      <bpmn:outgoing>flow_constitution-du-registre_0</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="p3_ouvrir" name="Ouvrir « Proposer les risques de mon secteur »">
+      <bpmn:incoming>flow_constitution-du-registre_0</bpmn:incoming>
+      <bpmn:outgoing>flow_constitution-du-registre_1</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="p3_secteur" name="Choisir le sous-secteur SCIAN">
+      <bpmn:incoming>flow_constitution-du-registre_1</bpmn:incoming>
+      <bpmn:outgoing>flow_constitution-du-registre_2</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="p3_plurivoque" name="Code plurivoque ? (115)">
+      <bpmn:incoming>flow_constitution-du-registre_2</bpmn:incoming>
+      <bpmn:outgoing>flow_constitution-du-registre_3</bpmn:outgoing>
+      <bpmn:outgoing>flow_constitution-du-registre_5</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="p3_orientation" name="Trancher : agriculture ou foresterie">
+      <bpmn:incoming>flow_constitution-du-registre_3</bpmn:incoming>
+      <bpmn:outgoing>flow_constitution-du-registre_4</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="p3_charger" name="Charger les risques types du grand secteur">
+      <bpmn:incoming>flow_constitution-du-registre_4</bpmn:incoming>
+      <bpmn:incoming>flow_constitution-du-registre_5</bpmn:incoming>
+      <bpmn:outgoing>flow_constitution-du-registre_6</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="p3_vide" name="Propositions disponibles ?">
+      <bpmn:incoming>flow_constitution-du-registre_6</bpmn:incoming>
+      <bpmn:outgoing>flow_constitution-du-registre_7</bpmn:outgoing>
+      <bpmn:outgoing>flow_constitution-du-registre_9</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="p3_avertir" name="Signaler l&#x27;absence de données publiées">
+      <bpmn:incoming>flow_constitution-du-registre_7</bpmn:incoming>
+      <bpmn:outgoing>flow_constitution-du-registre_8</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="p3_domaine" name="Choisir le domaine du registre (aucune valeur par défaut)">
+      <bpmn:incoming>flow_constitution-du-registre_9</bpmn:incoming>
+      <bpmn:outgoing>flow_constitution-du-registre_10</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="p3_coter" name="Coter la probabilité de CHAQUE risque retenu">
+      <bpmn:incoming>flow_constitution-du-registre_10</bpmn:incoming>
+      <bpmn:incoming>flow_constitution-du-registre_12</bpmn:incoming>
+      <bpmn:outgoing>flow_constitution-du-registre_11</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="p3_bloquer" name="Tout est coté ?">
+      <bpmn:incoming>flow_constitution-du-registre_11</bpmn:incoming>
+      <bpmn:outgoing>flow_constitution-du-registre_12</bpmn:outgoing>
+      <bpmn:outgoing>flow_constitution-du-registre_13</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="p3_adopter" name="Adopter en lot + tracer l&#x27;origine">
+      <bpmn:incoming>flow_constitution-du-registre_13</bpmn:incoming>
+      <bpmn:outgoing>flow_constitution-du-registre_14</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="p3_fin" name="Risques au registre">
+      <bpmn:incoming>flow_constitution-du-registre_14</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="p3_fin_vide" name="Saisie manuelle requise">
+      <bpmn:incoming>flow_constitution-du-registre_8</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="flow_constitution-du-registre_0" sourceRef="p3_debut" targetRef="p3_ouvrir" />
+    <bpmn:sequenceFlow id="flow_constitution-du-registre_1" sourceRef="p3_ouvrir" targetRef="p3_secteur" />
+    <bpmn:sequenceFlow id="flow_constitution-du-registre_2" sourceRef="p3_secteur" targetRef="p3_plurivoque" />
+    <bpmn:sequenceFlow id="flow_constitution-du-registre_3" sourceRef="p3_plurivoque" targetRef="p3_orientation" name="oui" />
+    <bpmn:sequenceFlow id="flow_constitution-du-registre_4" sourceRef="p3_orientation" targetRef="p3_charger" />
+    <bpmn:sequenceFlow id="flow_constitution-du-registre_5" sourceRef="p3_plurivoque" targetRef="p3_charger" name="non" />
+    <bpmn:sequenceFlow id="flow_constitution-du-registre_6" sourceRef="p3_charger" targetRef="p3_vide" />
+    <bpmn:sequenceFlow id="flow_constitution-du-registre_7" sourceRef="p3_vide" targetRef="p3_avertir" name="non" />
+    <bpmn:sequenceFlow id="flow_constitution-du-registre_8" sourceRef="p3_avertir" targetRef="p3_fin_vide" />
+    <bpmn:sequenceFlow id="flow_constitution-du-registre_9" sourceRef="p3_vide" targetRef="p3_domaine" name="oui" />
+    <bpmn:sequenceFlow id="flow_constitution-du-registre_10" sourceRef="p3_domaine" targetRef="p3_coter" />
+    <bpmn:sequenceFlow id="flow_constitution-du-registre_11" sourceRef="p3_coter" targetRef="p3_bloquer" />
+    <bpmn:sequenceFlow id="flow_constitution-du-registre_12" sourceRef="p3_bloquer" targetRef="p3_coter" name="non" />
+    <bpmn:sequenceFlow id="flow_constitution-du-registre_13" sourceRef="p3_bloquer" targetRef="p3_adopter" name="oui" />
+    <bpmn:sequenceFlow id="flow_constitution-du-registre_14" sourceRef="p3_adopter" targetRef="p3_fin" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="diag_constitution-du-registre">
+    <bpmndi:BPMNPlane id="plane_constitution-du-registre" bpmnElement="collab_constitution-du-registre">
+      <bpmndi:BPMNShape id="shape_pool_constitution-du-registre" bpmnElement="pool_constitution-du-registre" isHorizontal="true">
+        <dc:Bounds x="160" y="60" width="2480" height="850" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_lane_constitution-du-registre_0" bpmnElement="lane_constitution-du-registre_0" isHorizontal="true">
+        <dc:Bounds x="190" y="60" width="2450" height="340" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_lane_constitution-du-registre_1" bpmnElement="lane_constitution-du-registre_1" isHorizontal="true">
+        <dc:Bounds x="190" y="400" width="2450" height="340" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_lane_constitution-du-registre_2" bpmnElement="lane_constitution-du-registre_2" isHorizontal="true">
+        <dc:Bounds x="190" y="740" width="2450" height="170" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p3_debut" bpmnElement="p3_debut">
+        <dc:Bounds x="282" y="127" width="36" height="36" />
+          <bpmndi:BPMNLabel><dc:Bounds x="252" y="167" width="96" height="28" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p3_ouvrir" bpmnElement="p3_ouvrir">
+        <dc:Bounds x="425" y="105" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p3_secteur" bpmnElement="p3_secteur">
+        <dc:Bounds x="625" y="105" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p3_plurivoque" bpmnElement="p3_plurivoque">
+        <dc:Bounds x="875" y="460" width="50" height="50" />
+          <bpmndi:BPMNLabel><dc:Bounds x="845" y="514" width="110" height="28" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p3_orientation" bpmnElement="p3_orientation">
+        <dc:Bounds x="1025" y="275" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p3_charger" bpmnElement="p3_charger">
+        <dc:Bounds x="1225" y="785" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p3_vide" bpmnElement="p3_vide">
+        <dc:Bounds x="1475" y="460" width="50" height="50" />
+          <bpmndi:BPMNLabel><dc:Bounds x="1445" y="514" width="110" height="28" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p3_avertir" bpmnElement="p3_avertir">
+        <dc:Bounds x="1625" y="615" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p3_domaine" bpmnElement="p3_domaine">
+        <dc:Bounds x="1625" y="105" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p3_coter" bpmnElement="p3_coter">
+        <dc:Bounds x="1825" y="105" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p3_bloquer" bpmnElement="p3_bloquer">
+        <dc:Bounds x="2075" y="460" width="50" height="50" />
+          <bpmndi:BPMNLabel><dc:Bounds x="2045" y="514" width="110" height="28" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p3_adopter" bpmnElement="p3_adopter">
+        <dc:Bounds x="2225" y="445" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p3_fin" bpmnElement="p3_fin">
+        <dc:Bounds x="2482" y="127" width="36" height="36" />
+          <bpmndi:BPMNLabel><dc:Bounds x="2452" y="167" width="96" height="28" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p3_fin_vide" bpmnElement="p3_fin_vide">
+        <dc:Bounds x="2482" y="297" width="36" height="36" />
+          <bpmndi:BPMNLabel><dc:Bounds x="2452" y="337" width="96" height="28" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="edge_constitution-du-registre_0" bpmnElement="flow_constitution-du-registre_0">
+        <di:waypoint x="318" y="145" />
+        <di:waypoint x="371" y="145" />
+        <di:waypoint x="371" y="145" />
+        <di:waypoint x="425" y="145" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_constitution-du-registre_1" bpmnElement="flow_constitution-du-registre_1">
+        <di:waypoint x="575" y="145" />
+        <di:waypoint x="625" y="145" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_constitution-du-registre_2" bpmnElement="flow_constitution-du-registre_2">
+        <di:waypoint x="775" y="145" />
+        <di:waypoint x="825" y="145" />
+        <di:waypoint x="825" y="485" />
+        <di:waypoint x="875" y="485" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_constitution-du-registre_3" bpmnElement="flow_constitution-du-registre_3">
+        <di:waypoint x="925" y="485" />
+        <di:waypoint x="975" y="485" />
+        <di:waypoint x="975" y="315" />
+        <di:waypoint x="1025" y="315" />
+        <bpmndi:BPMNLabel><dc:Bounds x="979" y="293" width="60" height="18" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_constitution-du-registre_4" bpmnElement="flow_constitution-du-registre_4">
+        <di:waypoint x="1175" y="315" />
+        <di:waypoint x="1200" y="315" />
+        <di:waypoint x="1200" y="825" />
+        <di:waypoint x="1225" y="825" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_constitution-du-registre_5" bpmnElement="flow_constitution-du-registre_5">
+        <di:waypoint x="925" y="485" />
+        <di:waypoint x="1075" y="485" />
+        <di:waypoint x="1075" y="825" />
+        <di:waypoint x="1225" y="825" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1079" y="803" width="60" height="18" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_constitution-du-registre_6" bpmnElement="flow_constitution-du-registre_6">
+        <di:waypoint x="1375" y="825" />
+        <di:waypoint x="1425" y="825" />
+        <di:waypoint x="1425" y="485" />
+        <di:waypoint x="1475" y="485" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_constitution-du-registre_7" bpmnElement="flow_constitution-du-registre_7">
+        <di:waypoint x="1525" y="485" />
+        <di:waypoint x="1575" y="485" />
+        <di:waypoint x="1575" y="655" />
+        <di:waypoint x="1625" y="655" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1579" y="633" width="60" height="18" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_constitution-du-registre_8" bpmnElement="flow_constitution-du-registre_8">
+        <di:waypoint x="1775" y="655" />
+        <di:waypoint x="2128" y="655" />
+        <di:waypoint x="2128" y="315" />
+        <di:waypoint x="2482" y="315" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_constitution-du-registre_9" bpmnElement="flow_constitution-du-registre_9">
+        <di:waypoint x="1525" y="485" />
+        <di:waypoint x="1575" y="485" />
+        <di:waypoint x="1575" y="145" />
+        <di:waypoint x="1625" y="145" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1579" y="123" width="60" height="18" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_constitution-du-registre_10" bpmnElement="flow_constitution-du-registre_10">
+        <di:waypoint x="1775" y="145" />
+        <di:waypoint x="1825" y="145" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_constitution-du-registre_11" bpmnElement="flow_constitution-du-registre_11">
+        <di:waypoint x="1975" y="145" />
+        <di:waypoint x="2025" y="145" />
+        <di:waypoint x="2025" y="485" />
+        <di:waypoint x="2075" y="485" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_constitution-du-registre_12" bpmnElement="flow_constitution-du-registre_12">
+        <di:waypoint x="2100" y="510" />
+        <di:waypoint x="2100" y="550" />
+        <di:waypoint x="1900" y="550" />
+        <di:waypoint x="1900" y="185" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1904" y="528" width="60" height="18" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_constitution-du-registre_13" bpmnElement="flow_constitution-du-registre_13">
+        <di:waypoint x="2125" y="485" />
+        <di:waypoint x="2175" y="485" />
+        <di:waypoint x="2175" y="485" />
+        <di:waypoint x="2225" y="485" />
+        <bpmndi:BPMNLabel><dc:Bounds x="2179" y="463" width="60" height="18" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_constitution-du-registre_14" bpmnElement="flow_constitution-du-registre_14">
+        <di:waypoint x="2375" y="485" />
+        <di:waypoint x="2428" y="485" />
+        <di:waypoint x="2428" y="145" />
+        <di:waypoint x="2482" y="145" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

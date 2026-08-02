@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  id="defs_acces-et-identite" targetNamespace="http://agenticx5.com/ppai/bpmn">
+  <!-- P1 — Accès et identité — © 2026 Preventera / AgenticX5. Généré par scripts/bpmn/generer_bpmn.py -->
+  <bpmn:collaboration id="collab_acces-et-identite">
+    <bpmn:participant id="pool_acces-et-identite" name="P1 — Accès et identité" processRef="proc_acces-et-identite" />
+  </bpmn:collaboration>
+  <bpmn:process id="proc_acces-et-identite" isExecutable="false">
+    <bpmn:laneSet id="laneset_acces-et-identite">
+      <bpmn:lane id="lane_acces-et-identite_0" name="Utilisateur">
+        <bpmn:flowNodeRef>p1_debut</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p1_choix</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p1_inscrire</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p1_confirmer</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p1_connexion</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p1_oublie</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p1_nouveau</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p1_fin</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="lane_acces-et-identite_1" name="Application PPAI">
+        <bpmn:flowNodeRef>p1_signup</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p1_demande</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p1_session</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="lane_acces-et-identite_2" name="Supabase Auth">
+        <bpmn:flowNodeRef>p1_declencheur</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p1_courriel</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p1_lien</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="p1_debut" name="Besoin d&#x27;accès">
+      <bpmn:outgoing>flow_acces-et-identite_0</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:exclusiveGateway id="p1_choix" name="Compte existant ?">
+      <bpmn:incoming>flow_acces-et-identite_0</bpmn:incoming>
+      <bpmn:outgoing>flow_acces-et-identite_1</bpmn:outgoing>
+      <bpmn:outgoing>flow_acces-et-identite_7</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="p1_inscrire" name="Saisir courriel, mot de passe et nom de l&#x27;entreprise">
+      <bpmn:incoming>flow_acces-et-identite_1</bpmn:incoming>
+      <bpmn:outgoing>flow_acces-et-identite_2</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="p1_signup" name="signUp avec emailRedirectTo">
+      <bpmn:incoming>flow_acces-et-identite_2</bpmn:incoming>
+      <bpmn:outgoing>flow_acces-et-identite_3</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="p1_declencheur" name="Créer organisation + profil (déclencheur atomique)">
+      <bpmn:incoming>flow_acces-et-identite_3</bpmn:incoming>
+      <bpmn:outgoing>flow_acces-et-identite_4</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sendTask id="p1_courriel" name="Expédier le lien de confirmation">
+      <bpmn:incoming>flow_acces-et-identite_4</bpmn:incoming>
+      <bpmn:outgoing>flow_acces-et-identite_5</bpmn:outgoing>
+    </bpmn:sendTask>
+    <bpmn:intermediateCatchEvent id="p1_confirmer" name="Lien de confirmation suivi">
+      <bpmn:incoming>flow_acces-et-identite_5</bpmn:incoming>
+      <bpmn:outgoing>flow_acces-et-identite_6</bpmn:outgoing>
+    </bpmn:intermediateCatchEvent>
+    <bpmn:userTask id="p1_connexion" name="Se connecter">
+      <bpmn:incoming>flow_acces-et-identite_7</bpmn:incoming>
+      <bpmn:outgoing>flow_acces-et-identite_8</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="p1_oublie" name="Mot de passe connu ?">
+      <bpmn:incoming>flow_acces-et-identite_8</bpmn:incoming>
+      <bpmn:outgoing>flow_acces-et-identite_9</bpmn:outgoing>
+      <bpmn:outgoing>flow_acces-et-identite_10</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="p1_demande" name="resetPasswordForEmail (redirectTo /auth/reset)">
+      <bpmn:incoming>flow_acces-et-identite_10</bpmn:incoming>
+      <bpmn:outgoing>flow_acces-et-identite_11</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sendTask id="p1_lien" name="Expédier le lien de réinitialisation">
+      <bpmn:incoming>flow_acces-et-identite_11</bpmn:incoming>
+      <bpmn:outgoing>flow_acces-et-identite_12</bpmn:outgoing>
+    </bpmn:sendTask>
+    <bpmn:userTask id="p1_nouveau" name="Choisir un nouveau mot de passe">
+      <bpmn:incoming>flow_acces-et-identite_12</bpmn:incoming>
+      <bpmn:outgoing>flow_acces-et-identite_13</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="p1_session" name="Ouvrir la session et charger le rôle">
+      <bpmn:incoming>flow_acces-et-identite_6</bpmn:incoming>
+      <bpmn:incoming>flow_acces-et-identite_9</bpmn:incoming>
+      <bpmn:incoming>flow_acces-et-identite_13</bpmn:incoming>
+      <bpmn:outgoing>flow_acces-et-identite_14</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="p1_fin" name="Session active">
+      <bpmn:incoming>flow_acces-et-identite_14</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="flow_acces-et-identite_0" sourceRef="p1_debut" targetRef="p1_choix" />
+    <bpmn:sequenceFlow id="flow_acces-et-identite_1" sourceRef="p1_choix" targetRef="p1_inscrire" name="non" />
+    <bpmn:sequenceFlow id="flow_acces-et-identite_2" sourceRef="p1_inscrire" targetRef="p1_signup" />
+    <bpmn:sequenceFlow id="flow_acces-et-identite_3" sourceRef="p1_signup" targetRef="p1_declencheur" />
+    <bpmn:sequenceFlow id="flow_acces-et-identite_4" sourceRef="p1_declencheur" targetRef="p1_courriel" />
+    <bpmn:sequenceFlow id="flow_acces-et-identite_5" sourceRef="p1_courriel" targetRef="p1_confirmer" />
+    <bpmn:sequenceFlow id="flow_acces-et-identite_6" sourceRef="p1_confirmer" targetRef="p1_session" />
+    <bpmn:sequenceFlow id="flow_acces-et-identite_7" sourceRef="p1_choix" targetRef="p1_connexion" name="oui" />
+    <bpmn:sequenceFlow id="flow_acces-et-identite_8" sourceRef="p1_connexion" targetRef="p1_oublie" />
+    <bpmn:sequenceFlow id="flow_acces-et-identite_9" sourceRef="p1_oublie" targetRef="p1_session" name="oui" />
+    <bpmn:sequenceFlow id="flow_acces-et-identite_10" sourceRef="p1_oublie" targetRef="p1_demande" name="non" />
+    <bpmn:sequenceFlow id="flow_acces-et-identite_11" sourceRef="p1_demande" targetRef="p1_lien" />
+    <bpmn:sequenceFlow id="flow_acces-et-identite_12" sourceRef="p1_lien" targetRef="p1_nouveau" />
+    <bpmn:sequenceFlow id="flow_acces-et-identite_13" sourceRef="p1_nouveau" targetRef="p1_session" />
+    <bpmn:sequenceFlow id="flow_acces-et-identite_14" sourceRef="p1_session" targetRef="p1_fin" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="diag_acces-et-identite">
+    <bpmndi:BPMNPlane id="plane_acces-et-identite" bpmnElement="collab_acces-et-identite">
+      <bpmndi:BPMNShape id="shape_pool_acces-et-identite" bpmnElement="pool_acces-et-identite" isHorizontal="true">
+        <dc:Bounds x="160" y="60" width="1880" height="1020" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_lane_acces-et-identite_0" bpmnElement="lane_acces-et-identite_0" isHorizontal="true">
+        <dc:Bounds x="190" y="60" width="1850" height="340" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_lane_acces-et-identite_1" bpmnElement="lane_acces-et-identite_1" isHorizontal="true">
+        <dc:Bounds x="190" y="400" width="1850" height="340" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_lane_acces-et-identite_2" bpmnElement="lane_acces-et-identite_2" isHorizontal="true">
+        <dc:Bounds x="190" y="740" width="1850" height="340" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p1_debut" bpmnElement="p1_debut">
+        <dc:Bounds x="282" y="127" width="36" height="36" />
+          <bpmndi:BPMNLabel><dc:Bounds x="252" y="167" width="96" height="28" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p1_choix" bpmnElement="p1_choix">
+        <dc:Bounds x="475" y="120" width="50" height="50" />
+          <bpmndi:BPMNLabel><dc:Bounds x="445" y="174" width="110" height="28" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p1_inscrire" bpmnElement="p1_inscrire">
+        <dc:Bounds x="625" y="105" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p1_signup" bpmnElement="p1_signup">
+        <dc:Bounds x="825" y="445" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p1_declencheur" bpmnElement="p1_declencheur">
+        <dc:Bounds x="1025" y="785" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p1_courriel" bpmnElement="p1_courriel">
+        <dc:Bounds x="1225" y="785" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p1_confirmer" bpmnElement="p1_confirmer">
+        <dc:Bounds x="1482" y="127" width="36" height="36" />
+          <bpmndi:BPMNLabel><dc:Bounds x="1452" y="167" width="96" height="28" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p1_connexion" bpmnElement="p1_connexion">
+        <dc:Bounds x="625" y="275" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p1_oublie" bpmnElement="p1_oublie">
+        <dc:Bounds x="875" y="290" width="50" height="50" />
+          <bpmndi:BPMNLabel><dc:Bounds x="845" y="344" width="110" height="28" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p1_demande" bpmnElement="p1_demande">
+        <dc:Bounds x="1025" y="615" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p1_lien" bpmnElement="p1_lien">
+        <dc:Bounds x="1225" y="955" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p1_nouveau" bpmnElement="p1_nouveau">
+        <dc:Bounds x="1425" y="275" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p1_session" bpmnElement="p1_session">
+        <dc:Bounds x="1625" y="445" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p1_fin" bpmnElement="p1_fin">
+        <dc:Bounds x="1882" y="127" width="36" height="36" />
+          <bpmndi:BPMNLabel><dc:Bounds x="1852" y="167" width="96" height="28" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="edge_acces-et-identite_0" bpmnElement="flow_acces-et-identite_0">
+        <di:waypoint x="318" y="145" />
+        <di:waypoint x="396" y="145" />
+        <di:waypoint x="396" y="145" />
+        <di:waypoint x="475" y="145" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_acces-et-identite_1" bpmnElement="flow_acces-et-identite_1">
+        <di:waypoint x="525" y="145" />
+        <di:waypoint x="575" y="145" />
+        <di:waypoint x="575" y="145" />
+        <di:waypoint x="625" y="145" />
+        <bpmndi:BPMNLabel><dc:Bounds x="579" y="123" width="60" height="18" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_acces-et-identite_2" bpmnElement="flow_acces-et-identite_2">
+        <di:waypoint x="775" y="145" />
+        <di:waypoint x="800" y="145" />
+        <di:waypoint x="800" y="485" />
+        <di:waypoint x="825" y="485" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_acces-et-identite_3" bpmnElement="flow_acces-et-identite_3">
+        <di:waypoint x="975" y="485" />
+        <di:waypoint x="1000" y="485" />
+        <di:waypoint x="1000" y="825" />
+        <di:waypoint x="1025" y="825" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_acces-et-identite_4" bpmnElement="flow_acces-et-identite_4">
+        <di:waypoint x="1175" y="825" />
+        <di:waypoint x="1225" y="825" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_acces-et-identite_5" bpmnElement="flow_acces-et-identite_5">
+        <di:waypoint x="1375" y="825" />
+        <di:waypoint x="1428" y="825" />
+        <di:waypoint x="1428" y="145" />
+        <di:waypoint x="1482" y="145" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_acces-et-identite_6" bpmnElement="flow_acces-et-identite_6">
+        <di:waypoint x="1518" y="145" />
+        <di:waypoint x="1571" y="145" />
+        <di:waypoint x="1571" y="485" />
+        <di:waypoint x="1625" y="485" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_acces-et-identite_7" bpmnElement="flow_acces-et-identite_7">
+        <di:waypoint x="525" y="145" />
+        <di:waypoint x="575" y="145" />
+        <di:waypoint x="575" y="315" />
+        <di:waypoint x="625" y="315" />
+        <bpmndi:BPMNLabel><dc:Bounds x="579" y="293" width="60" height="18" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_acces-et-identite_8" bpmnElement="flow_acces-et-identite_8">
+        <di:waypoint x="775" y="315" />
+        <di:waypoint x="825" y="315" />
+        <di:waypoint x="825" y="315" />
+        <di:waypoint x="875" y="315" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_acces-et-identite_9" bpmnElement="flow_acces-et-identite_9">
+        <di:waypoint x="925" y="315" />
+        <di:waypoint x="1275" y="315" />
+        <di:waypoint x="1275" y="485" />
+        <di:waypoint x="1625" y="485" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1279" y="463" width="60" height="18" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_acces-et-identite_10" bpmnElement="flow_acces-et-identite_10">
+        <di:waypoint x="925" y="315" />
+        <di:waypoint x="975" y="315" />
+        <di:waypoint x="975" y="655" />
+        <di:waypoint x="1025" y="655" />
+        <bpmndi:BPMNLabel><dc:Bounds x="979" y="633" width="60" height="18" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_acces-et-identite_11" bpmnElement="flow_acces-et-identite_11">
+        <di:waypoint x="1175" y="655" />
+        <di:waypoint x="1200" y="655" />
+        <di:waypoint x="1200" y="995" />
+        <di:waypoint x="1225" y="995" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_acces-et-identite_12" bpmnElement="flow_acces-et-identite_12">
+        <di:waypoint x="1375" y="995" />
+        <di:waypoint x="1400" y="995" />
+        <di:waypoint x="1400" y="315" />
+        <di:waypoint x="1425" y="315" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_acces-et-identite_13" bpmnElement="flow_acces-et-identite_13">
+        <di:waypoint x="1575" y="315" />
+        <di:waypoint x="1600" y="315" />
+        <di:waypoint x="1600" y="485" />
+        <di:waypoint x="1625" y="485" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_acces-et-identite_14" bpmnElement="flow_acces-et-identite_14">
+        <di:waypoint x="1775" y="485" />
+        <di:waypoint x="1828" y="485" />
+        <di:waypoint x="1828" y="145" />
+        <di:waypoint x="1882" y="145" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
