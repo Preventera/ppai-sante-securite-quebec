@@ -1,3 +1,4 @@
+/* © 2026 Preventera — AgenticX5. Tous droits réservés. Voir LICENSE.md. */
 /**
  * Valeurs supplétives du Règlement sur les mécanismes de prévention et de
  * participation en établissement (RLRQ c. S-2.1, r. 8.3), à jour au

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# © 2026 Preventera — AgenticX5. Tous droits réservés. Voir LICENSE.md.
 """
 Dérive des risques types par secteur à partir des lésions professionnelles
 ouvertes de la CNESST.

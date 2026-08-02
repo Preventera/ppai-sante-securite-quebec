@@ -1,3 +1,4 @@
+/* © 2026 Preventera — AgenticX5. Tous droits réservés. Voir LICENSE.md. */
 /**
  * Niveaux liés aux activités d'un établissement — correspondance SCIAN 2012.
  *
