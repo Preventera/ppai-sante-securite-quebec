@@ -1,3 +1,4 @@
+/* © 2026 Preventera — AgenticX5. Tous droits réservés. Voir LICENSE.md. */
 /**
  * Régime d'assujettissement — mécanismes de prévention et de participation
  * en établissement.

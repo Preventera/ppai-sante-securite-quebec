@@ -241,7 +241,17 @@ npx tsc --noEmit -p tsconfig.app.json   # vérification des types
 ## Propriété et licence
 
 © 2026 Preventera — **AgenticX5**. Tous droits réservés (voir `LICENSE.md`).
-Ce dépôt n'est pas sous licence libre : sa visibilité ne constitue pas une
-autorisation d'utilisation. Les référentiels dérivés de données ouvertes
-(Données Québec / CNESST, LégisQuébec) conservent les conditions de leurs
-sources.
+
+Le logiciel est protégé par la **Loi sur le droit d'auteur** (L.R.C. 1985,
+ch. C-42), qui range les programmes d'ordinateur parmi les œuvres
+littéraires. La protection naît automatiquement à la création : aucun dépôt
+n'est requis. Ce dépôt n'est pas sous licence libre — sa visibilité ne
+constitue pas une autorisation d'utilisation.
+
+Les données ouvertes de la CNESST demeurent régies par les conditions de
+leurs sources et ne sont pas revendiquées. Ce qui l'est, c'est le travail
+d'agrégation, de traitement et de modélisation qui leur est appliqué —
+chaîne de dérivation des 258 risques types, contrainte méthodologique sur la
+probabilité, encodage du régime LMRSST/RMPPÉ, correspondances sectorielles,
+architecture d'orchestration IA et de traçabilité. `LICENSE.md` détaille ces
+apports et leur fondement.
