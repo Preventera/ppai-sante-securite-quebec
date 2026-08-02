@@ -198,11 +198,36 @@ dit pas *pourquoi*.
   qu'il ne contrôle pas.
 
 **Régler durablement** : configurer un SMTP applicatif dans
-*Project Settings > Authentication > SMTP Settings*. N'importe quel service
-transactionnel convient (Resend, Postmark, SendGrid, Amazon SES…) ; plusieurs
-offrent un palier gratuit suffisant. Sans cette étape, ni la confirmation
-d'inscription ni la réinitialisation de mot de passe ne fonctionneront pour de
-vrais utilisateurs.
+*Authentication > Emails > SMTP Settings* (et non dans *Sign In / Providers*,
+où l'on cherche naturellement mais où il n'est pas). Sans cette étape, ni la
+confirmation d'inscription ni la réinitialisation de mot de passe ne
+fonctionneront pour de vrais utilisateurs.
+
+Configuration en service, à titre d'exemple reproductible — Brevo, retenu
+parce qu'il valide une adresse d'expéditeur **par simple clic dans un
+courriel**, sans exiger d'accès aux DNS du domaine :
+
+| Champ | Valeur |
+| --- | --- |
+| Host | `smtp-relay.brevo.com` |
+| Port | `587` |
+| Username | l'identifiant technique affiché sous « Connexion » chez Brevo, de la forme `xxxxxxx@smtp-brevo.com` — **pas** l'adresse courriel |
+| Password | une clé SMTP générée dans *SMTP & API* (visible en entier une seule fois) |
+| Sender email | une adresse validée dans *Expéditeurs, domaine, IP* |
+
+Deux pièges rencontrés :
+
+- **Le plafond d'envoi de Supabase ne se lève pas tout seul.**
+  *Authentication > Rate Limits > « Rate limit for sending emails »* reste à sa
+  valeur basse même après avoir branché un SMTP externe. Sans cette
+  modification, on a changé de serveur sans rien débloquer.
+- **Ne pas activer le blocage par adresse IP** chez le fournisseur SMTP : les
+  serveurs de Supabase n'ont pas d'adresse fixe déclarable, et l'activer coupe
+  tous les envois.
+
+D'autres services conviennent (Resend, Postmark, SendGrid, Amazon SES). Ceux
+qui exigent une authentification DNS du domaine offrent une meilleure
+délivrabilité, au prix d'un accès à la zone DNS.
 
 > **Les deux adresses de retour doivent être déclarées.** Dans
 > *Authentication > URL Configuration > Redirect URLs*, il en faut **deux** :
