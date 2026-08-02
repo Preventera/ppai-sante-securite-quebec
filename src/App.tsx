@@ -8,6 +8,7 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { RequireAuth } from "@/components/RequireAuth";
 import { RequireRole } from "@/components/RequireRole";
+import { RedirectionRecuperation } from "@/components/RedirectionRecuperation";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -53,6 +54,10 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
+          {/* Un lien de réinitialisation rabattu sur la racine par une
+              « Site URL » mal configurée doit tout de même mener à l'écran de
+              choix du mot de passe. */}
+          <RedirectionRecuperation />
           <Routes>
             {/* Seules routes accessibles sans session.
                 `/auth/reset` reçoit le lien de réinitialisation : la placer
