@@ -57,6 +57,13 @@ echo "VITE_DEMO_MODE=true" >> .env.local
 
 ## Activer le mode « live »
 
+> **Sans la CLI Supabase** — tous les fichiers SQL se collent directement dans
+> *Supabase > SQL Editor*. Ils sont téléchargeables depuis ce dépôt :
+> [`supabase/seed/`](supabase/seed/) (référentiel CNESST complet) et
+> [`supabase/migrations/`](supabase/migrations/). L'ordre de chargement et une
+> requête de vérification figurent dans
+> [`supabase/seed/README.md`](supabase/seed/README.md).
+
 1. Appliquer les migrations sur le projet Supabase :
 
    ```bash
@@ -161,10 +168,73 @@ reconnaît les trois formes de retour employées par Supabase selon le flux et l
 gabarit de courriel (`#access_token=…`, `?code=…`, `?token_hash=…`) et affiche un
 message explicite quand le lien est expiré plutôt qu'une page vide.
 
-> **Envoi des courriels** — le service SMTP intégré de Supabase est limité à
-> quelques messages par heure et n'est pas destiné à la production. Configurez un
-> SMTP applicatif dans *Project Settings > Authentication > SMTP Settings* avant
-> d'ouvrir l'application à des utilisateurs.
+### Aucun courriel ne part : diagnostic
+
+C'est le blocage le plus fréquent, et il ne vient pas de l'application — celle-ci
+ne fait qu'appeler Supabase, qui décide d'envoyer ou non.
+
+**Le service d'envoi intégré de Supabase est un service de test.** Il est
+soumis à deux limites qui expliquent la quasi-totalité des cas :
+
+1. **Un débit de quelques messages par heure seulement.** Au-delà, les envois
+   suivants sont refusés — parfois sans erreur visible côté application.
+2. **Il n'expédie qu'aux adresses des membres de votre organisation Supabase.**
+   Un courriel destiné à une adresse tierce est accepté par l'API puis
+   abandonné. L'application affiche « Vérifiez votre courriel » en toute bonne
+   foi : elle n'a aucun moyen de savoir que le message n'est jamais parti.
+
+**Vérifier ce qui s'est réellement passé** : *Supabase > Logs > Auth Logs*.
+Chaque tentative y figure, avec le motif du refus le cas échéant. C'est la
+seule source qui tranche — l'absence de message dans la boîte de réception ne
+dit pas *pourquoi*.
+
+**Débloquer immédiatement**, sans attendre la configuration SMTP :
+
+- *Authentication > Users > ⋯ > **Confirm email*** confirme un compte à la
+  main, sans qu'aucun courriel ne soit nécessaire ;
+- ou, pendant la mise au point seulement, désactiver *Confirm email* dans
+  *Authentication > Providers > Email* — à réactiver avant toute ouverture à
+  des utilisateurs, sinon n'importe qui peut créer un compte avec une adresse
+  qu'il ne contrôle pas.
+
+**Régler durablement** : configurer un SMTP applicatif dans
+*Authentication > Emails > SMTP Settings* (et non dans *Sign In / Providers*,
+où l'on cherche naturellement mais où il n'est pas). Sans cette étape, ni la
+confirmation d'inscription ni la réinitialisation de mot de passe ne
+fonctionneront pour de vrais utilisateurs.
+
+Configuration en service, à titre d'exemple reproductible — Brevo, retenu
+parce qu'il valide une adresse d'expéditeur **par simple clic dans un
+courriel**, sans exiger d'accès aux DNS du domaine :
+
+| Champ | Valeur |
+| --- | --- |
+| Host | `smtp-relay.brevo.com` |
+| Port | `587` |
+| Username | l'identifiant technique affiché sous « Connexion » chez Brevo, de la forme `xxxxxxx@smtp-brevo.com` — **pas** l'adresse courriel |
+| Password | une clé SMTP générée dans *SMTP & API* (visible en entier une seule fois) |
+| Sender email | une adresse validée dans *Expéditeurs, domaine, IP* |
+
+Deux pièges rencontrés :
+
+- **Le plafond d'envoi de Supabase ne se lève pas tout seul.**
+  *Authentication > Rate Limits > « Rate limit for sending emails »* reste à sa
+  valeur basse même après avoir branché un SMTP externe. Sans cette
+  modification, on a changé de serveur sans rien débloquer.
+- **Ne pas activer le blocage par adresse IP** chez le fournisseur SMTP : les
+  serveurs de Supabase n'ont pas d'adresse fixe déclarable, et l'activer coupe
+  tous les envois.
+
+D'autres services conviennent (Resend, Postmark, SendGrid, Amazon SES). Ceux
+qui exigent une authentification DNS du domaine offrent une meilleure
+délivrabilité, au prix d'un accès à la zone DNS.
+
+> **Les deux adresses de retour doivent être déclarées.** Dans
+> *Authentication > URL Configuration > Redirect URLs*, il en faut **deux** :
+> `<site>/auth/reset` pour la réinitialisation, et `<site>/` pour la
+> confirmation d'inscription. Une adresse non déclarée est ignorée par
+> Supabase, qui rabat le lien sur la *Site URL* — restée par défaut sur
+> `http://localhost:3000` dans un projet neuf.
 
 > **Dépannage immédiat** — si plus personne ne peut se connecter, un mot de passe
 > se réinitialise depuis le tableau de bord Supabase (*Authentication > Users >
