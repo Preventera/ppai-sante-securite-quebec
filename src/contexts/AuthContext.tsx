@@ -80,6 +80,18 @@ function urlDeRetour(): string | undefined {
   return `${window.location.origin}${URL_RETOUR_REINITIALISATION}`
 }
 
+/**
+ * Adresse de retour du lien de confirmation d'inscription.
+ *
+ * La racine suffit : le client Supabase détecte le jeton dans l'URL quelle que
+ * soit la page atteinte et ouvre la session. Elle doit néanmoins figurer dans
+ * les « Redirect URLs » du projet, sans quoi Supabase l'ignore.
+ */
+function urlDeRetourInscription(): string | undefined {
+  if (typeof window === 'undefined') return undefined
+  return `${window.location.origin}/`
+}
+
 export interface SignUpParams {
   email: string
   password: string
@@ -186,9 +198,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
-        // Ces métadonnées alimentent le déclencheur qui crée l'organisation
-        // et le profil de façon atomique côté base.
         options: {
+          // Sans cette adresse, le lien de confirmation retombe sur la
+          // « Site URL » du projet Supabase : si elle est restée sur la valeur
+          // par défaut (localhost:3000), le lien renvoie l'utilisateur vers une
+          // page inexistante et le compte reste non confirmé.
+          emailRedirectTo: urlDeRetourInscription(),
+          // Ces métadonnées alimentent le déclencheur qui crée l'organisation
+          // et le profil de façon atomique côté base.
           data: {
             organization_name: organizationName,
             full_name: fullName ?? '',
