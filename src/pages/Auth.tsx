@@ -111,11 +111,13 @@ const Auth = () => {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
       <div className="w-full max-w-md space-y-6">
         <div className="text-center">
+          <img src="/agenticx5.svg" alt="AgenticX5" className="w-20 h-20 mx-auto mb-2" />
           <h1 className="text-3xl font-bold text-sst-blue flex items-center justify-center gap-2">
             <Shield className="w-8 h-8" />
             PPAI
           </h1>
           <p className="text-gray-600 mt-1">Prevention Program AI — santé et sécurité au travail</p>
+          <p className="text-xs text-gray-400 mt-1">© 2026 Preventera · AgenticX5</p>
         </div>
 
         {ecran === 'confirmationInscription' ? (

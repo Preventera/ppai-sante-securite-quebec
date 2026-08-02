@@ -166,6 +166,7 @@ const AuthReset = () => {
 
   const entete = (
     <div className="text-center">
+      <img src="/agenticx5.svg" alt="AgenticX5" className="w-20 h-20 mx-auto mb-2" />
       <h1 className="text-3xl font-bold text-sst-blue flex items-center justify-center gap-2">
         <Shield className="w-8 h-8" />
         PPAI

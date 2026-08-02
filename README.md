@@ -1,3 +1,5 @@
+<p align="center"><img src="public/agenticx5.svg" alt="AgenticX5" width="120" /></p>
+
 # PPAI — Santé et Sécurité Québec
 
 Application de génération de programmes de prévention SST intégrant un registre
@@ -33,6 +35,11 @@ génération et conservation des programmes.
   consultables.
 - **Analytique** — répartition par catégorie, effet des mesures par secteur,
   indicateurs de maîtrise et écarts de conformité, tous calculés sur le registre.
+- **Signalement terrain** — toute personne de l'organisation peut signaler une
+  situation dangereuse en deux champs (`/signaler`, conçu pour téléphone) ; le
+  responsable SST qualifie chaque signalement en risque coté ou le traite sans
+  suite avec une note que l'auteur voit (`/signalements`). L'auteur et
+  l'organisation sont imposés par la base (migration `20241001000006`).
 - **Import CNESST** — lecture réelle de fichiers CSV/TSV (détection du séparateur,
   guillemets échappés, BOM), cartographie automatique des colonnes vers les champs
   du registre et import en lot.
@@ -230,3 +237,11 @@ npm run build      # build de production
 npm run lint       # ESLint
 npx tsc --noEmit -p tsconfig.app.json   # vérification des types
 ```
+
+## Propriété et licence
+
+© 2026 Preventera — **AgenticX5**. Tous droits réservés (voir `LICENSE.md`).
+Ce dépôt n'est pas sous licence libre : sa visibilité ne constitue pas une
+autorisation d'utilisation. Les référentiels dérivés de données ouvertes
+(Données Québec / CNESST, LégisQuébec) conservent les conditions de leurs
+sources.

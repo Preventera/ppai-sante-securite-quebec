@@ -20,6 +20,9 @@ import KPIGenerator from "./pages/KPIGenerator";
 import Programs from "./pages/Programs";
 import Participation from "./pages/Participation";
 import Users from "./pages/Users";
+import Generer from "./pages/Generer";
+import Signaler from "./pages/Signaler";
+import Signalements from "./pages/Signalements";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -65,6 +68,9 @@ const App = () => (
             <Route path="/pipeline-generator" element={<AppShell><PipelineGenerator /></AppShell>} />
             <Route path="/kpi-generator" element={<AppShell><KPIGenerator /></AppShell>} />
             <Route path="/programs" element={<AppShell><Programs /></AppShell>} />
+            <Route path="/generer" element={<AppShell><Generer /></AppShell>} />
+            <Route path="/signaler" element={<AppShell><Signaler /></AppShell>} />
+            <Route path="/signalements" element={<AppShell><RequireRole roles={["admin", "preventionniste"]}><Signalements /></RequireRole></AppShell>} />
             <Route path="/participation" element={<AppShell><Participation /></AppShell>} />
             {/* La gestion des comptes engage l'organisation : seule la
                 direction y accède. La base l'impose de toute façon
