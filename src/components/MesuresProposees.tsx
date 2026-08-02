@@ -7,7 +7,10 @@ import { ShieldCheck, Info, ExternalLink } from 'lucide-react'
 import {
   categoriePourRegistre,
   mesuresParNiveau,
+  mesuresPourGenre,
+  mesuresGenreParNiveau,
   REFERENCE_HIERARCHIE,
+  type MesureGenre,
   type MesurePrevention
 } from '@/lib/prevention'
 
@@ -31,18 +34,29 @@ import {
  *   plutôt que de proposer n'importe quoi.
  */
 export function MesuresProposees({
+  nom,
   categorie,
   onAjouter
 }: {
+  /**
+   * Libellé du risque. Les risques adoptés depuis une proposition sectorielle
+   * portent verbatim leur genre d'accident — c'est ce qui permet de proposer
+   * des mesures propres à la situation plutôt qu'à la catégorie.
+   */
+  nom?: string | null
   /** Catégorie du risque, telle qu'elle figure au registre. */
   categorie: string | null | undefined
   /** Reçoit le texte des mesures retenues, à insérer dans le champ Mesures. */
   onAjouter: (texte: string) => void
 }) {
+  // Le genre d'accident prime : « chute au même niveau » dit quoi faire, là où
+  // « Autre risque professionnel » — 55 % des fiches dérivées — ne dit rien.
+  const parGenre = useMemo(() => mesuresPourGenre(nom), [nom])
   const reference = useMemo(() => categoriePourRegistre(categorie), [categorie])
+
   const [retenues, setRetenues] = useState<Set<string>>(new Set())
 
-  if (!reference) {
+  if (!parGenre && !reference) {
     return (
       <Alert>
         <Info className="w-4 h-4" />
@@ -55,7 +69,14 @@ export function MesuresProposees({
     )
   }
 
-  const groupes = mesuresParNiveau(reference)
+  const groupes = parGenre
+    ? mesuresGenreParNiveau(parGenre.mesures)
+    : mesuresParNiveau(reference!)
+
+  const titre = parGenre ? parGenre.genre : reference!.nom
+  const sousTitre = parGenre
+    ? "Mesures propres à ce genre d'accident — nomenclature CNESST"
+    : `Mesures de la catégorie « ${reference!.nom} »`
 
   const basculer = (cle: string) => {
     setRetenues(prev => {
@@ -66,6 +87,7 @@ export function MesuresProposees({
   }
 
   const cle = (m: MesurePrevention) => `${m.niveau}::${m.libelle}`
+  const corroborationDe = (m: MesurePrevention) => (m as MesureGenre).corroboration
 
   const ajouter = () => {
     // Le texte reprend l'ordre de la hiérarchie, pas l'ordre de sélection :
@@ -90,10 +112,10 @@ export function MesuresProposees({
         <div className="text-sm">
           <p className="font-medium flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-sst-blue" />
-            {reference.nom}
+            {titre}
           </p>
           <p className="text-gray-500 text-xs mt-0.5">
-            Six niveaux, dans l'ordre de priorité imposé — {REFERENCE_HIERARCHIE}
+            {sousTitre} · six niveaux dans l'ordre imposé — {REFERENCE_HIERARCHIE}
           </p>
         </div>
         <Button
@@ -134,8 +156,14 @@ export function MesuresProposees({
                         recommandé
                       </Badge>
                     )}
-                    {m.fondement && (
-                      <span className="block text-xs text-gray-500">{m.fondement}</span>
+                    {(m.fondement || corroborationDe(m)) && (
+                      <span className="block text-xs text-gray-500">
+                        {m.fondement}
+                        {m.fondement && corroborationDe(m) && ' · '}
+                        {corroborationDe(m) && (
+                          <span className="italic">appui : {corroborationDe(m)}</span>
+                        )}
+                      </span>
                     )}
                   </label>
                 </li>
@@ -145,16 +173,17 @@ export function MesuresProposees({
         ))}
       </div>
 
+      {reference && (
       <details className="text-xs text-gray-500">
         <summary className="cursor-pointer">Normes techniques et appuis de recherche</summary>
         <div className="mt-2 space-y-2 pl-2 border-l-2 border-gray-200">
-          {reference.normes.length > 0 && (
+          {reference!.normes.length > 0 && (
             <p>
               <span className="font-medium">Normes :</span>{' '}
-              {reference.normes.map(n => n.code).join(' · ')}
+              {reference!.normes.map(n => n.code).join(' · ')}
             </p>
           )}
-          {reference.recherche.map(r => (
+          {reference!.recherche.map(r => (
             <p key={r.organisme}>
               <a
                 href={r.url}
@@ -167,13 +196,14 @@ export function MesuresProposees({
               — {r.objet}
             </p>
           ))}
-          {reference.asp.map(a => (
+          {reference!.asp.map(a => (
             <p key={a.nom}>
               <span className="font-medium">{a.nom}</span> — {a.portee}
             </p>
           ))}
         </div>
       </details>
+      )}
 
       <p className="text-xs text-gray-500">
         Ces mesures sont des propositions à adapter : c'est l'employeur qui

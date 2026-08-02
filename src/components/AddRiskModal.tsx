@@ -301,6 +301,7 @@ export function AddRiskModal({ onSave, risk, trigger, valeursInitiales }: AddRis
               alimente la rédaction, elle ne la remplace pas. */}
           <div className="rounded-lg border p-3 bg-gray-50">
             <MesuresProposees
+              nom={form.name}
               categorie={form.category}
               onAjouter={(texte) =>
                 setForm(prev => ({
