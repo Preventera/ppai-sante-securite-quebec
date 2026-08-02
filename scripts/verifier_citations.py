@@ -12,10 +12,12 @@ CE QUE CE SCRIPT EMPÊCHE
     RSST, qui numérote en entiers.
 
 LA RÈGLE APPLIQUÉE
-    Un article ne se cite que si le texte de son instrument a été consulté, ou
-    si ce numéro précis est corroboré par le renvoi d'un texte consulté. La
-    liste fait foi dans `src/lib/instruments.ts` — ce script la lit plutôt que
-    de la redéclarer, pour qu'il n'y ait qu'un seul endroit à tenir à jour.
+    Un article ne se cite que s'il figure, EN VIGUEUR, dans l'index extrait du
+    texte officiel — ou, pour un instrument sans index, s'il est corroboré par
+    le renvoi d'un texte consulté. Les listes viennent de
+    `src/lib/articlesCitables.genere.ts`, produit depuis les PDF de LégisQuébec ;
+    les corroborations, de `src/lib/instruments.ts`. Ce script les lit plutôt
+    que de les redéclarer.
 
 CE QU'IL NE CONTRÔLE PAS
     Les commentaires. Ils servent à discuter la règle — l'en-tête de
@@ -31,6 +33,7 @@ from pathlib import Path
 
 SOURCE = Path("src")
 INSTRUMENTS = Path("src/lib/instruments.ts")
+ARTICLES = Path("src/lib/articlesCitables.genere.ts")
 
 # « RSST art. 2.4.1 », « LSST Art. 51 », « CSTC article 3.9.1 », et les
 # énumérations : « LSST art. 51, 58-59 », « art. 68-78, 88 et s. ». Ne contrôler
@@ -47,10 +50,25 @@ BLOC = re.compile(r"/\*.*?\*/", re.DOTALL)
 LIGNE = re.compile(r"//[^\n]*")
 
 
+def lire_index_articles() -> dict[str, dict[str, set[str]]]:
+    """Lit les ensembles d'articles en vigueur et abrogés du module généré."""
+    if not ARTICLES.exists():
+        return {}
+    texte = ARTICLES.read_text(encoding="utf-8")
+    index: dict[str, dict[str, set[str]]] = {}
+    for prefixe, cle in (("ARTICLES", "vigueur"), ("ABROGES", "abroges")):
+        motif = rf"export const {prefixe}_(\w+): ReadonlySet<string> = new Set\(\[(.*?)\]\)"
+        for m in re.finditer(motif, texte, re.DOTALL):
+            index.setdefault(m.group(1), {}).setdefault(cle, set()).update(
+                re.findall(r"'([^']+)'", m.group(2))
+            )
+    return index
+
+
 def lire_instruments() -> dict[str, dict]:
-    """Extrait de `instruments.ts` la forme, l'état de consultation et les
-    articles corroborés de chaque instrument."""
+    """Croise les désignations de `instruments.ts` avec l'index des articles."""
     texte = INSTRUMENTS.read_text(encoding="utf-8")
+    articles = lire_index_articles()
     instruments: dict[str, dict] = {}
 
     # Chaque déclaration « export const X: Instrument = { ... } »
@@ -59,26 +77,23 @@ def lire_instruments() -> dict[str, dict]:
     ):
         corps = bloc.group(1)
         sigle = re.search(r"sigle:\s*'([^']+)'", corps)
-        forme = re.search(r"formeArticle:\s*'([^']+)'", corps)
-        consulte = re.search(r"texteConsulte:\s*(true|false)", corps)
-        if not (sigle and forme and consulte):
+        if not sigle:
             continue
+        nom = sigle.group(1)
+        consulte = re.search(r"texteConsulte:\s*(true|false)", corps)
         corrobores = re.search(r"articlesCorrobores:\s*\[([^\]]*)\]", corps)
-        instruments[sigle.group(1)] = {
-            "forme": forme.group(1),
-            "consulte": consulte.group(1) == "true",
+        # Le nom de la constante générée n'est pas accentué : RMPPÉ -> RMPPE.
+        cle_index = nom.replace("É", "E")
+        instruments[nom] = {
+            "consulte": bool(consulte and consulte.group(1) == "true"),
+            "vigueur": articles.get(cle_index, {}).get("vigueur", set()),
+            "abroges": articles.get(cle_index, {}).get("abroges", set()),
             "corrobores": set(re.findall(r"'([^']+)'", corrobores.group(1)))
             if corrobores
             else set(),
         }
 
     return instruments
-
-
-def bien_forme(forme: str, article: str) -> bool:
-    if forme == "decimal":
-        return re.fullmatch(r"\d+(\.\d+)+", article) is not None
-    return re.fullmatch(r"\d+(\.\d+)?", article) is not None
 
 
 def sans_commentaires(texte: str) -> str:
@@ -99,9 +114,15 @@ def main() -> int:
 
     print("Instruments déclarés :")
     for sigle, i in instruments.items():
-        etat = "texte consulté" if i["consulte"] else "texte NON consulté"
-        extra = f", corroborés : {', '.join(sorted(i['corrobores']))}" if i["corrobores"] else ""
-        print(f"  {sigle:<6} numérotation {i['forme']:<8} {etat}{extra}")
+        if i["vigueur"]:
+            etat = f"{len(i['vigueur'])} articles en vigueur, {len(i['abroges'])} abrogés"
+        elif i["consulte"]:
+            etat = "sans index, texte travaillé article par article"
+        elif i["corrobores"]:
+            etat = f"sans index — corroborés : {', '.join(sorted(i['corrobores']))}"
+        else:
+            etat = "sans index ni corroboration — aucune citation admise"
+        print(f"  {sigle:<6} {etat}")
     print()
 
     anomalies: list[str] = []
@@ -124,15 +145,21 @@ def main() -> int:
             # compte pour trois citations, dont une seule est corroborée.
             for article in NUMERO.findall(m.group(2)):
                 citations += 1
-                if not bien_forme(instrument["forme"], article):
+                if article in instrument["abroges"]:
                     anomalies.append(
-                        f"{fichier}:{ligne} — « {sigle} art. {article} » : numérotation "
-                        f"{instrument['forme']} attendue pour cet instrument"
+                        f"{fichier}:{ligne} — « {sigle} art. {article} » : article "
+                        f"ABROGÉ — il figure au texte mais ne fonde plus rien"
                     )
+                elif instrument["vigueur"]:
+                    if article not in instrument["vigueur"]:
+                        anomalies.append(
+                            f"{fichier}:{ligne} — « {sigle} art. {article} » : "
+                            f"absent du texte officiel"
+                        )
                 elif not instrument["consulte"] and article not in instrument["corrobores"]:
                     anomalies.append(
-                        f"{fichier}:{ligne} — « {sigle} art. {article} » : texte non "
-                        f"consulté et numéro non corroboré"
+                        f"{fichier}:{ligne} — « {sigle} art. {article} » : instrument "
+                        f"sans index, texte non travaillé et numéro non corroboré"
                     )
 
     print(f"{len(fichiers)} fichier(s) parcouru(s), {citations} citation(s) d'article.")

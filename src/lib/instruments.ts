@@ -10,23 +10,40 @@
  *   RLRQ, leur loi habilitante et leur date de mise à jour.
  *
  * CE QUI EST VÉRIFIÉ, ET COMMENT
- *   Les entrées RSST et CSTC ont été relevées sur les pages officielles de
- *   LégisQuébec (« Source officielle », mention « Ce document a valeur
- *   officielle »). En sont tirés : le numéro de chapitre, le titre exact, la
- *   disposition habilitante et la date de mise à jour.
+ *   Les désignations proviennent des pages officielles de LégisQuébec
+ *   (« Source officielle », mention « Ce document a valeur officielle ») :
+ *   numéro de chapitre, titre exact, disposition habilitante, date de mise à
+ *   jour.
  *
- *   N'EN EST PAS TIRÉ le contenu des articles : seule la page de garde a pu
- *   être consultée. C'est la raison pour laquelle aucune obligation de ce
- *   produit n'est citée à l'article près pour ces deux textes — voir
- *   `articleBienForme` plus bas, et l'en-tête de `prevention.ts`.
+ *   Les listes d'articles proviennent des PDF officiels eux-mêmes, dépouillés
+ *   par `scripts/ontologie/extraire_articles.py` et contrôlés par
+ *   `valider_articles.py` : chacun des renvois internes que les règlements
+ *   font à leurs propres articles doit résoudre dans l'index, sans quoi le
+ *   contrôle échoue. La LSST n'a pas encore été traitée ainsi.
  *
- * LA FORME DES NUMÉROS N'EST PAS UN DÉTAIL
- *   Le RSST numérote ses articles en entiers (art. 1, 2, 3…). Le CSTC les
- *   numérote en décimales (art. 1.1, 1.2, 3.9.1…). Quatre citations « RSST
- *   art. 2.4.1 » figuraient dans le code : la numérotation du CSTC appliquée au
- *   RSST, donc invalides quel qu'en soit le contenu. `articleBienForme` rend
- *   cette erreur détectable au lieu de la laisser se relire comme une donnée.
+ * DE LA FORME À L'APPARTENANCE
+ *   Ce module validait d'abord les citations sur la FORME du numéro : entiers
+ *   pour le RSST, décimales pour le CSTC. Le texte officiel a démenti les deux.
+ *   Le RSST admet des suffixes d'insertion sur deux niveaux — l'article
+ *   312.45.1 existe — et le CSTC ne compte aucun article sans décimale, ce que
+ *   ses annexes et ses paragraphes de définitions laissaient croire.
+ *
+ *   Les PDF officiels étant désormais lisibles, la validation ne devine plus :
+ *   `articleExiste` interroge la liste réelle, extraite du texte par
+ *   `scripts/ontologie/extraire_articles.py`. Un numéro est valide s'il y
+ *   figure, faux sinon.
+ *
+ * LES ARTICLES ABROGÉS SONT REFUSÉS
+ *   28 articles du RSST et 135 du CSTC sont abrogés. Ils existent au texte,
+ *   donc une vérification naïve les accepterait — mais ils ne fondent plus
+ *   aucune obligation. Les citer serait pire qu'inventer un numéro : celui-ci
+ *   se vérifie et donne le change.
  */
+
+import {
+  ARTICLES_RSST, ABROGES_RSST,
+  ARTICLES_CSTC, ABROGES_CSTC
+} from '@/lib/articlesCitables.genere'
 
 /**
  * Date de mise à jour RELEVÉE sur la page officielle, texte par texte.
@@ -37,9 +54,6 @@
  */
 export const DATE_RELEVEE_RSST_CSTC = '1er avril 2026'
 
-/** Forme que prennent les numéros d'articles d'un instrument. */
-export type FormeArticle = 'entier' | 'decimal'
-
 export interface Instrument {
   /** Sigle d'usage, tel qu'employé dans les libellés de mesures. */
   sigle: string
@@ -49,8 +63,13 @@ export interface Instrument {
   chapitre: string
   /** Disposition habilitante, lorsque le texte en indique une. */
   habilitation?: string
-  /** Forme des numéros d'articles — voir l'en-tête du module. */
-  formeArticle: FormeArticle
+  /**
+   * Articles en vigueur, extraits du texte officiel. Absent tant que le PDF
+   * n'a pas été traité — la LSST est dans ce cas.
+   */
+  articles?: ReadonlySet<string>
+  /** Articles abrogés : présents au texte, sans portée normative. */
+  abroges?: ReadonlySet<string>
   /** Page officielle sur LégisQuébec. */
   url: string
   /** Date de mise à jour relevée sur la page officielle, si elle l'a été. */
@@ -72,7 +91,6 @@ export const LSST: Instrument = {
   sigle: 'LSST',
   titre: 'Loi sur la santé et la sécurité du travail',
   chapitre: 'RLRQ c. S-2.1',
-  formeArticle: 'entier',
   url: 'https://www.legisquebec.gouv.qc.ca/fr/document/lc/S-2.1',
   texteConsulte: false,
   // Le RMPPÉ — dont le texte a été travaillé — renvoie à l'article 51 pour
@@ -89,10 +107,11 @@ export const RSST: Instrument = {
   titre: 'Règlement sur la santé et la sécurité du travail',
   chapitre: 'RLRQ c. S-2.1, r. 13',
   habilitation: 'LSST, art. 223',
-  formeArticle: 'entier',
+  articles: ARTICLES_RSST,
+  abroges: ABROGES_RSST,
   url: 'https://www.legisquebec.gouv.qc.ca/fr/document/rc/S-2.1,%20r.%2013',
   aJourAu: DATE_RELEVEE_RSST_CSTC,
-  texteConsulte: false
+  texteConsulte: true
 }
 
 export const CSTC: Instrument = {
@@ -100,10 +119,11 @@ export const CSTC: Instrument = {
   titre: 'Code de sécurité pour les travaux de construction',
   chapitre: 'RLRQ c. S-2.1, r. 4',
   habilitation: 'LSST, art. 223',
-  formeArticle: 'decimal',
+  articles: ARTICLES_CSTC,
+  abroges: ABROGES_CSTC,
   url: 'https://www.legisquebec.gouv.qc.ca/fr/document/rc/S-2.1,%20r.%204',
   aJourAu: DATE_RELEVEE_RSST_CSTC,
-  texteConsulte: false
+  texteConsulte: true
 }
 
 export const RMPPE: Instrument = {
@@ -111,7 +131,6 @@ export const RMPPE: Instrument = {
   titre:
     'Règlement sur les mécanismes de prévention et de participation en établissement',
   chapitre: 'RLRQ c. S-2.1, r. 8.3',
-  formeArticle: 'entier',
   url: 'https://www.legisquebec.gouv.qc.ca/fr/document/rc/S-2.1,%20r.%208.3',
   aJourAu: '1er avril 2026',
   // Seul instrument dont le texte a été travaillé article par article : c'est
@@ -151,30 +170,34 @@ export function referenceBreve(instrument: Instrument): string {
   return `${instrument.sigle}, ${instrument.chapitre}`
 }
 
-/**
- * Dit si un numéro d'article est bien formé POUR CET INSTRUMENT.
- *
- * Ne dit rien de l'existence de l'article ni de son contenu : c'est un garde-fou
- * de forme, qui attrape le mélange de numérotations entre le RSST et le CSTC.
- * Un article du RSST peut porter un suffixe d'insertion (« 69.1 ») : la forme
- * « entier » admet donc un seul niveau de décimale, jamais deux.
- */
-export function articleBienForme(instrument: Instrument, article: string): boolean {
-  const n = article.trim()
-  if (instrument.formeArticle === 'decimal') return /^\d+(\.\d+)+$/.test(n)
-  return /^\d+(\.\d+)?$/.test(n)
+/** Dit si l'article existe et est EN VIGUEUR dans le texte officiel. */
+export function articleExiste(instrument: Instrument, article: string): boolean {
+  return instrument.articles?.has(article.trim()) ?? false
+}
+
+/** Dit si l'article figure au texte mais a été abrogé. */
+export function articleAbroge(instrument: Instrument, article: string): boolean {
+  return instrument.abroges?.has(article.trim()) ?? false
 }
 
 /**
  * Dit si une mesure peut légitimement citer cet article.
  *
- * Le numéro doit toujours être bien formé. Il faut ensuite, au choix, que le
- * texte ait été consulté, ou que ce numéro précis soit corroboré par le renvoi
- * d'un autre texte consulté. Hors de ces deux cas la fonction refuse — c'est ce
- * qui empêche de réintroduire des numéros de mémoire.
+ * Trois voies, par ordre de force.
+ *
+ * 1. L'instrument a un index : l'article doit y figurer EN VIGUEUR. C'est le
+ *    cas du RSST et du CSTC, dont les textes ont été dépouillés. Un article
+ *    abrogé est refusé par construction, puisqu'il n'entre pas dans l'index.
+ * 2. Pas d'index, mais le texte a été travaillé article par article : le
+ *    RMPPÉ, dont `rmppe.ts` porte les valeurs supplétives. Son PDF n'a pas été
+ *    déposé, mais son contenu a été établi.
+ * 3. Ni l'un ni l'autre : seuls les numéros corroborés par le renvoi d'un texte
+ *    consulté passent. C'est le cas de la LSST, dont le RMPPÉ cite les articles
+ *    51 et 90, et dont le RSST et le CSTC nomment l'article 223.
  */
 export function citationAutorisee(instrument: Instrument, article: string): boolean {
   const n = article.trim()
-  if (!articleBienForme(instrument, n)) return false
-  return instrument.texteConsulte || (instrument.articlesCorrobores?.includes(n) ?? false)
+  if (instrument.articles) return instrument.articles.has(n)
+  if (instrument.texteConsulte) return true
+  return instrument.articlesCorrobores?.includes(n) ?? false
 }

@@ -14,18 +14,29 @@ développement ne peut pas atteindre : le réseau y refuse
 Le bouton **PDF** rouge, en haut à droite de chaque page, produit le fichier.
 Le nom exact n'a pas d'importance.
 
-## Ce qu'on en fait
+## Ce qui en a déjà été tiré
 
-1. **Rattacher les numéros d'articles** aux mesures de `src/lib/prevention.ts`,
-   qui nomment aujourd'hui l'instrument sans le citer. Chaque numéro ajouté
-   passe le contrôle de `scripts/verifier_citations.py`.
-2. **Extraire l'ontologie du domaine** : sujets, conditions d'application,
-   seuils, classes d'équipements, renvois de normes — la couche normative qui
-   manque au-dessus de la matrice empirique des genres d'accident.
+L'index des articles : 1 329 numéros avec leur intitulé, leur section et leur
+état d'abrogation, plus 20 annexes et l'article auquel chacune se rattache.
+Voir `scripts/ontologie/README.md`. Les citations du code sont désormais
+validées contre cet index plutôt que contre une règle de forme.
+
+## Ce qui reste à en tirer
+
+L'ontologie proprement dite : sujets, conditions d'application, seuils,
+classes d'équipements, renvois de normes — la couche normative qui manque
+au-dessus de la matrice empirique des genres d'accident.
 
 ## Ce dossier n'est pas destiné à rester
 
 Les textes des Publications du Québec ne sont pas republiés par ce produit :
-ils sont cités et liés. Les PDF sont retirés du dépôt une fois l'extraction
-faite. Ce qui subsiste, ce sont des numéros d'articles rattachés à des
-formulations qui nous appartiennent — pas le texte officiel recopié.
+ils sont cités et liés. Les PDF restent le temps du travail d'ontologie, qui
+les relit ; ils se retirent ensuite en une commande :
+
+```sh
+git rm "textes-officiels/S-2.1, R. 13.pdf" "textes-officiels/S-2.1, R. 4.pdf"
+```
+
+Rien n'en dépend à l'exécution : l'application n'embarque que des numéros
+d'articles rattachés à des formulations qui nous appartiennent. Seule la
+régénération de l'index exige de les redéposer.
