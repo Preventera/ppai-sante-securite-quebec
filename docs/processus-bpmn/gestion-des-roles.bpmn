@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  id="defs_gestion-des-roles" targetNamespace="http://agenticx5.com/ppai/bpmn">
+  <!-- P6 — Gestion des rôles — © 2026 Preventera / AgenticX5. Généré par scripts/bpmn/generer_bpmn.py -->
+  <bpmn:collaboration id="collab_gestion-des-roles">
+    <bpmn:participant id="pool_gestion-des-roles" name="P6 — Gestion des rôles" processRef="proc_gestion-des-roles" />
+  </bpmn:collaboration>
+  <bpmn:process id="proc_gestion-des-roles" isExecutable="false">
+    <bpmn:laneSet id="laneset_gestion-des-roles">
+      <bpmn:lane id="lane_gestion-des-roles_0" name="Direction (admin)">
+        <bpmn:flowNodeRef>p6_debut</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p6_ouvrir</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p6_choisir</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p6_fin</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p6_fin_refus</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="lane_gestion-des-roles_1" name="Application PPAI">
+        <bpmn:flowNodeRef>p6_garde</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p6_refus</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p6_effet</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="lane_gestion-des-roles_2" name="Base de données (RLS)">
+        <bpmn:flowNodeRef>p6_lister</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p6_soi</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p6_bloque</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p6_appliquer</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="p6_debut" name="Collègue à habiliter">
+      <bpmn:outgoing>flow_gestion-des-roles_0</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="p6_ouvrir" name="Ouvrir « Utilisateurs »">
+      <bpmn:incoming>flow_gestion-des-roles_0</bpmn:incoming>
+      <bpmn:outgoing>flow_gestion-des-roles_1</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="p6_garde" name="Rôle administrateur ?">
+      <bpmn:incoming>flow_gestion-des-roles_1</bpmn:incoming>
+      <bpmn:outgoing>flow_gestion-des-roles_2</bpmn:outgoing>
+      <bpmn:outgoing>flow_gestion-des-roles_4</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="p6_refus" name="Expliquer le refus (pas de redirection muette)">
+      <bpmn:incoming>flow_gestion-des-roles_2</bpmn:incoming>
+      <bpmn:outgoing>flow_gestion-des-roles_3</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="p6_lister" name="Lister les profils de l&#x27;organisation">
+      <bpmn:incoming>flow_gestion-des-roles_4</bpmn:incoming>
+      <bpmn:outgoing>flow_gestion-des-roles_5</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="p6_choisir" name="Attribuer un rôle">
+      <bpmn:incoming>flow_gestion-des-roles_5</bpmn:incoming>
+      <bpmn:outgoing>flow_gestion-des-roles_6</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="p6_soi" name="Son propre profil ?">
+      <bpmn:incoming>flow_gestion-des-roles_6</bpmn:incoming>
+      <bpmn:outgoing>flow_gestion-des-roles_7</bpmn:outgoing>
+      <bpmn:outgoing>flow_gestion-des-roles_9</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="p6_bloque" name="Refuser : une organisation garde son administrateur">
+      <bpmn:incoming>flow_gestion-des-roles_7</bpmn:incoming>
+      <bpmn:outgoing>flow_gestion-des-roles_8</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="p6_appliquer" name="Appliquer le rôle">
+      <bpmn:incoming>flow_gestion-des-roles_9</bpmn:incoming>
+      <bpmn:outgoing>flow_gestion-des-roles_10</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="p6_effet" name="Recomposer la navigation et les droits d&#x27;écriture">
+      <bpmn:incoming>flow_gestion-des-roles_10</bpmn:incoming>
+      <bpmn:outgoing>flow_gestion-des-roles_11</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="p6_fin" name="Habilitation effective">
+      <bpmn:incoming>flow_gestion-des-roles_11</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="p6_fin_refus" name="Accès refusé, motif affiché">
+      <bpmn:incoming>flow_gestion-des-roles_3</bpmn:incoming>
+      <bpmn:incoming>flow_gestion-des-roles_8</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="flow_gestion-des-roles_0" sourceRef="p6_debut" targetRef="p6_ouvrir" />
+    <bpmn:sequenceFlow id="flow_gestion-des-roles_1" sourceRef="p6_ouvrir" targetRef="p6_garde" />
+    <bpmn:sequenceFlow id="flow_gestion-des-roles_2" sourceRef="p6_garde" targetRef="p6_refus" name="non" />
+    <bpmn:sequenceFlow id="flow_gestion-des-roles_3" sourceRef="p6_refus" targetRef="p6_fin_refus" />
+    <bpmn:sequenceFlow id="flow_gestion-des-roles_4" sourceRef="p6_garde" targetRef="p6_lister" name="oui" />
+    <bpmn:sequenceFlow id="flow_gestion-des-roles_5" sourceRef="p6_lister" targetRef="p6_choisir" />
+    <bpmn:sequenceFlow id="flow_gestion-des-roles_6" sourceRef="p6_choisir" targetRef="p6_soi" />
+    <bpmn:sequenceFlow id="flow_gestion-des-roles_7" sourceRef="p6_soi" targetRef="p6_bloque" name="oui" />
+    <bpmn:sequenceFlow id="flow_gestion-des-roles_8" sourceRef="p6_bloque" targetRef="p6_fin_refus" />
+    <bpmn:sequenceFlow id="flow_gestion-des-roles_9" sourceRef="p6_soi" targetRef="p6_appliquer" name="non" />
+    <bpmn:sequenceFlow id="flow_gestion-des-roles_10" sourceRef="p6_appliquer" targetRef="p6_effet" />
+    <bpmn:sequenceFlow id="flow_gestion-des-roles_11" sourceRef="p6_effet" targetRef="p6_fin" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="diag_gestion-des-roles">
+    <bpmndi:BPMNPlane id="plane_gestion-des-roles" bpmnElement="collab_gestion-des-roles">
+      <bpmndi:BPMNShape id="shape_pool_gestion-des-roles" bpmnElement="pool_gestion-des-roles" isHorizontal="true">
+        <dc:Bounds x="160" y="60" width="1880" height="1020" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_lane_gestion-des-roles_0" bpmnElement="lane_gestion-des-roles_0" isHorizontal="true">
+        <dc:Bounds x="190" y="60" width="1850" height="340" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_lane_gestion-des-roles_1" bpmnElement="lane_gestion-des-roles_1" isHorizontal="true">
+        <dc:Bounds x="190" y="400" width="1850" height="340" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_lane_gestion-des-roles_2" bpmnElement="lane_gestion-des-roles_2" isHorizontal="true">
+        <dc:Bounds x="190" y="740" width="1850" height="340" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p6_debut" bpmnElement="p6_debut">
+        <dc:Bounds x="282" y="127" width="36" height="36" />
+          <bpmndi:BPMNLabel><dc:Bounds x="252" y="167" width="96" height="28" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p6_ouvrir" bpmnElement="p6_ouvrir">
+        <dc:Bounds x="425" y="105" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p6_garde" bpmnElement="p6_garde">
+        <dc:Bounds x="675" y="460" width="50" height="50" />
+          <bpmndi:BPMNLabel><dc:Bounds x="645" y="514" width="110" height="28" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p6_refus" bpmnElement="p6_refus">
+        <dc:Bounds x="825" y="615" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p6_lister" bpmnElement="p6_lister">
+        <dc:Bounds x="825" y="785" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p6_choisir" bpmnElement="p6_choisir">
+        <dc:Bounds x="1025" y="105" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p6_soi" bpmnElement="p6_soi">
+        <dc:Bounds x="1275" y="800" width="50" height="50" />
+          <bpmndi:BPMNLabel><dc:Bounds x="1245" y="854" width="110" height="28" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p6_bloque" bpmnElement="p6_bloque">
+        <dc:Bounds x="1425" y="955" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p6_appliquer" bpmnElement="p6_appliquer">
+        <dc:Bounds x="1425" y="785" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p6_effet" bpmnElement="p6_effet">
+        <dc:Bounds x="1625" y="445" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p6_fin" bpmnElement="p6_fin">
+        <dc:Bounds x="1882" y="127" width="36" height="36" />
+          <bpmndi:BPMNLabel><dc:Bounds x="1852" y="167" width="96" height="28" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p6_fin_refus" bpmnElement="p6_fin_refus">
+        <dc:Bounds x="1882" y="297" width="36" height="36" />
+          <bpmndi:BPMNLabel><dc:Bounds x="1852" y="337" width="96" height="28" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="edge_gestion-des-roles_0" bpmnElement="flow_gestion-des-roles_0">
+        <di:waypoint x="318" y="145" />
+        <di:waypoint x="371" y="145" />
+        <di:waypoint x="371" y="145" />
+        <di:waypoint x="425" y="145" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_gestion-des-roles_1" bpmnElement="flow_gestion-des-roles_1">
+        <di:waypoint x="575" y="145" />
+        <di:waypoint x="625" y="145" />
+        <di:waypoint x="625" y="485" />
+        <di:waypoint x="675" y="485" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_gestion-des-roles_2" bpmnElement="flow_gestion-des-roles_2">
+        <di:waypoint x="725" y="485" />
+        <di:waypoint x="775" y="485" />
+        <di:waypoint x="775" y="655" />
+        <di:waypoint x="825" y="655" />
+        <bpmndi:BPMNLabel><dc:Bounds x="779" y="633" width="60" height="18" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_gestion-des-roles_3" bpmnElement="flow_gestion-des-roles_3">
+        <di:waypoint x="975" y="655" />
+        <di:waypoint x="1428" y="655" />
+        <di:waypoint x="1428" y="315" />
+        <di:waypoint x="1882" y="315" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_gestion-des-roles_4" bpmnElement="flow_gestion-des-roles_4">
+        <di:waypoint x="725" y="485" />
+        <di:waypoint x="775" y="485" />
+        <di:waypoint x="775" y="825" />
+        <di:waypoint x="825" y="825" />
+        <bpmndi:BPMNLabel><dc:Bounds x="779" y="803" width="60" height="18" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_gestion-des-roles_5" bpmnElement="flow_gestion-des-roles_5">
+        <di:waypoint x="975" y="825" />
+        <di:waypoint x="1000" y="825" />
+        <di:waypoint x="1000" y="145" />
+        <di:waypoint x="1025" y="145" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_gestion-des-roles_6" bpmnElement="flow_gestion-des-roles_6">
+        <di:waypoint x="1175" y="145" />
+        <di:waypoint x="1225" y="145" />
+        <di:waypoint x="1225" y="825" />
+        <di:waypoint x="1275" y="825" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_gestion-des-roles_7" bpmnElement="flow_gestion-des-roles_7">
+        <di:waypoint x="1325" y="825" />
+        <di:waypoint x="1375" y="825" />
+        <di:waypoint x="1375" y="995" />
+        <di:waypoint x="1425" y="995" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1379" y="973" width="60" height="18" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_gestion-des-roles_8" bpmnElement="flow_gestion-des-roles_8">
+        <di:waypoint x="1575" y="995" />
+        <di:waypoint x="1728" y="995" />
+        <di:waypoint x="1728" y="315" />
+        <di:waypoint x="1882" y="315" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_gestion-des-roles_9" bpmnElement="flow_gestion-des-roles_9">
+        <di:waypoint x="1325" y="825" />
+        <di:waypoint x="1375" y="825" />
+        <di:waypoint x="1375" y="825" />
+        <di:waypoint x="1425" y="825" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1379" y="803" width="60" height="18" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_gestion-des-roles_10" bpmnElement="flow_gestion-des-roles_10">
+        <di:waypoint x="1575" y="825" />
+        <di:waypoint x="1600" y="825" />
+        <di:waypoint x="1600" y="485" />
+        <di:waypoint x="1625" y="485" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_gestion-des-roles_11" bpmnElement="flow_gestion-des-roles_11">
+        <di:waypoint x="1775" y="485" />
+        <di:waypoint x="1828" y="485" />
+        <di:waypoint x="1828" y="145" />
+        <di:waypoint x="1882" y="145" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

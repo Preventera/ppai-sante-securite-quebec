@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  id="defs_generation-documentaire" targetNamespace="http://agenticx5.com/ppai/bpmn">
+  <!-- P5 — Génération documentaire — © 2026 Preventera / AgenticX5. Généré par scripts/bpmn/generer_bpmn.py -->
+  <bpmn:collaboration id="collab_generation-documentaire">
+    <bpmn:participant id="pool_generation-documentaire" name="P5 — Génération documentaire" processRef="proc_generation-documentaire" />
+  </bpmn:collaboration>
+  <bpmn:process id="proc_generation-documentaire" isExecutable="false">
+    <bpmn:laneSet id="laneset_generation-documentaire">
+      <bpmn:lane id="lane_generation-documentaire_0" name="Responsable SST">
+        <bpmn:flowNodeRef>p5_debut</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p5_type</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p5_fin</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="lane_generation-documentaire_1" name="Application PPAI">
+        <bpmn:flowNodeRef>p5_contexte</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p5_backend</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p5_echec</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p5_local</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p5_provenance</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p5_conserver</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="lane_generation-documentaire_2" name="Edge Function (Claude)">
+        <bpmn:flowNodeRef>p5_claude</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="lane_generation-documentaire_3" name="Journal d&#x27;exécution">
+        <bpmn:flowNodeRef>p5_consigner</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p5_journal</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="p5_debut" name="Document à produire">
+      <bpmn:outgoing>flow_generation-documentaire_0</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="p5_type" name="Choisir le type de document (langage métier)">
+      <bpmn:incoming>flow_generation-documentaire_0</bpmn:incoming>
+      <bpmn:outgoing>flow_generation-documentaire_1</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="p5_contexte" name="Assembler le contexte : registre + mécanismes exigés">
+      <bpmn:incoming>flow_generation-documentaire_1</bpmn:incoming>
+      <bpmn:outgoing>flow_generation-documentaire_2</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="p5_backend" name="Backend joignable ?">
+      <bpmn:incoming>flow_generation-documentaire_2</bpmn:incoming>
+      <bpmn:outgoing>flow_generation-documentaire_3</bpmn:outgoing>
+      <bpmn:outgoing>flow_generation-documentaire_8</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="p5_claude" name="Générer par Claude">
+      <bpmn:incoming>flow_generation-documentaire_3</bpmn:incoming>
+      <bpmn:outgoing>flow_generation-documentaire_4</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="p5_echec" name="Génération réussie ?">
+      <bpmn:incoming>flow_generation-documentaire_4</bpmn:incoming>
+      <bpmn:outgoing>flow_generation-documentaire_5</bpmn:outgoing>
+      <bpmn:outgoing>flow_generation-documentaire_6</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="p5_consigner" name="Consigner l&#x27;échec">
+      <bpmn:incoming>flow_generation-documentaire_6</bpmn:incoming>
+      <bpmn:outgoing>flow_generation-documentaire_7</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="p5_local" name="Générer localement (déterministe)">
+      <bpmn:incoming>flow_generation-documentaire_7</bpmn:incoming>
+      <bpmn:incoming>flow_generation-documentaire_8</bpmn:incoming>
+      <bpmn:outgoing>flow_generation-documentaire_9</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="p5_provenance" name="Figer la provenance + empreinte du registre">
+      <bpmn:incoming>flow_generation-documentaire_5</bpmn:incoming>
+      <bpmn:incoming>flow_generation-documentaire_9</bpmn:incoming>
+      <bpmn:outgoing>flow_generation-documentaire_10</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="p5_journal" name="Journaliser durée, moteur, jetons — jamais le document">
+      <bpmn:incoming>flow_generation-documentaire_10</bpmn:incoming>
+      <bpmn:outgoing>flow_generation-documentaire_11</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="p5_conserver" name="Conserver le programme">
+      <bpmn:incoming>flow_generation-documentaire_11</bpmn:incoming>
+      <bpmn:outgoing>flow_generation-documentaire_12</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="p5_fin" name="Document traçable">
+      <bpmn:incoming>flow_generation-documentaire_12</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="flow_generation-documentaire_0" sourceRef="p5_debut" targetRef="p5_type" />
+    <bpmn:sequenceFlow id="flow_generation-documentaire_1" sourceRef="p5_type" targetRef="p5_contexte" />
+    <bpmn:sequenceFlow id="flow_generation-documentaire_2" sourceRef="p5_contexte" targetRef="p5_backend" />
+    <bpmn:sequenceFlow id="flow_generation-documentaire_3" sourceRef="p5_backend" targetRef="p5_claude" name="oui" />
+    <bpmn:sequenceFlow id="flow_generation-documentaire_4" sourceRef="p5_claude" targetRef="p5_echec" />
+    <bpmn:sequenceFlow id="flow_generation-documentaire_5" sourceRef="p5_echec" targetRef="p5_provenance" name="oui" />
+    <bpmn:sequenceFlow id="flow_generation-documentaire_6" sourceRef="p5_echec" targetRef="p5_consigner" name="non" />
+    <bpmn:sequenceFlow id="flow_generation-documentaire_7" sourceRef="p5_consigner" targetRef="p5_local" />
+    <bpmn:sequenceFlow id="flow_generation-documentaire_8" sourceRef="p5_backend" targetRef="p5_local" name="non" />
+    <bpmn:sequenceFlow id="flow_generation-documentaire_9" sourceRef="p5_local" targetRef="p5_provenance" />
+    <bpmn:sequenceFlow id="flow_generation-documentaire_10" sourceRef="p5_provenance" targetRef="p5_journal" />
+    <bpmn:sequenceFlow id="flow_generation-documentaire_11" sourceRef="p5_journal" targetRef="p5_conserver" />
+    <bpmn:sequenceFlow id="flow_generation-documentaire_12" sourceRef="p5_conserver" targetRef="p5_fin" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="diag_generation-documentaire">
+    <bpmndi:BPMNPlane id="plane_generation-documentaire" bpmnElement="collab_generation-documentaire">
+      <bpmndi:BPMNShape id="shape_pool_generation-documentaire" bpmnElement="pool_generation-documentaire" isHorizontal="true">
+        <dc:Bounds x="160" y="60" width="2480" height="1020" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_lane_generation-documentaire_0" bpmnElement="lane_generation-documentaire_0" isHorizontal="true">
+        <dc:Bounds x="190" y="60" width="2450" height="170" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_lane_generation-documentaire_1" bpmnElement="lane_generation-documentaire_1" isHorizontal="true">
+        <dc:Bounds x="190" y="230" width="2450" height="340" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_lane_generation-documentaire_2" bpmnElement="lane_generation-documentaire_2" isHorizontal="true">
+        <dc:Bounds x="190" y="570" width="2450" height="170" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_lane_generation-documentaire_3" bpmnElement="lane_generation-documentaire_3" isHorizontal="true">
+        <dc:Bounds x="190" y="740" width="2450" height="340" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p5_debut" bpmnElement="p5_debut">
+        <dc:Bounds x="282" y="127" width="36" height="36" />
+          <bpmndi:BPMNLabel><dc:Bounds x="252" y="167" width="96" height="28" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p5_type" bpmnElement="p5_type">
+        <dc:Bounds x="425" y="105" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p5_contexte" bpmnElement="p5_contexte">
+        <dc:Bounds x="625" y="275" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p5_backend" bpmnElement="p5_backend">
+        <dc:Bounds x="875" y="290" width="50" height="50" />
+          <bpmndi:BPMNLabel><dc:Bounds x="845" y="344" width="110" height="28" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p5_claude" bpmnElement="p5_claude">
+        <dc:Bounds x="1025" y="615" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p5_echec" bpmnElement="p5_echec">
+        <dc:Bounds x="1275" y="290" width="50" height="50" />
+          <bpmndi:BPMNLabel><dc:Bounds x="1245" y="344" width="110" height="28" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p5_consigner" bpmnElement="p5_consigner">
+        <dc:Bounds x="1425" y="955" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p5_local" bpmnElement="p5_local">
+        <dc:Bounds x="1625" y="445" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p5_provenance" bpmnElement="p5_provenance">
+        <dc:Bounds x="1825" y="275" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p5_journal" bpmnElement="p5_journal">
+        <dc:Bounds x="2025" y="785" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p5_conserver" bpmnElement="p5_conserver">
+        <dc:Bounds x="2225" y="275" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p5_fin" bpmnElement="p5_fin">
+        <dc:Bounds x="2482" y="127" width="36" height="36" />
+          <bpmndi:BPMNLabel><dc:Bounds x="2452" y="167" width="96" height="28" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="edge_generation-documentaire_0" bpmnElement="flow_generation-documentaire_0">
+        <di:waypoint x="318" y="145" />
+        <di:waypoint x="371" y="145" />
+        <di:waypoint x="371" y="145" />
+        <di:waypoint x="425" y="145" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_generation-documentaire_1" bpmnElement="flow_generation-documentaire_1">
+        <di:waypoint x="575" y="145" />
+        <di:waypoint x="600" y="145" />
+        <di:waypoint x="600" y="315" />
+        <di:waypoint x="625" y="315" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_generation-documentaire_2" bpmnElement="flow_generation-documentaire_2">
+        <di:waypoint x="775" y="315" />
+        <di:waypoint x="825" y="315" />
+        <di:waypoint x="825" y="315" />
+        <di:waypoint x="875" y="315" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_generation-documentaire_3" bpmnElement="flow_generation-documentaire_3">
+        <di:waypoint x="925" y="315" />
+        <di:waypoint x="975" y="315" />
+        <di:waypoint x="975" y="655" />
+        <di:waypoint x="1025" y="655" />
+        <bpmndi:BPMNLabel><dc:Bounds x="979" y="633" width="60" height="18" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_generation-documentaire_4" bpmnElement="flow_generation-documentaire_4">
+        <di:waypoint x="1175" y="655" />
+        <di:waypoint x="1225" y="655" />
+        <di:waypoint x="1225" y="315" />
+        <di:waypoint x="1275" y="315" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_generation-documentaire_5" bpmnElement="flow_generation-documentaire_5">
+        <di:waypoint x="1325" y="315" />
+        <di:waypoint x="1575" y="315" />
+        <di:waypoint x="1575" y="315" />
+        <di:waypoint x="1825" y="315" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1579" y="293" width="60" height="18" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_generation-documentaire_6" bpmnElement="flow_generation-documentaire_6">
+        <di:waypoint x="1325" y="315" />
+        <di:waypoint x="1375" y="315" />
+        <di:waypoint x="1375" y="995" />
+        <di:waypoint x="1425" y="995" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1379" y="973" width="60" height="18" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_generation-documentaire_7" bpmnElement="flow_generation-documentaire_7">
+        <di:waypoint x="1575" y="995" />
+        <di:waypoint x="1600" y="995" />
+        <di:waypoint x="1600" y="485" />
+        <di:waypoint x="1625" y="485" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_generation-documentaire_8" bpmnElement="flow_generation-documentaire_8">
+        <di:waypoint x="925" y="315" />
+        <di:waypoint x="1275" y="315" />
+        <di:waypoint x="1275" y="485" />
+        <di:waypoint x="1625" y="485" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1279" y="463" width="60" height="18" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_generation-documentaire_9" bpmnElement="flow_generation-documentaire_9">
+        <di:waypoint x="1775" y="485" />
+        <di:waypoint x="1800" y="485" />
+        <di:waypoint x="1800" y="315" />
+        <di:waypoint x="1825" y="315" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_generation-documentaire_10" bpmnElement="flow_generation-documentaire_10">
+        <di:waypoint x="1975" y="315" />
+        <di:waypoint x="2000" y="315" />
+        <di:waypoint x="2000" y="825" />
+        <di:waypoint x="2025" y="825" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_generation-documentaire_11" bpmnElement="flow_generation-documentaire_11">
+        <di:waypoint x="2175" y="825" />
+        <di:waypoint x="2200" y="825" />
+        <di:waypoint x="2200" y="315" />
+        <di:waypoint x="2225" y="315" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_generation-documentaire_12" bpmnElement="flow_generation-documentaire_12">
+        <di:waypoint x="2375" y="315" />
+        <di:waypoint x="2428" y="315" />
+        <di:waypoint x="2428" y="145" />
+        <di:waypoint x="2482" y="145" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

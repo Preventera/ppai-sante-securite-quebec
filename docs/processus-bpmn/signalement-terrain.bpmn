@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  id="defs_signalement-terrain" targetNamespace="http://agenticx5.com/ppai/bpmn">
+  <!-- P4 — Signalement terrain et qualification — © 2026 Preventera / AgenticX5. Généré par scripts/bpmn/generer_bpmn.py -->
+  <bpmn:collaboration id="collab_signalement-terrain">
+    <bpmn:participant id="pool_signalement-terrain" name="P4 — Signalement terrain et qualification" processRef="proc_signalement-terrain" />
+  </bpmn:collaboration>
+  <bpmn:process id="proc_signalement-terrain" isExecutable="false">
+    <bpmn:laneSet id="laneset_signalement-terrain">
+      <bpmn:lane id="lane_signalement-terrain_0" name="Travailleur">
+        <bpmn:flowNodeRef>p4_debut</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p4_decrire</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p4_suite</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p4_fin</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="lane_signalement-terrain_1" name="Responsable SST">
+        <bpmn:flowNodeRef>p4_examiner</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p4_decision</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p4_qualifier</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p4_note</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="lane_signalement-terrain_2" name="Base de données (RLS)">
+        <bpmn:flowNodeRef>p4_imposer</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p4_file</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p4_creer</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>p4_statuer</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="p4_debut" name="Situation dangereuse observée">
+      <bpmn:outgoing>flow_signalement-terrain_0</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="p4_decrire" name="Décrire et situer (téléphone, 2 champs)">
+      <bpmn:incoming>flow_signalement-terrain_0</bpmn:incoming>
+      <bpmn:outgoing>flow_signalement-terrain_1</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="p4_imposer" name="Imposer auteur et organisation depuis la session">
+      <bpmn:incoming>flow_signalement-terrain_1</bpmn:incoming>
+      <bpmn:outgoing>flow_signalement-terrain_2</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="p4_file" name="Déposer dans la file statut « nouveau »">
+      <bpmn:incoming>flow_signalement-terrain_2</bpmn:incoming>
+      <bpmn:outgoing>flow_signalement-terrain_3</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="p4_examiner" name="Examiner le signalement">
+      <bpmn:incoming>flow_signalement-terrain_3</bpmn:incoming>
+      <bpmn:outgoing>flow_signalement-terrain_4</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="p4_decision" name="Devient un risque ?">
+      <bpmn:incoming>flow_signalement-terrain_4</bpmn:incoming>
+      <bpmn:outgoing>flow_signalement-terrain_5</bpmn:outgoing>
+      <bpmn:outgoing>flow_signalement-terrain_8</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="p4_qualifier" name="Coter et compléter (formulaire prérempli)">
+      <bpmn:incoming>flow_signalement-terrain_5</bpmn:incoming>
+      <bpmn:outgoing>flow_signalement-terrain_6</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="p4_creer" name="Créer le risque au registre">
+      <bpmn:incoming>flow_signalement-terrain_6</bpmn:incoming>
+      <bpmn:outgoing>flow_signalement-terrain_7</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="p4_note" name="Rédiger la note d&#x27;écartement (obligatoire)">
+      <bpmn:incoming>flow_signalement-terrain_8</bpmn:incoming>
+      <bpmn:outgoing>flow_signalement-terrain_9</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="p4_statuer" name="Consigner la décision">
+      <bpmn:incoming>flow_signalement-terrain_7</bpmn:incoming>
+      <bpmn:incoming>flow_signalement-terrain_9</bpmn:incoming>
+      <bpmn:outgoing>flow_signalement-terrain_10</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:intermediateCatchEvent id="p4_suite" name="Consulter la suite donnée">
+      <bpmn:incoming>flow_signalement-terrain_10</bpmn:incoming>
+      <bpmn:outgoing>flow_signalement-terrain_11</bpmn:outgoing>
+    </bpmn:intermediateCatchEvent>
+    <bpmn:endEvent id="p4_fin" name="Signalement traité">
+      <bpmn:incoming>flow_signalement-terrain_11</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="flow_signalement-terrain_0" sourceRef="p4_debut" targetRef="p4_decrire" />
+    <bpmn:sequenceFlow id="flow_signalement-terrain_1" sourceRef="p4_decrire" targetRef="p4_imposer" />
+    <bpmn:sequenceFlow id="flow_signalement-terrain_2" sourceRef="p4_imposer" targetRef="p4_file" />
+    <bpmn:sequenceFlow id="flow_signalement-terrain_3" sourceRef="p4_file" targetRef="p4_examiner" />
+    <bpmn:sequenceFlow id="flow_signalement-terrain_4" sourceRef="p4_examiner" targetRef="p4_decision" />
+    <bpmn:sequenceFlow id="flow_signalement-terrain_5" sourceRef="p4_decision" targetRef="p4_qualifier" name="oui" />
+    <bpmn:sequenceFlow id="flow_signalement-terrain_6" sourceRef="p4_qualifier" targetRef="p4_creer" />
+    <bpmn:sequenceFlow id="flow_signalement-terrain_7" sourceRef="p4_creer" targetRef="p4_statuer" />
+    <bpmn:sequenceFlow id="flow_signalement-terrain_8" sourceRef="p4_decision" targetRef="p4_note" name="non" />
+    <bpmn:sequenceFlow id="flow_signalement-terrain_9" sourceRef="p4_note" targetRef="p4_statuer" />
+    <bpmn:sequenceFlow id="flow_signalement-terrain_10" sourceRef="p4_statuer" targetRef="p4_suite" />
+    <bpmn:sequenceFlow id="flow_signalement-terrain_11" sourceRef="p4_suite" targetRef="p4_fin" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="diag_signalement-terrain">
+    <bpmndi:BPMNPlane id="plane_signalement-terrain" bpmnElement="collab_signalement-terrain">
+      <bpmndi:BPMNShape id="shape_pool_signalement-terrain" bpmnElement="pool_signalement-terrain" isHorizontal="true">
+        <dc:Bounds x="160" y="60" width="2280" height="680" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_lane_signalement-terrain_0" bpmnElement="lane_signalement-terrain_0" isHorizontal="true">
+        <dc:Bounds x="190" y="60" width="2250" height="170" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_lane_signalement-terrain_1" bpmnElement="lane_signalement-terrain_1" isHorizontal="true">
+        <dc:Bounds x="190" y="230" width="2250" height="340" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_lane_signalement-terrain_2" bpmnElement="lane_signalement-terrain_2" isHorizontal="true">
+        <dc:Bounds x="190" y="570" width="2250" height="170" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p4_debut" bpmnElement="p4_debut">
+        <dc:Bounds x="282" y="127" width="36" height="36" />
+          <bpmndi:BPMNLabel><dc:Bounds x="252" y="167" width="96" height="28" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p4_decrire" bpmnElement="p4_decrire">
+        <dc:Bounds x="425" y="105" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p4_imposer" bpmnElement="p4_imposer">
+        <dc:Bounds x="625" y="615" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p4_file" bpmnElement="p4_file">
+        <dc:Bounds x="825" y="615" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p4_examiner" bpmnElement="p4_examiner">
+        <dc:Bounds x="1025" y="275" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p4_decision" bpmnElement="p4_decision">
+        <dc:Bounds x="1275" y="290" width="50" height="50" />
+          <bpmndi:BPMNLabel><dc:Bounds x="1245" y="344" width="110" height="28" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p4_qualifier" bpmnElement="p4_qualifier">
+        <dc:Bounds x="1425" y="275" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p4_creer" bpmnElement="p4_creer">
+        <dc:Bounds x="1625" y="615" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p4_note" bpmnElement="p4_note">
+        <dc:Bounds x="1425" y="445" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p4_statuer" bpmnElement="p4_statuer">
+        <dc:Bounds x="1825" y="615" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p4_suite" bpmnElement="p4_suite">
+        <dc:Bounds x="2082" y="127" width="36" height="36" />
+          <bpmndi:BPMNLabel><dc:Bounds x="2052" y="167" width="96" height="28" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p4_fin" bpmnElement="p4_fin">
+        <dc:Bounds x="2282" y="127" width="36" height="36" />
+          <bpmndi:BPMNLabel><dc:Bounds x="2252" y="167" width="96" height="28" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="edge_signalement-terrain_0" bpmnElement="flow_signalement-terrain_0">
+        <di:waypoint x="318" y="145" />
+        <di:waypoint x="371" y="145" />
+        <di:waypoint x="371" y="145" />
+        <di:waypoint x="425" y="145" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_signalement-terrain_1" bpmnElement="flow_signalement-terrain_1">
+        <di:waypoint x="575" y="145" />
+        <di:waypoint x="600" y="145" />
+        <di:waypoint x="600" y="655" />
+        <di:waypoint x="625" y="655" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_signalement-terrain_2" bpmnElement="flow_signalement-terrain_2">
+        <di:waypoint x="775" y="655" />
+        <di:waypoint x="825" y="655" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_signalement-terrain_3" bpmnElement="flow_signalement-terrain_3">
+        <di:waypoint x="975" y="655" />
+        <di:waypoint x="1000" y="655" />
+        <di:waypoint x="1000" y="315" />
+        <di:waypoint x="1025" y="315" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_signalement-terrain_4" bpmnElement="flow_signalement-terrain_4">
+        <di:waypoint x="1175" y="315" />
+        <di:waypoint x="1225" y="315" />
+        <di:waypoint x="1225" y="315" />
+        <di:waypoint x="1275" y="315" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_signalement-terrain_5" bpmnElement="flow_signalement-terrain_5">
+        <di:waypoint x="1325" y="315" />
+        <di:waypoint x="1375" y="315" />
+        <di:waypoint x="1375" y="315" />
+        <di:waypoint x="1425" y="315" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1379" y="293" width="60" height="18" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_signalement-terrain_6" bpmnElement="flow_signalement-terrain_6">
+        <di:waypoint x="1575" y="315" />
+        <di:waypoint x="1600" y="315" />
+        <di:waypoint x="1600" y="655" />
+        <di:waypoint x="1625" y="655" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_signalement-terrain_7" bpmnElement="flow_signalement-terrain_7">
+        <di:waypoint x="1775" y="655" />
+        <di:waypoint x="1825" y="655" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_signalement-terrain_8" bpmnElement="flow_signalement-terrain_8">
+        <di:waypoint x="1325" y="315" />
+        <di:waypoint x="1375" y="315" />
+        <di:waypoint x="1375" y="485" />
+        <di:waypoint x="1425" y="485" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1379" y="463" width="60" height="18" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_signalement-terrain_9" bpmnElement="flow_signalement-terrain_9">
+        <di:waypoint x="1575" y="485" />
+        <di:waypoint x="1700" y="485" />
+        <di:waypoint x="1700" y="655" />
+        <di:waypoint x="1825" y="655" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_signalement-terrain_10" bpmnElement="flow_signalement-terrain_10">
+        <di:waypoint x="1975" y="655" />
+        <di:waypoint x="2028" y="655" />
+        <di:waypoint x="2028" y="145" />
+        <di:waypoint x="2082" y="145" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_signalement-terrain_11" bpmnElement="flow_signalement-terrain_11">
+        <di:waypoint x="2118" y="145" />
+        <di:waypoint x="2282" y="145" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
