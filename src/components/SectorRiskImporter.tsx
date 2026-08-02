@@ -39,7 +39,7 @@ const energySectorRisks: SectorRisk[] = [
     residualRisk: 2.25,
     status: "Contrôlé",
     responsible: "Chef d'équipe maintenance",
-    legalRef: "LSST art.51; Code électrique; RSST art.188"
+    legalRef: "LSST art. 51; Code électrique du Québec; RSST"
   },
   {
     id: "EN-RC2-002", 
@@ -54,7 +54,7 @@ const energySectorRisks: SectorRisk[] = [
     residualRisk: 4.0,
     status: "En surveillance",
     responsible: "Superviseur terrain",
-    legalRef: "LSST art.51; Code électrique art.2-304; RSST art.330"
+    legalRef: "LSST art. 51; Code électrique du Québec; RSST"
   },
   {
     id: "EN-RC4-001",
@@ -69,7 +69,7 @@ const energySectorRisks: SectorRisk[] = [
     residualRisk: 2.25,
     status: "Contrôlé",
     responsible: "Responsable de chantier",
-    legalRef: "LSST art.51(7); RSST art.254"
+    legalRef: "LSST art. 51; RSST"
   },
   {
     id: "EN-RC8-001",
@@ -84,7 +84,7 @@ const energySectorRisks: SectorRisk[] = [
     residualRisk: 2.0,
     status: "Contrôlé",
     responsible: "Ingénieur structure",
-    legalRef: "LSST art.51(6); CSTC art.2.4.1"
+    legalRef: "LSST art. 51; CSTC"
   },
   {
     id: "EN-RC3-001",
@@ -99,7 +99,7 @@ const energySectorRisks: SectorRisk[] = [
     residualRisk: 1.5,
     status: "Contrôlé",
     responsible: "Chef d'exploitation",
-    legalRef: "CNPI art.2.8; RSST art.45"
+    legalRef: "CNPI; RSST"
   },
   {
     id: "EN-RC5-001",
@@ -114,7 +114,7 @@ const energySectorRisks: SectorRisk[] = [
     residualRisk: 3.0,
     status: "En surveillance",
     responsible: "Coordonnateur SST",
-    legalRef: "LSST art.51(3); CSTC art.2.9.2"
+    legalRef: "LSST art. 51; CSTC"
   },
   {
     id: "EN-RC9-001",
@@ -129,7 +129,7 @@ const energySectorRisks: SectorRisk[] = [
     residualRisk: 2.25,
     status: "Contrôlé",
     responsible: "Technicien environnement",
-    legalRef: "SIMDUT 2015; RSST art.299-304"
+    legalRef: "SIMDUT 2015; RSST"
   },
   {
     id: "EN-RC10-001",
@@ -144,7 +144,7 @@ const energySectorRisks: SectorRisk[] = [
     residualRisk: 1.0,
     status: "Contrôlé",
     responsible: "Coordonnateur travaux spéciaux",
-    legalRef: "RSST art.297-312; CSTC art.3.21"
+    legalRef: "RSST; CSTC"
   },
   {
     id: "EN-RC6-001",
@@ -159,7 +159,7 @@ const energySectorRisks: SectorRisk[] = [
     residualRisk: 3.6,
     status: "En surveillance",
     responsible: "Superviseur terrain",
-    legalRef: "LSST art.51(5); RSST art.123"
+    legalRef: "LSST art. 51; RSST"
   },
   {
     id: "EN-RC7-001",
@@ -174,7 +174,7 @@ const energySectorRisks: SectorRisk[] = [
     residualRisk: 3.15,
     status: "En surveillance",
     responsible: "Responsable santé",
-    legalRef: "LSST art.51(3); RSST art.166"
+    legalRef: "LSST art. 51; RSST"
   }
 ];
 

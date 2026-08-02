@@ -133,7 +133,7 @@ export function ProposerRisquesSecteur({ onAdopter, trigger }: Props) {
           <DialogDescription>
             Dérivés des lésions professionnelles publiées par la CNESST. Ce sont des
             propositions : l'employeur reste responsable d'identifier les risques de son
-            établissement (LSST art. 59).
+            établissement (LSST).
           </DialogDescription>
         </DialogHeader>
 

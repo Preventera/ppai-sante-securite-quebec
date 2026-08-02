@@ -4,10 +4,18 @@ import { Risk } from '@/types/risk'
  * Registre des risques de référence, utilisé comme jeu de démonstration et
  * comme seed de la base en mode « live ».
  *
- * Les mesures citent les textes québécois applicables :
- *  - CSTC : Code de sécurité pour les travaux de construction (S-2.1, r. 4)
- *  - RSST : Règlement sur la santé et la sécurité du travail (S-2.1, r. 13)
+ * Les mesures NOMMENT l'instrument applicable, sans le citer à l'article :
+ *  - CSTC : Code de sécurité pour les travaux de construction (RLRQ c. S-2.1, r. 4)
+ *  - RSST : Règlement sur la santé et la sécurité du travail (RLRQ c. S-2.1, r. 13)
  *  - LSST : Loi sur la santé et la sécurité du travail (RLRQ c. S-2.1)
+ *
+ * POURQUOI PLUS DE NUMÉROS D'ARTICLES
+ *   Ce jeu portait treize renvois précis — « CSTC art. 3.9.1 », « RSST art. 297
+ *   et s. », « RSST annexe I » — hérités de la génération initiale et jamais
+ *   vérifiés sur le texte officiel. Un jeu de démonstration se montre à un
+ *   acheteur : une citation fausse s'y voit autant qu'ailleurs. Ils seront
+ *   rétablis, un par un, quand le texte des deux règlements aura été consulté.
+ *   Voir `src/lib/instruments.ts`.
  *
  * Invariant : initialRisk = probability × gravity, et residualRisk ≤ initialRisk.
  */
@@ -21,7 +29,7 @@ export const seedRisks: Risk[] = [
     gravity: 5,
     initialRisk: 20,
     measures:
-      "Balisage de la zone de manœuvre, attestation de conformité de l'appareil, opérateur certifié, élingues inspectées avant chaque quart (CSTC art. 3.9.1)",
+      "Balisage de la zone de manœuvre, attestation de conformité de l'appareil, opérateur certifié, élingues inspectées avant chaque quart (CSTC)",
     residualRisk: 8,
     status: 'Contrôles actifs',
     responsible: 'Chef de chantier',
@@ -36,7 +44,7 @@ export const seedRisks: Risk[] = [
     gravity: 5,
     initialRisk: 20,
     measures:
-      "Installation de garde-corps périmétriques, harnais avec ancrage certifié, plan de sauvetage en hauteur (CSTC art. 2.9.1 et 2.10.12)",
+      "Installation de garde-corps périmétriques, harnais avec ancrage certifié, plan de sauvetage en hauteur (CSTC)",
     residualRisk: 6,
     status: 'Action requise',
     responsible: 'Contremaître toiture',
@@ -51,7 +59,7 @@ export const seedRisks: Risk[] = [
     gravity: 5,
     initialRisk: 15,
     measures:
-      "Demande de neutralisation auprès du distributeur, respect des distances d'approche, signaleur dédié aux manœuvres (CSTC art. 5.2.1)",
+      "Demande de neutralisation auprès du distributeur, respect des distances d'approche, signaleur dédié aux manœuvres (CSTC)",
     residualRisk: 5,
     status: 'Contrôles actifs',
     responsible: 'Maître électricien',
@@ -66,7 +74,7 @@ export const seedRisks: Risk[] = [
     gravity: 5,
     initialRisk: 15,
     measures:
-      "Étaiement ou talutage validé par ingénieur, inspection quotidienne des parois, accès par échelle à moins de 8 m du poste (CSTC art. 3.15.3)",
+      "Étaiement ou talutage validé par ingénieur, inspection quotidienne des parois, accès par échelle à moins de 8 m du poste (CSTC)",
     residualRisk: 5,
     status: 'Contrôles actifs',
     responsible: 'Chef de chantier',
@@ -81,7 +89,7 @@ export const seedRisks: Risk[] = [
     gravity: 5,
     initialRisk: 15,
     measures:
-      "Enceinte étanche en dépression, APR à adduction d'air, échantillonnage d'air en continu, registre d'exposition (RSST art. 69.1 et s.)",
+      "Enceinte étanche en dépression, APR à adduction d'air, échantillonnage d'air en continu, registre d'exposition (RSST)",
     residualRisk: 4,
     status: 'Contrôles actifs',
     responsible: 'Hygiéniste du travail',
@@ -96,7 +104,7 @@ export const seedRisks: Risk[] = [
     gravity: 4,
     initialRisk: 16,
     measures:
-      "Obturation systématique des ouvertures, couvercles fixés et identifiés, inspection en fin de quart (CSTC art. 3.8.1)",
+      "Obturation systématique des ouvertures, couvercles fixés et identifiés, inspection en fin de quart (CSTC)",
     residualRisk: 6,
     status: 'En surveillance',
     responsible: 'Contremaître structure',
@@ -111,7 +119,7 @@ export const seedRisks: Risk[] = [
     gravity: 4,
     initialRisk: 12,
     measures:
-      "Permis de travail à chaud, retrait des matières combustibles sur 11 m, surveillance incendie 60 min après les travaux (CSTC art. 4.2.1)",
+      "Permis de travail à chaud, retrait des matières combustibles sur 11 m, surveillance incendie 60 min après les travaux (CSTC)",
     residualRisk: 4,
     status: 'Contrôles actifs',
     responsible: 'Responsable prévention',
@@ -126,7 +134,7 @@ export const seedRisks: Risk[] = [
     gravity: 4,
     initialRisk: 12,
     measures:
-      "Disjoncteur différentiel sur tous les circuits de chantier, inspection mensuelle des cordons, retrait immédiat du matériel non conforme (CSTC art. 5.3.1)",
+      "Disjoncteur différentiel sur tous les circuits de chantier, inspection mensuelle des cordons, retrait immédiat du matériel non conforme (CSTC)",
     residualRisk: 4,
     status: 'Contrôles actifs',
     responsible: 'Maître électricien',
@@ -156,7 +164,7 @@ export const seedRisks: Risk[] = [
     gravity: 4,
     initialRisk: 16,
     measures:
-      "Découpe à l'eau ou captage à la source, APR P100, délimitation de la zone, surveillance médicale pulmonaire (RSST annexe I)",
+      "Découpe à l'eau ou captage à la source, APR P100, délimitation de la zone, surveillance médicale pulmonaire (RSST)",
     residualRisk: 6,
     status: 'Action requise',
     responsible: 'Hygiéniste du travail',
@@ -171,7 +179,7 @@ export const seedRisks: Risk[] = [
     gravity: 4,
     initialRisk: 12,
     measures:
-      "Plan de circulation séparant piétons et engins, signaleur formé, avertisseur de recul et caméra, vêtements haute visibilité (CSTC art. 3.10.4)",
+      "Plan de circulation séparant piétons et engins, signaleur formé, avertisseur de recul et caméra, vêtements haute visibilité (CSTC)",
     residualRisk: 4,
     status: 'Contrôles actifs',
     responsible: 'Signaleur de chantier',
@@ -201,7 +209,7 @@ export const seedRisks: Risk[] = [
     gravity: 5,
     initialRisk: 10,
     measures:
-      "Montage par personne compétente, plan d'ancrage signé par ingénieur, étiquetage de conformité, inspection avant chaque quart (CSTC art. 3.9.4)",
+      "Montage par personne compétente, plan d'ancrage signé par ingénieur, étiquetage de conformité, inspection avant chaque quart (CSTC)",
     residualRisk: 3,
     status: 'Contrôles actifs',
     responsible: 'Contremaître structure',
@@ -216,7 +224,7 @@ export const seedRisks: Risk[] = [
     gravity: 5,
     initialRisk: 10,
     measures:
-      "Permis d'entrée en espace clos, détection multigaz continue, ventilation mécanique, surveillant à l'extérieur et équipement de sauvetage (RSST art. 297 et s.)",
+      "Permis d'entrée en espace clos, détection multigaz continue, ventilation mécanique, surveillant à l'extérieur et équipement de sauvetage (RSST)",
     residualRisk: 3,
     status: 'Contrôles actifs',
     responsible: 'Responsable prévention',
@@ -231,7 +239,7 @@ export const seedRisks: Risk[] = [
     gravity: 2,
     initialRisk: 8,
     measures:
-      "Rangement en fin de quart, éclairage minimal de 50 lux dans les circulations, dégagement des câbles et boyaux (CSTC art. 3.2.4)",
+      "Rangement en fin de quart, éclairage minimal de 50 lux dans les circulations, dégagement des câbles et boyaux (CSTC)",
     residualRisk: 4,
     status: 'En contrôle',
     responsible: 'Contremaître finitions',

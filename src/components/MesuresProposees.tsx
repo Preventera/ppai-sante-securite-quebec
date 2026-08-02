@@ -13,6 +13,9 @@ import {
   type MesureGenre,
   type MesurePrevention
 } from '@/lib/prevention'
+// `reference` est déjà le nom de la catégorie de référence dans ce composant :
+// importer sous alias, sinon l'appel vise la variable locale.
+import { INSTRUMENTS, reference as referenceInstrument } from '@/lib/instruments'
 
 /**
  * Propose les moyens de prévention applicables à la catégorie d'un risque.
@@ -209,6 +212,27 @@ export function MesuresProposees({
         Ces mesures sont des propositions à adapter : c'est l'employeur qui
         répond de leur pertinence pour son établissement.
       </p>
+
+      {/* Les instruments sont nommés au long et datés, jamais cités à l'article
+          tant que leur texte n'a pas été consulté — voir `lib/instruments.ts`. */}
+      <details className="text-xs text-gray-500">
+        <summary className="cursor-pointer">Textes de référence</summary>
+        <ul className="mt-2 space-y-1 pl-2 border-l-2 border-gray-200">
+          {INSTRUMENTS.map(i => (
+            <li key={i.sigle}>
+              <a
+                href={i.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sst-blue hover:underline inline-flex items-center gap-1"
+              >
+                {i.sigle} <ExternalLink className="w-3 h-3" />
+              </a>{' '}
+              — {referenceInstrument(i)}
+            </li>
+          ))}
+        </ul>
+      </details>
     </div>
   )
 }

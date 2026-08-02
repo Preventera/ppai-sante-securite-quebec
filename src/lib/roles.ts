@@ -18,10 +18,10 @@ export const LIBELLE_ROLE: Record<RoleApplicatif, string> = {
 }
 
 export const DESCRIPTION_ROLE: Record<RoleApplicatif, string> = {
-  admin: "Décide, attribue les rôles, répond du programme (LSST art. 51, 58-59).",
+  admin: "Décide, attribue les rôles, répond du programme (LSST art. 51).",
   preventionniste: 'Tient le registre des risques et prépare les documents de prévention.',
-  comite: 'Consulte le registre et les programmes, donne des avis (LSST art. 68-78, 88 et s.).',
-  membre: 'Consulte les documents en vigueur (LSST art. 49).'
+  comite: 'Consulte le registre et les programmes, donne des avis (LSST — comité de santé et de sécurité).',
+  membre: 'Consulte les documents en vigueur (LSST).'
 }
 
 export const ROLES_APPLICATIFS = Object.keys(LIBELLE_ROLE) as RoleApplicatif[]

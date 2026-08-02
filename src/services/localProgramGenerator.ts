@@ -9,6 +9,7 @@ import {
 import { CAS_NON_COUVERTS, LIBELLE_NIVEAU_NEUTRE, secteurPourCode } from '@/lib/scianNiveaux'
 import { HIERARCHIE_MESURES_PREVENTION } from '@/lib/rmppe'
 import { construireProvenance, provenanceEnMarkdown } from '@/lib/provenance'
+import { LSST, RSST, RMPPE, reference } from '@/lib/instruments'
 
 /**
  * Générateur de programme de prévention entièrement local et déterministe.
@@ -198,8 +199,11 @@ export function generateLocalPreventionProgram(params: LocalProgramParams): stri
   return `# ${params.typeDocument} — ${params.companyName}
 
 > Document généré le ${today} par PPAI (moteur local déterministe).
-> Conforme aux exigences de la Loi sur la santé et la sécurité du travail (RLRQ c. S-2.1)
-> et du Règlement sur la santé et la sécurité du travail (S-2.1, r. 13).
+> La conformité de l'établissement relève de l'employeur : ce document l'outille, il ne l'atteste pas.
+
+**Textes de référence**
+
+${[LSST, RSST, RMPPE].map(i => `- ${i.sigle} — ${reference(i)}`).join('\n')}
 
 ## Contexte de l'établissement
 
@@ -213,7 +217,7 @@ ${contextTable}
 
 ---
 
-## 1. Identification des principales sources de risques (LSST art. 59)
+## 1. Identification des principales sources de risques (LSST)
 
 L'identification s'appuie sur le registre des risques de l'établissement, qui recense **${sorted.length} risques** répartis sur ${categories.length} catégorie(s) : ${categories.join(', ') || 'non catégorisés'}.
 
@@ -373,7 +377,7 @@ _Référence : ${mecanismes.reference}_
 ### Participation des travailleurs
 
 - Consultation du comité de santé et de sécurité sur le présent programme et ses révisions.
-- Mécanisme de signalement des situations dangereuses accessible à tous les travailleurs (LSST art. 49).
+- Mécanisme de signalement des situations dangereuses accessible à tous les travailleurs (LSST).
 - Participation des travailleurs concernés à l'analyse des risques de leur poste.
 - Diffusion des comptes rendus et du suivi des actions correctives.
 
