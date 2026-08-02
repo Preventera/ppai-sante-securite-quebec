@@ -424,3 +424,261 @@ export const RESSOURCES_OUVERTES = [
   { nom: 'INSPQ — santé au travail', url: 'https://www.inspq.qc.ca/sante-au-travail', objet: "Avis scientifiques, portraits de surveillance, grilles d'identification" },
   { nom: 'Les neuf ASP', url: 'https://www.preventionenligne.com', objet: 'Fiches techniques et formations propres à chaque secteur' }
 ] as const
+
+// ---------------------------------------------------------------------------
+// Matrice par genre d'accident
+// ---------------------------------------------------------------------------
+
+/**
+ * POURQUOI CETTE SECONDE CLÉ
+ *   La catégorie est trop grossière : 55 % des 258 risques types dérivés
+ *   tombent dans « Autre risque professionnel », qui ne peut rien proposer.
+ *   Or la même fiche sait qu'il s'agit d'une « chute au même niveau causée par
+ *   les planchers et passages » — et pour cela, on sait quoi faire.
+ *
+ *   Le genre d'accident est une variable CODÉE de la nomenclature CNESST,
+ *   présente dans les données ouvertes et conservée jusque dans le nom du
+ *   risque adopté. Vingt valeurs, dont dix-sept exploitables. C'est la clé
+ *   utile, et elle ne coûte aucun changement de schéma.
+ *
+ * MÊME DISCIPLINE QUE PARTOUT AILLEURS
+ *   Aucun numéro d'article inventé : les instruments sont nommés. La
+ *   `corroboration` indique la norme ou l'organisme qui appuie la mesure —
+ *   c'est un point d'entrée pour vérifier, pas une citation d'autorité.
+ *
+ * CE QUI N'EST PAS COUVERT, ET POURQUOI
+ *   « NON CODÉ », « NE PEUT ÊTRE CLASSIFIÉ, INCONNU » et les rubriques « NCA »
+ *   ne décrivent aucune situation : proposer des mesures pour elles reviendrait
+ *   à en inventer. Elles sont absentes de la matrice, volontairement.
+ */
+export interface MesureGenre extends MesurePrevention {
+  /** Norme ou organisme qui appuie la mesure. Point d'entrée, pas autorité. */
+  corroboration?: string
+}
+
+const m = (
+  niveau: NiveauHierarchie,
+  libelle: string,
+  nature: 'obligation' | 'recommandation',
+  fondement?: string,
+  corroboration?: string
+): MesureGenre => ({ niveau, libelle, nature, fondement, corroboration })
+
+export const MESURES_PAR_GENRE: Record<string, MesureGenre[]> = {
+  'EFFORT EXCESSIF': [
+    m(1, "Supprimer la manutention manuelle par reconception du flux", 'obligation', 'RMPPÉ — hiérarchie des mesures'),
+    m(2, "Fractionner les charges ; réduire la masse unitaire", 'obligation', 'RMPPÉ — hiérarchie des mesures'),
+    m(3, "Aides mécaniques : palan, table élévatrice, chariot, lève-personne", 'obligation', 'RSST — manutention', 'CSA Z1004 · ASSTSAS'),
+    m(3, "Rapprocher les points de prise et de dépose ; supprimer les torsions", 'recommandation', undefined, 'IRSST — ergonomie'),
+    m(4, "Indiquer la masse des charges et les points de préhension", 'recommandation'),
+    m(5, "Rotation des tâches ; limiter la fréquence et la durée des efforts", 'recommandation'),
+    m(5, "Formation à la manutention et à l'usage des aides mécaniques", 'obligation', "LSST — formation et information"),
+    m(6, "La protection individuelle ne corrige pas un effort excessif", 'recommandation')
+  ],
+  'REACTION DU CORPS': [
+    m(1, "Éliminer les postures contraignantes par reconception du poste", 'obligation', 'RMPPÉ — hiérarchie des mesures'),
+    m(2, "Méthode de travail alternative supprimant le geste en cause", 'obligation', 'RMPPÉ — hiérarchie des mesures'),
+    m(3, "Ajuster hauteurs de travail, atteintes, sièges et appuis", 'obligation', 'RSST', 'CSA Z1004'),
+    m(3, "Supprimer les obstacles imposant contorsions et rattrapages", 'recommandation', undefined, 'IRSST — ergonomie'),
+    m(4, "Signaler les zones exiguës et les passages à dégagement réduit", 'recommandation'),
+    m(5, "Alternance des postures ; pauses de récupération", 'recommandation'),
+    m(5, "Formation aux principes de posture et d'économie d'effort", 'obligation', "LSST — formation et information"),
+    m(6, "Peu pertinent : la protection individuelle ne réduit pas la contrainte", 'recommandation')
+  ],
+  'MOUVEMENT REPETITIF': [
+    m(1, "Automatiser ou supprimer le cycle répétitif", 'obligation', 'RMPPÉ — hiérarchie des mesures'),
+    m(2, "Élargir le contenu de la tâche pour rompre la répétition", 'obligation', 'RMPPÉ — hiérarchie des mesures'),
+    m(3, "Outils à prise adaptée ; réduction de la force de préhension requise", 'obligation', 'RSST', 'CSA Z1004'),
+    m(3, "Supports d'avant-bras, plans de travail ajustables", 'recommandation', undefined, 'IRSST — ergonomie'),
+    m(5, "Rotation des postes ; micro-pauses régulières", 'recommandation'),
+    m(5, "Surveillance des signes précoces de TMS et prise en charge", 'recommandation', undefined, 'INSPQ'),
+    m(6, "Orthèses seulement sur avis médical, jamais en substitut d'aménagement", 'recommandation')
+  ],
+  'CHUTE AU MEME NIVEAU': [
+    m(1, "Supprimer dénivellations, seuils et obstacles des voies de circulation", 'obligation', 'RMPPÉ — hiérarchie des mesures'),
+    m(2, "Revêtement de sol à coefficient de friction adapté à l'activité", 'obligation', 'RSST'),
+    m(3, "Drainage et captation des liquides répandus ; tapis absorbants", 'obligation', 'RSST'),
+    m(3, "Éclairage suffisant des voies de circulation et des escaliers", 'obligation', 'RSST — éclairage'),
+    m(4, "Marquage des dénivellations résiduelles et des sols glissants", 'obligation', 'RSST'),
+    m(5, "Programme d'entretien, de nettoyage et de déneigement des passages", 'obligation', 'RSST', 'IRSST — prévention des chutes'),
+    m(5, "Rangement : dégagement permanent des voies de circulation", 'obligation', 'RSST'),
+    m(6, "Chaussures à semelle antidérapante adaptée au sol", 'obligation', 'RSST')
+  ],
+  'CHUTE A UN NIVEAU INFERIEUR': [
+    m(1, "Concevoir le travail au sol ; supprimer le travail en hauteur", 'obligation', 'RMPPÉ — hiérarchie des mesures'),
+    m(2, "Plateforme élévatrice ou échafaudage plutôt qu'échelle", 'obligation', 'CSTC'),
+    m(3, "Garde-corps sur toute ouverture, plancher de travail et bord libre", 'obligation', 'RSST · CSTC'),
+    m(3, "Couverture solide et fixée des ouvertures de plancher", 'obligation', 'CSTC'),
+    m(3, "Points d'ancrage conçus et vérifiés pour l'arrêt de chute", 'obligation', 'CSTC', 'CSA Z259'),
+    m(4, "Baliser et signaler les zones de travail en hauteur et les ouvertures", 'obligation', 'CSTC'),
+    m(5, "Plan de travail en hauteur ; plan de sauvetage après suspension", 'obligation', 'CSTC', 'ASP Construction'),
+    m(6, "Harnais complet et absorbeur d'énergie, inspectés avant chaque usage", 'obligation', 'CSTC', 'CSA Z259')
+  ],
+  'FRAPPE PAR UN OBJET': [
+    m(1, "Supprimer le stockage et la manutention au-dessus des postes occupés", 'obligation', 'RMPPÉ — hiérarchie des mesures'),
+    m(2, "Manutention mécanisée plutôt que portée à bras", 'obligation', 'RMPPÉ — hiérarchie des mesures'),
+    m(3, "Filets, plinthes et garde-corps pleins contre la chute d'objets", 'obligation', 'CSTC'),
+    m(3, "Arrimage des charges ; rayonnages ancrés et charge maximale respectée", 'obligation', 'RSST'),
+    m(4, "Baliser les zones de manœuvre de grue et de levage", 'obligation', 'CSTC'),
+    m(5, "Interdiction de circuler sous une charge suspendue", 'obligation', 'CSTC'),
+    m(5, "Signaleur formé pour les manœuvres à visibilité réduite", 'obligation', 'CSTC', 'ASP Construction'),
+    m(6, "Casque de protection ; chaussures à embout protecteur", 'obligation', 'RSST · CSTC', 'CSA Z94.1')
+  ],
+  'HEURTER UN OBJET': [
+    m(1, "Reconcevoir les circulations pour supprimer les obstacles fixes", 'obligation', 'RMPPÉ — hiérarchie des mesures'),
+    m(3, "Dégager les hauteurs libres et élargir les passages", 'obligation', 'RSST'),
+    m(3, "Protection des angles saillants et des parties basses", 'recommandation'),
+    m(4, "Marquage contrasté des obstacles et des hauteurs réduites", 'obligation', 'RSST'),
+    m(5, "Séparation des flux piétons et véhicules", 'obligation', 'RSST'),
+    m(6, "Casque lorsque le dégagement en hauteur reste insuffisant", 'obligation', 'RSST')
+  ],
+  'COINCE,ECRASE PAR EQUIPEMENT,OBJET': [
+    m(1, "Conception supprimant la zone de coincement", 'obligation', 'RMPPÉ — hiérarchie des mesures', 'ISO 12100'),
+    m(2, "Équipement à énergie ou à course réduite", 'obligation', 'RMPPÉ — hiérarchie des mesures'),
+    m(3, "Protecteurs fixes ou à interverrouillage sur les zones dangereuses", 'obligation', 'RSST — machines', 'CSA Z432 · ISO 12100'),
+    m(3, "Dispositifs de cadenassage des énergies dangereuses", 'obligation', 'RSST', 'CSA Z460'),
+    m(3, "Arrêts d'urgence accessibles depuis chaque poste", 'obligation', 'RSST — machines'),
+    m(4, "Marquage des zones de coincement et des points de cadenassage", 'obligation', 'RSST'),
+    m(5, "Procédure de cadenassage écrite et propre à chaque machine", 'obligation', 'RSST', 'CSA Z460'),
+    m(5, "Habilitation des opérateurs et des personnes chargées de l'entretien", 'obligation', "LSST — formation et information"),
+    m(6, "Gants adaptés — jamais près d'organes en rotation", 'obligation', 'RSST')
+  ],
+  'FROTTEM.,ABRAS.PAR FRICTION,PRESSION': [
+    m(1, "Supprimer le contact avec les surfaces abrasives ou sous pression", 'obligation', 'RMPPÉ — hiérarchie des mesures'),
+    m(3, "Capotage des organes abrasifs ; limitation des pressions accessibles", 'obligation', 'RSST — machines', 'CSA Z432'),
+    m(4, "Signaler les surfaces abrasives et les circuits sous pression", 'obligation', 'RSST'),
+    m(5, "Procédure de purge avant toute intervention sur circuit sous pression", 'obligation', 'RSST', 'CSA Z460'),
+    m(6, "Gants anti-coupure et anti-abrasion adaptés à la tâche", 'obligation', 'RSST')
+  ],
+  'EXPOSITION AU BRUIT': [
+    m(1, "Supprimer la source sonore ou l'éloigner des postes occupés", 'obligation', 'RMPPÉ — hiérarchie des mesures'),
+    m(2, "Équipement moins bruyant ; procédé silencieux à performance égale", 'obligation', 'RSST — bruit'),
+    m(3, "Encoffrement acoustique, écrans, silencieux, traitement des parois", 'obligation', 'RSST — bruit', 'IRSST — acoustique'),
+    m(3, "Cabines de conduite ou de contrôle insonorisées", 'recommandation'),
+    m(4, "Affichage des zones où la protection auditive est obligatoire", 'obligation', 'RSST — bruit'),
+    m(5, "Mesurage de l'exposition ; limitation du temps en zone bruyante", 'obligation', 'RSST — bruit'),
+    m(5, "Audiométrie de suivi et information des travailleurs exposés", 'recommandation', undefined, 'INSPQ · IRSST'),
+    m(6, "Protecteurs auditifs choisis selon l'atténuation requise", 'obligation', 'RSST — bruit', 'CSA Z94.2')
+  ],
+  'CONTACT AVEC TEMPERATURES EXTREMES': [
+    m(1, "Supprimer le contact avec les surfaces ou fluides à température extrême", 'obligation', 'RMPPÉ — hiérarchie des mesures'),
+    m(2, "Procédé à température modérée ; refroidissement avant intervention", 'obligation', 'RMPPÉ — hiérarchie des mesures'),
+    m(3, "Calorifugeage, écrans thermiques, ventilation ou chauffage d'ambiance", 'obligation', 'RSST — ambiances thermiques'),
+    m(3, "Aires de récupération tempérées à proximité des postes", 'obligation', 'RSST'),
+    m(4, "Signaler les surfaces chaudes ou froides accessibles", 'obligation', 'RSST'),
+    m(5, "Régime d'alternance travail-repos selon la contrainte thermique", 'obligation', 'RSST', 'INSPQ — chaleur'),
+    m(5, "Hydratation, acclimatation et surveillance mutuelle", 'obligation', 'RSST', 'CSA Z1010'),
+    m(6, "Vêtements et gants isolants adaptés à la température", 'obligation', 'RSST')
+  ],
+  'CONTACT AVEC LE COURANT ELECTRIQUE': [
+    m(1, "Travailler hors tension — consignation avant toute intervention", 'obligation', 'RSST', 'CSA Z462'),
+    m(2, "Très basse tension de sécurité lorsque la fonction le permet", 'obligation', 'RMPPÉ — hiérarchie des mesures'),
+    m(3, "Mise à la terre, différentiels, enveloppes et distances de sécurité", 'obligation', 'RSST · CSTC', 'CSA Z462'),
+    m(3, "Cadenassage des sources d'alimentation avec vérification d'absence de tension", 'obligation', 'RSST', 'CSA Z460 · Z462'),
+    m(4, "Étiquetage des circuits, des tableaux et des points de coupure", 'obligation', 'RSST', 'CSA Z462'),
+    m(5, "Habilitation électrique ; permis et analyse de risque avant travail sous tension", 'obligation', 'RSST', 'CSA Z462'),
+    m(6, "Gants isolants, écran facial et vêtements résistants à l'arc", 'obligation', 'RSST', 'CSA Z462')
+  ],
+  'EXPOS. SUBST. CAUST.,NOCIVE,ALLERG.': [
+    m(1, "Retirer la substance du procédé", 'obligation', 'RMPPÉ — hiérarchie des mesures'),
+    m(2, "Substituer un produit moins nocif à fonction équivalente", 'obligation', 'RSST', 'Reptox'),
+    m(3, "Captation à la source ; enceinte fermée ; ventilation générale", 'obligation', 'RSST — qualité du milieu'),
+    m(3, "Douches et rince-œil d'urgence accessibles", 'obligation', 'RSST'),
+    m(4, "Étiquetage SIMDUT de tous les contenants, transferts compris", 'obligation', 'SIMDUT / Loi sur les produits dangereux'),
+    m(5, "Fiches de données de sécurité accessibles ; formation des personnes exposées", 'obligation', 'SIMDUT / Loi sur les produits dangereux', 'Reptox'),
+    m(5, "Surveillance de l'exposition par rapport aux valeurs limites", 'obligation', 'RSST — qualité du milieu', 'IRSST — hygiène industrielle'),
+    m(6, "Protection respiratoire, gants et lunettes choisis selon la substance", 'obligation', 'RSST', 'CSA Z94.4 · Reptox')
+  ],
+  'VOIES FAIT,ACTE VIOLENT PAR PERSONNE': [
+    m(1, "Reconcevoir l'organisation supprimant l'exposition — file d'attente, encaissement", 'obligation', 'RMPPÉ — hiérarchie des mesures'),
+    m(2, "Supprimer le travail isolé dans les situations à risque", 'obligation', 'LMRSST — risques psychosociaux'),
+    m(3, "Aménagement : comptoir, dégagement, issue de repli, contrôle d'accès", 'obligation', 'RSST', 'ASSTSAS · APSAM'),
+    m(3, "Dispositif d'appel d'urgence individuel ou fixe", 'obligation', 'RSST'),
+    m(4, "Affichage de la politique de tolérance zéro et des voies de signalement", 'obligation', 'Loi sur les normes du travail'),
+    m(5, "Procédure de signalement, d'enquête et de suivi des événements", 'obligation', 'LMRSST · Loi sur les normes du travail'),
+    m(5, "Formation à la désescalade et à la gestion des comportements agressifs", 'recommandation', undefined, 'ASSTSAS · INSPQ'),
+    m(6, "Accompagnement post-événement et programme d'aide", 'recommandation')
+  ],
+  'EXPOS. EVEN. TRAUMAT.,STRESS.,NCA': [
+    m(1, "Réduire l'exposition organisationnelle aux événements traumatiques", 'obligation', 'LMRSST — risques psychosociaux'),
+    m(3, "Ajuster charge, horaires et effectifs des équipes exposées", 'obligation', 'LMRSST — risques psychosociaux'),
+    m(4, "Voies de signalement et de soutien clairement indiquées", 'obligation', 'LMRSST'),
+    m(5, "Protocole de prise en charge immédiate après événement", 'obligation', 'LMRSST', 'INSPQ — santé psychologique'),
+    m(5, "Formation des gestionnaires au repérage et au soutien", 'recommandation', undefined, 'IRSST — santé psychologique'),
+    m(6, "Programme d'aide aux employés et suivi psychologique", 'recommandation')
+  ],
+  'ACCIDENT DE LA ROUTE': [
+    m(1, "Supprimer le déplacement — visioconférence, livraison groupée", 'obligation', 'RMPPÉ — hiérarchie des mesures'),
+    m(2, "Transport confié à un tiers spécialisé lorsque c'est possible", 'recommandation'),
+    m(3, "Entretien préventif documenté ; aides à la conduite ; arrimage des charges", 'obligation', 'RSST', 'Via Prévention'),
+    m(4, "Signalisation et balisage des aires de manœuvre et de recul", 'obligation', 'RSST · CSTC'),
+    m(5, "Politique de conduite : vitesse, fatigue, téléphone, alcool et drogues", 'obligation', 'LSST', 'Via Prévention'),
+    m(5, "Planification des trajets et des heures de conduite", 'recommandation'),
+    m(6, "Ceinture, vêtement à haute visibilité hors du véhicule", 'obligation', 'RSST · CSTC')
+  ],
+  'ATTAQUE PAR DES ANIMAUX': [
+    m(1, "Séparer physiquement les travailleurs des animaux", 'obligation', 'RMPPÉ — hiérarchie des mesures'),
+    m(3, "Contention, couloirs de manipulation, abris et issues de dégagement", 'obligation', 'RSST'),
+    m(4, "Signaler les zones de contention et la présence d'animaux", 'obligation', 'RSST'),
+    m(5, "Procédures de manipulation ; travail à deux pour les animaux lourds", 'recommandation', undefined, 'IRSST — secteur agricole'),
+    m(5, "Vaccination et prise en charge des morsures et griffures", 'obligation', 'RSST — dispositions biologiques'),
+    m(6, "Vêtements et gants de protection adaptés à l'espèce", 'obligation', 'RSST')
+  ]
+}
+
+/** Genres reconnus mais volontairement sans mesures : ils ne décrivent rien. */
+export const GENRES_NON_DESCRIPTIFS = [
+  'NON CODE',
+  'NE PEUT ETRE CLASSIFIE,INCONNU',
+  'REACTION DU CORPS ET EFFORT,NCA'
+] as const
+
+/** Uniformise pour la comparaison : majuscules, sans accent, espaces réduits. */
+function normaliser(valeur: string): string {
+  return valeur
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toUpperCase()
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+const INDEX_GENRES = new Map(
+  Object.entries(MESURES_PAR_GENRE).map(([genre, mesures]) => [normaliser(genre), { genre, mesures }])
+)
+const INDEX_NON_DESCRIPTIFS = new Set(GENRES_NON_DESCRIPTIFS.map(normaliser))
+
+export interface CorrespondanceGenre {
+  genre: string
+  mesures: MesureGenre[]
+}
+
+/**
+ * Mesures propres au genre d'accident, à partir du libellé du risque.
+ *
+ * Les risques adoptés depuis une proposition sectorielle portent le genre
+ * verbatim dans leur nom — c'est ce qui rend la correspondance possible sans
+ * champ supplémentaire. Un risque saisi librement n'en portera pas, et
+ * retombera sur les mesures de sa catégorie.
+ */
+export function mesuresPourGenre(libelle: string | null | undefined): CorrespondanceGenre | null {
+  if (!libelle) return null
+  const cle = normaliser(libelle)
+  if (INDEX_NON_DESCRIPTIFS.has(cle)) return null
+  return INDEX_GENRES.get(cle) ?? null
+}
+
+/** Groupe des mesures de genre par niveau de hiérarchie, dans l'ordre. */
+export function mesuresGenreParNiveau(
+  mesures: MesureGenre[]
+): { niveau: NiveauHierarchie; libelleNiveau: string; texteReglementaire: string; mesures: MesureGenre[] }[] {
+  const niveaux: NiveauHierarchie[] = [1, 2, 3, 4, 5, 6]
+  return niveaux
+    .map(niveau => ({
+      niveau,
+      libelleNiveau: LIBELLE_NIVEAU[niveau],
+      texteReglementaire: TEXTE_NIVEAU[niveau],
+      mesures: mesures.filter(x => x.niveau === niveau)
+    }))
+    .filter(groupe => groupe.mesures.length > 0)
+}
