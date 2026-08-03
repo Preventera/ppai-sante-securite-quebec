@@ -141,6 +141,9 @@ serve(async (req) => {
       body: JSON.stringify({
         model: Deno.env.get('ANTHROPIC_MODEL') ?? 'claude-sonnet-5',
         max_tokens: 8000,
+        // Extraction structurée : la réflexion étendue n'apporte rien ici et
+        // décale la réponse JSON derrière un bloc "thinking" — désactivée.
+        thinking: { type: 'disabled' },
         system: PROMPT_SYSTEME,
         messages: [
           {
@@ -166,7 +169,11 @@ serve(async (req) => {
     }
 
     const data = await reponse.json();
-    const texte: string = data?.content?.[0]?.text ?? '';
+    // Le premier bloc n'est pas garanti d'être du texte (réflexion étendue,
+    // citations serveur) : on cherche le bloc "text" plutôt que de supposer
+    // l'index 0.
+    const blocTexte = (data?.content ?? []).find((b: { type?: string }) => b?.type === 'text');
+    const texte: string = blocTexte?.text ?? '';
 
     // Le modèle encadre parfois le JSON d'une clôture Markdown malgré la
     // consigne. On la retire plutôt que d'échouer sur un détail de forme.
