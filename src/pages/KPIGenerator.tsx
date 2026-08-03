@@ -64,7 +64,7 @@ const KPIGenerator = () => {
           Générateur de KPI et Mapping des Risques SSE
         </h1>
         <p className="text-gray-600 mt-1">
-          Système intelligent de génération automatique conforme CNESST avec moteur prédictif IA
+          Génération d'indicateurs à partir du registre des risques et des lésions publiées par la CNESST
         </p>
       </div>
 

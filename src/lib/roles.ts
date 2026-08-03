@@ -18,9 +18,9 @@ export const LIBELLE_ROLE: Record<RoleApplicatif, string> = {
 }
 
 export const DESCRIPTION_ROLE: Record<RoleApplicatif, string> = {
-  admin: "Décide, attribue les rôles, répond du programme (LSST art. 51, 58-59).",
+  admin: "Décide, attribue les rôles, répond du programme (LSST art. 51, 58 et 59).",
   preventionniste: 'Tient le registre des risques et prépare les documents de prévention.',
-  comite: 'Consulte le registre et les programmes, donne des avis (LSST art. 68-78, 88 et s.).',
+  comite: 'Consulte le registre et les programmes, donne des avis (LSST art. 68 et 78).',
   membre: 'Consulte les documents en vigueur (LSST art. 49).'
 }
 

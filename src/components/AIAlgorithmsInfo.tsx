@@ -99,10 +99,10 @@ export function AIAlgorithmsInfo() {
         <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
           <h4 className="font-semibold text-blue-800 mb-2">🎯 Innovation PPAI spécifique</h4>
           <ul className="text-sm text-blue-700 space-y-1">
-            <li>• Conformité CNESST/LMRSST intégrée</li>
+            <li>• Structure des documents alignée sur la LSST et le RMPPÉ</li>
             <li>• Prise en compte des groupes prioritaires</li>
             <li>• Types de risques selon classification québécoise</li>
-            <li>• Échéanciers conformes aux exigences réglementaires</li>
+            <li>• Échéanciers repris des délais réglementaires</li>
             <li>• Responsabilités alignées sur les rôles SST</li>
           </ul>
         </div>

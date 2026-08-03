@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { AIGenerationService } from "@/services/aiGenerationService";
 import { CompanyInfo } from "@/components/CompanyInfoForm";
+import { LSST, RSST, RMPPE, reference } from '@/lib/instruments';
 
 export interface GenerationParams {
   selectedTemplate: string;
@@ -67,7 +68,9 @@ export const useGenerationState = (aiService: AIGenerationService) => {
 Ce document a été généré pour ${params.companyInfo.companyName}, établissement de ${params.companyInfo.employeeCount} employés dans le secteur ${params.companyInfo.scianDescription || template.description}.
 
 ## 2. CADRE RÉGLEMENTAIRE
-Conforme aux exigences CNESST Groupe ${params.selectedGroup} et aux articles pertinents de la LSST.
+Document composé au regard de la ${LSST.titre} (${LSST.chapitre}) et de ses règlements
+d'application. Depuis le 1er octobre 2025, le document exigé découle de l'effectif de
+l'établissement et non plus du « groupe prioritaire » du régime antérieur.
 
 ## 3. CONTENU PRINCIPAL
 ${template.content}
@@ -116,7 +119,9 @@ ${info.additionalInfo}
 ---
 
 *Document généré automatiquement par PPAI (Prevention Program AI) - ${new Date().toLocaleDateString('fr-CA')}*
-*Conforme aux exigences CNESST/LMRSST - Groupe ${params.selectedGroup}*`;
+*Composé selon le contenu minimal attendu par la CNESST. La conformité de l'établissement
+relève de l'employeur : ce document l'outille, il ne l'atteste pas.*
+*Textes de référence — ${[LSST, RSST, RMPPE].map(reference).join(' ; ')}.*`;
 
     return header;
   };

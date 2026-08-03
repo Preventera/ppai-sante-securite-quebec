@@ -9,6 +9,7 @@ import {
 import { CAS_NON_COUVERTS, LIBELLE_NIVEAU_NEUTRE, secteurPourCode } from '@/lib/scianNiveaux'
 import { HIERARCHIE_MESURES_PREVENTION } from '@/lib/rmppe'
 import { construireProvenance, provenanceEnMarkdown } from '@/lib/provenance'
+import { LSST, RSST, RMPPE, reference } from '@/lib/instruments'
 
 /**
  * Générateur de programme de prévention entièrement local et déterministe.
@@ -198,8 +199,11 @@ export function generateLocalPreventionProgram(params: LocalProgramParams): stri
   return `# ${params.typeDocument} — ${params.companyName}
 
 > Document généré le ${today} par PPAI (moteur local déterministe).
-> Conforme aux exigences de la Loi sur la santé et la sécurité du travail (RLRQ c. S-2.1)
-> et du Règlement sur la santé et la sécurité du travail (S-2.1, r. 13).
+> La conformité de l'établissement relève de l'employeur : ce document l'outille, il ne l'atteste pas.
+
+**Textes de référence**
+
+${[LSST, RSST, RMPPE].map(i => `- ${i.sigle} — ${reference(i)}`).join('\n')}
 
 ## Contexte de l'établissement
 

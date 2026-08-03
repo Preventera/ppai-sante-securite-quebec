@@ -1,5 +1,14 @@
 import { Risk, RiskSummary } from "@/types/risk";
 import { riskService } from "@/services/riskService";
+import { RSST, referenceBreve } from "@/lib/instruments";
+
+/**
+ * Les champs `compliance` nommaient auparavant des articles du RSST sous la
+ * forme « RSST Art. 2.4.1 » — la numérotation du CSTC appliquée au RSST, qui
+ * numérote en entiers. Ces références remontaient jusque dans le programme
+ * généré. Elles nomment désormais l'instrument, jamais l'article, tant que le
+ * texte du règlement n'a pas été consulté (voir `src/lib/instruments.ts`).
+ */
 
 export interface RiskAnalysis {
   criticalRisks: Risk[];
@@ -157,7 +166,7 @@ export class RiskIntegrationService {
         content: this.generateCriticalRiskContent(riskAnalysis.criticalRisks, actor),
         basedOnRisks: riskAnalysis.criticalRisks.map(r => r.name),
         priority: 1,
-        compliance: ["LSST Art. 51", "RSST Art. 2.4.1"]
+        compliance: ["LSST, art. 51", referenceBreve(RSST)]
       });
     }
 
@@ -169,7 +178,7 @@ export class RiskIntegrationService {
         content: this.generateTrainingContent(trainingNeeds, actor),
         basedOnRisks: trainingNeeds,
         priority: 2,
-        compliance: ["LSST Art. 62", "RSST Art. 2.5"]
+        compliance: ["LSST", referenceBreve(RSST)]
       });
     }
 
@@ -181,7 +190,7 @@ export class RiskIntegrationService {
         content: this.generateEPIContent(epiNeeds),
         basedOnRisks: epiNeeds.map(r => r.name),
         priority: 3,
-        compliance: ["RSST Art. 2.10"]
+        compliance: [referenceBreve(RSST)]
       });
     }
 
@@ -191,7 +200,7 @@ export class RiskIntegrationService {
       content: this.generateMonitoringContent(riskAnalysis, actor),
       basedOnRisks: riskAnalysis.criticalRisks.concat(riskAnalysis.moderateRisks).map(r => r.name),
       priority: 4,
-      compliance: ["LSST Art. 58", "RSST Art. 2.6"]
+      compliance: ["LSST", referenceBreve(RSST)]
     });
 
     return suggestions.sort((a, b) => a.priority - b.priority);
