@@ -1,4 +1,4179 @@
 {
+ "LSST": {
+  "chapitre": "RLRQ c. S-2.1",
+  "source": "S-2.1.pdf",
+  "articles": [
+   {
+    "numero": "1",
+    "intitule": "",
+    "section": "CHAPITRE I DÉFINITIONS",
+    "sousSection": "",
+    "abroge": false,
+    "page": 4
+   },
+   {
+    "numero": "2",
+    "intitule": "",
+    "section": "SECTION I DISPOSITIONS GÉNÉRALES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 6
+   },
+   {
+    "numero": "3",
+    "intitule": "",
+    "section": "SECTION I DISPOSITIONS GÉNÉRALES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 6
+   },
+   {
+    "numero": "4",
+    "intitule": "",
+    "section": "SECTION I DISPOSITIONS GÉNÉRALES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 6
+   },
+   {
+    "numero": "5",
+    "intitule": "",
+    "section": "SECTION I DISPOSITIONS GÉNÉRALES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 6
+   },
+   {
+    "numero": "5.1",
+    "intitule": "",
+    "section": "SECTION I DISPOSITIONS GÉNÉRALES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 6
+   },
+   {
+    "numero": "6",
+    "intitule": "",
+    "section": "SECTION I DISPOSITIONS GÉNÉRALES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 6
+   },
+   {
+    "numero": "7",
+    "intitule": "",
+    "section": "SECTION I DISPOSITIONS GÉNÉRALES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 6
+   },
+   {
+    "numero": "8",
+    "intitule": "",
+    "section": "SECTION I DISPOSITIONS GÉNÉRALES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 7
+   },
+   {
+    "numero": "8.0.1",
+    "intitule": "",
+    "section": "SECTION I DISPOSITIONS GÉNÉRALES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 7
+   },
+   {
+    "numero": "8.1",
+    "intitule": "",
+    "section": "SECTION I DISPOSITIONS GÉNÉRALES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 7
+   },
+   {
+    "numero": "8.2",
+    "intitule": "",
+    "section": "SECTION II ENTENTES PERMETTANT L’APPLICATION D’UN RÉGIME PARTICULIER",
+    "sousSection": "",
+    "abroge": false,
+    "page": 7
+   },
+   {
+    "numero": "8.3",
+    "intitule": "",
+    "section": "SECTION II ENTENTES PERMETTANT L’APPLICATION D’UN RÉGIME PARTICULIER",
+    "sousSection": "",
+    "abroge": false,
+    "page": 7
+   },
+   {
+    "numero": "8.4",
+    "intitule": "",
+    "section": "SECTION II ENTENTES PERMETTANT L’APPLICATION D’UN RÉGIME PARTICULIER",
+    "sousSection": "",
+    "abroge": false,
+    "page": 7
+   },
+   {
+    "numero": "8.5",
+    "intitule": "",
+    "section": "SECTION II ENTENTES PERMETTANT L’APPLICATION D’UN RÉGIME PARTICULIER",
+    "sousSection": "",
+    "abroge": false,
+    "page": 7
+   },
+   {
+    "numero": "8.6",
+    "intitule": "",
+    "section": "SECTION II ENTENTES PERMETTANT L’APPLICATION D’UN RÉGIME PARTICULIER",
+    "sousSection": "",
+    "abroge": false,
+    "page": 7
+   },
+   {
+    "numero": "8.7",
+    "intitule": "",
+    "section": "SECTION II ENTENTES PERMETTANT L’APPLICATION D’UN RÉGIME PARTICULIER",
+    "sousSection": "",
+    "abroge": false,
+    "page": 8
+   },
+   {
+    "numero": "8.8",
+    "intitule": "",
+    "section": "SECTION II ENTENTES PERMETTANT L’APPLICATION D’UN RÉGIME PARTICULIER",
+    "sousSection": "",
+    "abroge": false,
+    "page": 8
+   },
+   {
+    "numero": "8.9",
+    "intitule": "",
+    "section": "SECTION II ENTENTES PERMETTANT L’APPLICATION D’UN RÉGIME PARTICULIER",
+    "sousSection": "",
+    "abroge": false,
+    "page": 8
+   },
+   {
+    "numero": "8.10",
+    "intitule": "",
+    "section": "SECTION II ENTENTES PERMETTANT L’APPLICATION D’UN RÉGIME PARTICULIER",
+    "sousSection": "",
+    "abroge": false,
+    "page": 8
+   },
+   {
+    "numero": "8.11",
+    "intitule": "",
+    "section": "SECTION II ENTENTES PERMETTANT L’APPLICATION D’UN RÉGIME PARTICULIER",
+    "sousSection": "",
+    "abroge": false,
+    "page": 8
+   },
+   {
+    "numero": "8.12",
+    "intitule": "",
+    "section": "SECTION II ENTENTES PERMETTANT L’APPLICATION D’UN RÉGIME PARTICULIER",
+    "sousSection": "",
+    "abroge": false,
+    "page": 8
+   },
+   {
+    "numero": "9",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 8
+   },
+   {
+    "numero": "10",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 8
+   },
+   {
+    "numero": "11",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 8
+   },
+   {
+    "numero": "12",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 9
+   },
+   {
+    "numero": "13",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 9
+   },
+   {
+    "numero": "14",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 9
+   },
+   {
+    "numero": "15",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 9
+   },
+   {
+    "numero": "16",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 9
+   },
+   {
+    "numero": "17",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 9
+   },
+   {
+    "numero": "18",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 9
+   },
+   {
+    "numero": "19",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 10
+   },
+   {
+    "numero": "20",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 10
+   },
+   {
+    "numero": "21",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 10
+   },
+   {
+    "numero": "22",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 10
+   },
+   {
+    "numero": "23",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 10
+   },
+   {
+    "numero": "24",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 10
+   },
+   {
+    "numero": "25",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 10
+   },
+   {
+    "numero": "26",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 10
+   },
+   {
+    "numero": "27",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 11
+   },
+   {
+    "numero": "28",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 11
+   },
+   {
+    "numero": "29",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 11
+   },
+   {
+    "numero": "30",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 11
+   },
+   {
+    "numero": "31",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 11
+   },
+   {
+    "numero": "32",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 11
+   },
+   {
+    "numero": "33",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 12
+   },
+   {
+    "numero": "34",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 12
+   },
+   {
+    "numero": "35",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 12
+   },
+   {
+    "numero": "36",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 12
+   },
+   {
+    "numero": "37",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 13
+   },
+   {
+    "numero": "37.1",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 13
+   },
+   {
+    "numero": "37.2",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 13
+   },
+   {
+    "numero": "37.3",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 13
+   },
+   {
+    "numero": "38",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 13
+   },
+   {
+    "numero": "39",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 13
+   },
+   {
+    "numero": "40",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 14
+   },
+   {
+    "numero": "40.1",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 14
+   },
+   {
+    "numero": "41",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 14
+   },
+   {
+    "numero": "42",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 14
+   },
+   {
+    "numero": "42.1",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 14
+   },
+   {
+    "numero": "43",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 14
+   },
+   {
+    "numero": "44",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 15
+   },
+   {
+    "numero": "45",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 15
+   },
+   {
+    "numero": "46",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 15
+   },
+   {
+    "numero": "47",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 15
+   },
+   {
+    "numero": "48",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 15
+   },
+   {
+    "numero": "48.0.1",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 15
+   },
+   {
+    "numero": "48.0.2",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 15
+   },
+   {
+    "numero": "48.0.3",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 16
+   },
+   {
+    "numero": "48.0.4",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 16
+   },
+   {
+    "numero": "48.0.5",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 16
+   },
+   {
+    "numero": "48.0.6",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 16
+   },
+   {
+    "numero": "48.0.7",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 16
+   },
+   {
+    "numero": "48.0.8",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 16
+   },
+   {
+    "numero": "48.0.9",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 16
+   },
+   {
+    "numero": "48.0.10",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 17
+   },
+   {
+    "numero": "48.1",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 17
+   },
+   {
+    "numero": "48.2",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 17
+   },
+   {
+    "numero": "49",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 17
+   },
+   {
+    "numero": "49.1",
+    "intitule": "",
+    "section": "SECTION I LE TRAVAILLEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 17
+   },
+   {
+    "numero": "50",
+    "intitule": "",
+    "section": "SECTION II L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 18
+   },
+   {
+    "numero": "51",
+    "intitule": "",
+    "section": "SECTION II L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 18
+   },
+   {
+    "numero": "51.1",
+    "intitule": "",
+    "section": "SECTION II L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 19
+   },
+   {
+    "numero": "51.1.1",
+    "intitule": "",
+    "section": "SECTION II L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 19
+   },
+   {
+    "numero": "51.2",
+    "intitule": "",
+    "section": "SECTION II L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 19
+   },
+   {
+    "numero": "52",
+    "intitule": "",
+    "section": "SECTION II L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 19
+   },
+   {
+    "numero": "53",
+    "intitule": "",
+    "section": "SECTION II L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 19
+   },
+   {
+    "numero": "54",
+    "intitule": "",
+    "section": "SECTION II L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 20
+   },
+   {
+    "numero": "55",
+    "intitule": "",
+    "section": "SECTION II L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 20
+   },
+   {
+    "numero": "56",
+    "intitule": "",
+    "section": "SECTION II L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 20
+   },
+   {
+    "numero": "57",
+    "intitule": "",
+    "section": "SECTION II L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 20
+   },
+   {
+    "numero": "58",
+    "intitule": "",
+    "section": "SECTION II L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 20
+   },
+   {
+    "numero": "58.1",
+    "intitule": "",
+    "section": "SECTION II L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 20
+   },
+   {
+    "numero": "59",
+    "intitule": "",
+    "section": "SECTION II L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 21
+   },
+   {
+    "numero": "60",
+    "intitule": "",
+    "section": "SECTION II L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 22
+   },
+   {
+    "numero": "61",
+    "intitule": "",
+    "section": "SECTION II L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 22
+   },
+   {
+    "numero": "61.1",
+    "intitule": "",
+    "section": "SECTION II L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 22
+   },
+   {
+    "numero": "61.2",
+    "intitule": "",
+    "section": "SECTION II L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 22
+   },
+   {
+    "numero": "62",
+    "intitule": "",
+    "section": "SECTION II L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 23
+   },
+   {
+    "numero": "62.0.1",
+    "intitule": "",
+    "section": "SECTION II L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 23
+   },
+   {
+    "numero": "62.1",
+    "intitule": "",
+    "section": "SECTION II L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 23
+   },
+   {
+    "numero": "62.2",
+    "intitule": "",
+    "section": "SECTION II L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 24
+   },
+   {
+    "numero": "62.3",
+    "intitule": "",
+    "section": "SECTION II L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 24
+   },
+   {
+    "numero": "62.4",
+    "intitule": "",
+    "section": "SECTION II L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 24
+   },
+   {
+    "numero": "62.5",
+    "intitule": "",
+    "section": "SECTION II L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 24
+   },
+   {
+    "numero": "62.6",
+    "intitule": "",
+    "section": "SECTION II L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 24
+   },
+   {
+    "numero": "62.7",
+    "intitule": "",
+    "section": "SECTION II L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 25
+   },
+   {
+    "numero": "62.8",
+    "intitule": "",
+    "section": "SECTION II L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 25
+   },
+   {
+    "numero": "62.9",
+    "intitule": "",
+    "section": "SECTION II L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 25
+   },
+   {
+    "numero": "62.10",
+    "intitule": "",
+    "section": "SECTION II L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 25
+   },
+   {
+    "numero": "62.11",
+    "intitule": "",
+    "section": "SECTION II L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 25
+   },
+   {
+    "numero": "62.12",
+    "intitule": "",
+    "section": "SECTION II L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 25
+   },
+   {
+    "numero": "62.13",
+    "intitule": "",
+    "section": "SECTION II L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 26
+   },
+   {
+    "numero": "62.14",
+    "intitule": "",
+    "section": "SECTION II L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 26
+   },
+   {
+    "numero": "62.15",
+    "intitule": "",
+    "section": "SECTION II L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 26
+   },
+   {
+    "numero": "62.16",
+    "intitule": "",
+    "section": "SECTION II L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 26
+   },
+   {
+    "numero": "62.17",
+    "intitule": "",
+    "section": "SECTION II L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 26
+   },
+   {
+    "numero": "62.18",
+    "intitule": "",
+    "section": "SECTION II L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 26
+   },
+   {
+    "numero": "62.19",
+    "intitule": "",
+    "section": "SECTION II L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 26
+   },
+   {
+    "numero": "62.20",
+    "intitule": "",
+    "section": "SECTION II L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 26
+   },
+   {
+    "numero": "62.21",
+    "intitule": "",
+    "section": "SECTION II L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 27
+   },
+   {
+    "numero": "63",
+    "intitule": "",
+    "section": "SECTION III LE FOURNISSEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 27
+   },
+   {
+    "numero": "64",
+    "intitule": "",
+    "section": "SECTION III LE FOURNISSEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 27
+   },
+   {
+    "numero": "65",
+    "intitule": "",
+    "section": "SECTION III LE FOURNISSEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 27
+   },
+   {
+    "numero": "66",
+    "intitule": "",
+    "section": "SECTION III LE FOURNISSEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 27
+   },
+   {
+    "numero": "67",
+    "intitule": "",
+    "section": "SECTION III LE FOURNISSEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 27
+   },
+   {
+    "numero": "68",
+    "intitule": "",
+    "section": "CHAPITRE IV LES COMITÉS DE SANTÉ ET DE SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 28
+   },
+   {
+    "numero": "68.1",
+    "intitule": "",
+    "section": "CHAPITRE IV LES COMITÉS DE SANTÉ ET DE SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 28
+   },
+   {
+    "numero": "68.2",
+    "intitule": "",
+    "section": "CHAPITRE IV LES COMITÉS DE SANTÉ ET DE SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 28
+   },
+   {
+    "numero": "69",
+    "intitule": "",
+    "section": "CHAPITRE IV LES COMITÉS DE SANTÉ ET DE SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 29
+   },
+   {
+    "numero": "70",
+    "intitule": "",
+    "section": "CHAPITRE IV LES COMITÉS DE SANTÉ ET DE SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 29
+   },
+   {
+    "numero": "71",
+    "intitule": "",
+    "section": "CHAPITRE IV LES COMITÉS DE SANTÉ ET DE SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 29
+   },
+   {
+    "numero": "72",
+    "intitule": "",
+    "section": "CHAPITRE IV LES COMITÉS DE SANTÉ ET DE SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 29
+   },
+   {
+    "numero": "73",
+    "intitule": "",
+    "section": "CHAPITRE IV LES COMITÉS DE SANTÉ ET DE SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 29
+   },
+   {
+    "numero": "74",
+    "intitule": "",
+    "section": "CHAPITRE IV LES COMITÉS DE SANTÉ ET DE SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 29
+   },
+   {
+    "numero": "74.1",
+    "intitule": "",
+    "section": "CHAPITRE IV LES COMITÉS DE SANTÉ ET DE SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 30
+   },
+   {
+    "numero": "75",
+    "intitule": "",
+    "section": "CHAPITRE IV LES COMITÉS DE SANTÉ ET DE SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 30
+   },
+   {
+    "numero": "76",
+    "intitule": "",
+    "section": "CHAPITRE IV LES COMITÉS DE SANTÉ ET DE SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 30
+   },
+   {
+    "numero": "77",
+    "intitule": "",
+    "section": "CHAPITRE IV LES COMITÉS DE SANTÉ ET DE SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 30
+   },
+   {
+    "numero": "78",
+    "intitule": "",
+    "section": "CHAPITRE IV LES COMITÉS DE SANTÉ ET DE SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 30
+   },
+   {
+    "numero": "78.1",
+    "intitule": "",
+    "section": "CHAPITRE IV LES COMITÉS DE SANTÉ ET DE SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 31
+   },
+   {
+    "numero": "79",
+    "intitule": "",
+    "section": "CHAPITRE IV LES COMITÉS DE SANTÉ ET DE SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 31
+   },
+   {
+    "numero": "80",
+    "intitule": "",
+    "section": "CHAPITRE IV LES COMITÉS DE SANTÉ ET DE SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 31
+   },
+   {
+    "numero": "81",
+    "intitule": "",
+    "section": "CHAPITRE IV LES COMITÉS DE SANTÉ ET DE SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 31
+   },
+   {
+    "numero": "82",
+    "intitule": "",
+    "section": "CHAPITRE IV LES COMITÉS DE SANTÉ ET DE SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 32
+   },
+   {
+    "numero": "83",
+    "intitule": "",
+    "section": "CHAPITRE IV LES COMITÉS DE SANTÉ ET DE SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 32
+   },
+   {
+    "numero": "84",
+    "intitule": "",
+    "section": "CHAPITRE IV LES COMITÉS DE SANTÉ ET DE SÉCURITÉ",
+    "sousSection": "",
+    "abroge": true,
+    "page": 32
+   },
+   {
+    "numero": "85",
+    "intitule": "",
+    "section": "CHAPITRE IV LES COMITÉS DE SANTÉ ET DE SÉCURITÉ",
+    "sousSection": "",
+    "abroge": true,
+    "page": 32
+   },
+   {
+    "numero": "86",
+    "intitule": "",
+    "section": "CHAPITRE IV LES COMITÉS DE SANTÉ ET DE SÉCURITÉ",
+    "sousSection": "",
+    "abroge": true,
+    "page": 32
+   },
+   {
+    "numero": "87",
+    "intitule": "",
+    "section": "SECTION I LE REPRÉSENTANT EN SANTÉ ET EN SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 32
+   },
+   {
+    "numero": "87.1",
+    "intitule": "",
+    "section": "SECTION I LE REPRÉSENTANT EN SANTÉ ET EN SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 33
+   },
+   {
+    "numero": "88",
+    "intitule": "",
+    "section": "SECTION I LE REPRÉSENTANT EN SANTÉ ET EN SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 33
+   },
+   {
+    "numero": "88.1",
+    "intitule": "",
+    "section": "SECTION I LE REPRÉSENTANT EN SANTÉ ET EN SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 33
+   },
+   {
+    "numero": "89",
+    "intitule": "",
+    "section": "SECTION I LE REPRÉSENTANT EN SANTÉ ET EN SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 33
+   },
+   {
+    "numero": "90",
+    "intitule": "",
+    "section": "SECTION I LE REPRÉSENTANT EN SANTÉ ET EN SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 33
+   },
+   {
+    "numero": "91",
+    "intitule": "",
+    "section": "SECTION I LE REPRÉSENTANT EN SANTÉ ET EN SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 34
+   },
+   {
+    "numero": "92",
+    "intitule": "",
+    "section": "SECTION I LE REPRÉSENTANT EN SANTÉ ET EN SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 34
+   },
+   {
+    "numero": "93",
+    "intitule": "",
+    "section": "SECTION I LE REPRÉSENTANT EN SANTÉ ET EN SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 35
+   },
+   {
+    "numero": "94",
+    "intitule": "",
+    "section": "SECTION I LE REPRÉSENTANT EN SANTÉ ET EN SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 35
+   },
+   {
+    "numero": "95",
+    "intitule": "",
+    "section": "SECTION I LE REPRÉSENTANT EN SANTÉ ET EN SÉCURITÉ",
+    "sousSection": "",
+    "abroge": true,
+    "page": 35
+   },
+   {
+    "numero": "96",
+    "intitule": "",
+    "section": "SECTION I LE REPRÉSENTANT EN SANTÉ ET EN SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 35
+   },
+   {
+    "numero": "97",
+    "intitule": "",
+    "section": "SECTION I LE REPRÉSENTANT EN SANTÉ ET EN SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 35
+   },
+   {
+    "numero": "97.1",
+    "intitule": "",
+    "section": "SECTION II L’AGENT DE LIAISON EN SANTÉ ET EN SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 35
+   },
+   {
+    "numero": "97.2",
+    "intitule": "",
+    "section": "SECTION II L’AGENT DE LIAISON EN SANTÉ ET EN SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 35
+   },
+   {
+    "numero": "97.3",
+    "intitule": "",
+    "section": "SECTION II L’AGENT DE LIAISON EN SANTÉ ET EN SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 35
+   },
+   {
+    "numero": "97.4",
+    "intitule": "",
+    "section": "SECTION II L’AGENT DE LIAISON EN SANTÉ ET EN SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 36
+   },
+   {
+    "numero": "97.5",
+    "intitule": "",
+    "section": "SECTION II L’AGENT DE LIAISON EN SANTÉ ET EN SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 36
+   },
+   {
+    "numero": "98",
+    "intitule": "",
+    "section": "CHAPITRE VI LES ASSOCIATIONS SECTORIELLES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 36
+   },
+   {
+    "numero": "98.1",
+    "intitule": "",
+    "section": "CHAPITRE VI LES ASSOCIATIONS SECTORIELLES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 36
+   },
+   {
+    "numero": "98.2",
+    "intitule": "",
+    "section": "CHAPITRE VI LES ASSOCIATIONS SECTORIELLES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 37
+   },
+   {
+    "numero": "99",
+    "intitule": "",
+    "section": "CHAPITRE VI LES ASSOCIATIONS SECTORIELLES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 37
+   },
+   {
+    "numero": "99.1",
+    "intitule": "",
+    "section": "CHAPITRE VI LES ASSOCIATIONS SECTORIELLES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 37
+   },
+   {
+    "numero": "100",
+    "intitule": "",
+    "section": "CHAPITRE VI LES ASSOCIATIONS SECTORIELLES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 37
+   },
+   {
+    "numero": "100.1",
+    "intitule": "",
+    "section": "CHAPITRE VI LES ASSOCIATIONS SECTORIELLES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 37
+   },
+   {
+    "numero": "101",
+    "intitule": "",
+    "section": "CHAPITRE VI LES ASSOCIATIONS SECTORIELLES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 37
+   },
+   {
+    "numero": "102",
+    "intitule": "",
+    "section": "CHAPITRE VI LES ASSOCIATIONS SECTORIELLES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 38
+   },
+   {
+    "numero": "103",
+    "intitule": "",
+    "section": "CHAPITRE VI LES ASSOCIATIONS SECTORIELLES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 38
+   },
+   {
+    "numero": "104",
+    "intitule": "",
+    "section": "CHAPITRE VII LES ASSOCIATIONS SYNDICALES ET LES ASSOCIATIONS D’EMPLOYEURS",
+    "sousSection": "",
+    "abroge": false,
+    "page": 38
+   },
+   {
+    "numero": "105",
+    "intitule": "",
+    "section": "CHAPITRE VII LES ASSOCIATIONS SYNDICALES ET LES ASSOCIATIONS D’EMPLOYEURS",
+    "sousSection": "",
+    "abroge": false,
+    "page": 38
+   },
+   {
+    "numero": "106",
+    "intitule": "",
+    "section": "CHAPITRE VII LES ASSOCIATIONS SYNDICALES ET LES ASSOCIATIONS D’EMPLOYEURS",
+    "sousSection": "",
+    "abroge": false,
+    "page": 39
+   },
+   {
+    "numero": "107",
+    "intitule": "",
+    "section": "SECTION I LES PROGRAMMES DE SANTÉ, LE CAHIER DES CHARGES ET L’ENTENTE-CADRE",
+    "sousSection": "",
+    "abroge": false,
+    "page": 39
+   },
+   {
+    "numero": "107.1",
+    "intitule": "",
+    "section": "SECTION I LES PROGRAMMES DE SANTÉ, LE CAHIER DES CHARGES ET L’ENTENTE-CADRE",
+    "sousSection": "",
+    "abroge": false,
+    "page": 39
+   },
+   {
+    "numero": "107.2",
+    "intitule": "",
+    "section": "SECTION I LES PROGRAMMES DE SANTÉ, LE CAHIER DES CHARGES ET L’ENTENTE-CADRE",
+    "sousSection": "",
+    "abroge": false,
+    "page": 39
+   },
+   {
+    "numero": "108",
+    "intitule": "",
+    "section": "SECTION I LES PROGRAMMES DE SANTÉ, LE CAHIER DES CHARGES ET L’ENTENTE-CADRE",
+    "sousSection": "",
+    "abroge": false,
+    "page": 39
+   },
+   {
+    "numero": "109",
+    "intitule": "",
+    "section": "SECTION I LES PROGRAMMES DE SANTÉ, LE CAHIER DES CHARGES ET L’ENTENTE-CADRE",
+    "sousSection": "",
+    "abroge": false,
+    "page": 39
+   },
+   {
+    "numero": "109.1",
+    "intitule": "",
+    "section": "SECTION I LES PROGRAMMES DE SANTÉ, LE CAHIER DES CHARGES ET L’ENTENTE-CADRE",
+    "sousSection": "",
+    "abroge": false,
+    "page": 40
+   },
+   {
+    "numero": "109.2",
+    "intitule": "",
+    "section": "SECTION I LES PROGRAMMES DE SANTÉ, LE CAHIER DES CHARGES ET L’ENTENTE-CADRE",
+    "sousSection": "",
+    "abroge": false,
+    "page": 40
+   },
+   {
+    "numero": "110",
+    "intitule": "",
+    "section": "SECTION I LES PROGRAMMES DE SANTÉ, LE CAHIER DES CHARGES ET L’ENTENTE-CADRE",
+    "sousSection": "",
+    "abroge": false,
+    "page": 40
+   },
+   {
+    "numero": "111",
+    "intitule": "",
+    "section": "SECTION I LES PROGRAMMES DE SANTÉ, LE CAHIER DES CHARGES ET L’ENTENTE-CADRE",
+    "sousSection": "",
+    "abroge": false,
+    "page": 41
+   },
+   {
+    "numero": "112",
+    "intitule": "",
+    "section": "SECTION II Abrogée, 2021, c. 27, a. 175.",
+    "sousSection": "",
+    "abroge": true,
+    "page": 41
+   },
+   {
+    "numero": "113",
+    "intitule": "",
+    "section": "SECTION II Abrogée, 2021, c. 27, a. 175.",
+    "sousSection": "",
+    "abroge": true,
+    "page": 41
+   },
+   {
+    "numero": "114",
+    "intitule": "",
+    "section": "SECTION II Abrogée, 2021, c. 27, a. 175.",
+    "sousSection": "",
+    "abroge": true,
+    "page": 41
+   },
+   {
+    "numero": "115",
+    "intitule": "",
+    "section": "SECTION II Abrogée, 2021, c. 27, a. 175.",
+    "sousSection": "",
+    "abroge": true,
+    "page": 41
+   },
+   {
+    "numero": "116",
+    "intitule": "",
+    "section": "SECTION II Abrogée, 2021, c. 27, a. 175.",
+    "sousSection": "",
+    "abroge": true,
+    "page": 41
+   },
+   {
+    "numero": "117",
+    "intitule": "",
+    "section": "SECTION III RÉSEAU DE SANTÉ PUBLIQUE EN SANTÉ AU TRAVAIL",
+    "sousSection": "",
+    "abroge": false,
+    "page": 41
+   },
+   {
+    "numero": "117.1",
+    "intitule": "",
+    "section": "SECTION III RÉSEAU DE SANTÉ PUBLIQUE EN SANTÉ AU TRAVAIL",
+    "sousSection": "",
+    "abroge": false,
+    "page": 41
+   },
+   {
+    "numero": "118",
+    "intitule": "",
+    "section": "SECTION III RÉSEAU DE SANTÉ PUBLIQUE EN SANTÉ AU TRAVAIL",
+    "sousSection": "",
+    "abroge": true,
+    "page": 42
+   },
+   {
+    "numero": "119",
+    "intitule": "",
+    "section": "SECTION III RÉSEAU DE SANTÉ PUBLIQUE EN SANTÉ AU TRAVAIL",
+    "sousSection": "",
+    "abroge": true,
+    "page": 42
+   },
+   {
+    "numero": "120",
+    "intitule": "",
+    "section": "SECTION III RÉSEAU DE SANTÉ PUBLIQUE EN SANTÉ AU TRAVAIL",
+    "sousSection": "",
+    "abroge": false,
+    "page": 42
+   },
+   {
+    "numero": "121",
+    "intitule": "",
+    "section": "SECTION III RÉSEAU DE SANTÉ PUBLIQUE EN SANTÉ AU TRAVAIL",
+    "sousSection": "",
+    "abroge": true,
+    "page": 42
+   },
+   {
+    "numero": "122",
+    "intitule": "",
+    "section": "SECTION III RÉSEAU DE SANTÉ PUBLIQUE EN SANTÉ AU TRAVAIL",
+    "sousSection": "",
+    "abroge": true,
+    "page": 42
+   },
+   {
+    "numero": "123",
+    "intitule": "",
+    "section": "SECTION III RÉSEAU DE SANTÉ PUBLIQUE EN SANTÉ AU TRAVAIL",
+    "sousSection": "",
+    "abroge": false,
+    "page": 42
+   },
+   {
+    "numero": "124",
+    "intitule": "",
+    "section": "SECTION III RÉSEAU DE SANTÉ PUBLIQUE EN SANTÉ AU TRAVAIL",
+    "sousSection": "",
+    "abroge": false,
+    "page": 42
+   },
+   {
+    "numero": "125",
+    "intitule": "",
+    "section": "SECTION III RÉSEAU DE SANTÉ PUBLIQUE EN SANTÉ AU TRAVAIL",
+    "sousSection": "",
+    "abroge": false,
+    "page": 42
+   },
+   {
+    "numero": "126",
+    "intitule": "",
+    "section": "SECTION III RÉSEAU DE SANTÉ PUBLIQUE EN SANTÉ AU TRAVAIL",
+    "sousSection": "",
+    "abroge": false,
+    "page": 43
+   },
+   {
+    "numero": "127",
+    "intitule": "",
+    "section": "SECTION IV LE DIRECTEUR DE SANTÉ PUBLIQUE",
+    "sousSection": "",
+    "abroge": false,
+    "page": 43
+   },
+   {
+    "numero": "127.1",
+    "intitule": "",
+    "section": "SECTION IV LE DIRECTEUR DE SANTÉ PUBLIQUE",
+    "sousSection": "",
+    "abroge": false,
+    "page": 44
+   },
+   {
+    "numero": "128",
+    "intitule": "",
+    "section": "SECTION IV LE DIRECTEUR DE SANTÉ PUBLIQUE",
+    "sousSection": "",
+    "abroge": false,
+    "page": 44
+   },
+   {
+    "numero": "129",
+    "intitule": "",
+    "section": "SECTION IV LE DIRECTEUR DE SANTÉ PUBLIQUE",
+    "sousSection": "",
+    "abroge": false,
+    "page": 44
+   },
+   {
+    "numero": "130",
+    "intitule": "",
+    "section": "SECTION V Abrogée, 2021, c. 27, a. 185.",
+    "sousSection": "",
+    "abroge": true,
+    "page": 44
+   },
+   {
+    "numero": "131",
+    "intitule": "",
+    "section": "SECTION V Abrogée, 2021, c. 27, a. 185.",
+    "sousSection": "",
+    "abroge": true,
+    "page": 44
+   },
+   {
+    "numero": "132",
+    "intitule": "",
+    "section": "SECTION V Abrogée, 2021, c. 27, a. 185.",
+    "sousSection": "",
+    "abroge": true,
+    "page": 44
+   },
+   {
+    "numero": "133",
+    "intitule": "",
+    "section": "SECTION V Abrogée, 2021, c. 27, a. 185.",
+    "sousSection": "",
+    "abroge": true,
+    "page": 44
+   },
+   {
+    "numero": "134",
+    "intitule": "",
+    "section": "SECTION V Abrogée, 2021, c. 27, a. 185.",
+    "sousSection": "",
+    "abroge": true,
+    "page": 44
+   },
+   {
+    "numero": "135",
+    "intitule": "",
+    "section": "SECTION V Abrogée, 2021, c. 27, a. 185.",
+    "sousSection": "",
+    "abroge": true,
+    "page": 45
+   },
+   {
+    "numero": "136",
+    "intitule": "",
+    "section": "SECTION V Abrogée, 2021, c. 27, a. 185.",
+    "sousSection": "",
+    "abroge": true,
+    "page": 45
+   },
+   {
+    "numero": "136.1",
+    "intitule": "",
+    "section": "CHAPITRE VIII.1 LE FONDS DE LA SANTÉ ET DE LA SÉCURITÉ DU TRAVAIL",
+    "sousSection": "",
+    "abroge": false,
+    "page": 45
+   },
+   {
+    "numero": "136.2",
+    "intitule": "",
+    "section": "CHAPITRE VIII.1 LE FONDS DE LA SANTÉ ET DE LA SÉCURITÉ DU TRAVAIL",
+    "sousSection": "",
+    "abroge": false,
+    "page": 45
+   },
+   {
+    "numero": "136.3",
+    "intitule": "",
+    "section": "CHAPITRE VIII.1 LE FONDS DE LA SANTÉ ET DE LA SÉCURITÉ DU TRAVAIL",
+    "sousSection": "",
+    "abroge": false,
+    "page": 45
+   },
+   {
+    "numero": "136.4",
+    "intitule": "",
+    "section": "CHAPITRE VIII.1 LE FONDS DE LA SANTÉ ET DE LA SÉCURITÉ DU TRAVAIL",
+    "sousSection": "",
+    "abroge": false,
+    "page": 45
+   },
+   {
+    "numero": "136.5",
+    "intitule": "",
+    "section": "CHAPITRE VIII.1 LE FONDS DE LA SANTÉ ET DE LA SÉCURITÉ DU TRAVAIL",
+    "sousSection": "",
+    "abroge": false,
+    "page": 45
+   },
+   {
+    "numero": "136.6",
+    "intitule": "",
+    "section": "CHAPITRE VIII.1 LE FONDS DE LA SANTÉ ET DE LA SÉCURITÉ DU TRAVAIL",
+    "sousSection": "",
+    "abroge": false,
+    "page": 45
+   },
+   {
+    "numero": "136.7",
+    "intitule": "",
+    "section": "CHAPITRE VIII.1 LE FONDS DE LA SANTÉ ET DE LA SÉCURITÉ DU TRAVAIL",
+    "sousSection": "",
+    "abroge": false,
+    "page": 45
+   },
+   {
+    "numero": "136.8",
+    "intitule": "",
+    "section": "CHAPITRE VIII.1 LE FONDS DE LA SANTÉ ET DE LA SÉCURITÉ DU TRAVAIL",
+    "sousSection": "",
+    "abroge": false,
+    "page": 46
+   },
+   {
+    "numero": "136.9",
+    "intitule": "",
+    "section": "CHAPITRE VIII.1 LE FONDS DE LA SANTÉ ET DE LA SÉCURITÉ DU TRAVAIL",
+    "sousSection": "",
+    "abroge": false,
+    "page": 46
+   },
+   {
+    "numero": "136.10",
+    "intitule": "",
+    "section": "CHAPITRE VIII.1 LE FONDS DE LA SANTÉ ET DE LA SÉCURITÉ DU TRAVAIL",
+    "sousSection": "",
+    "abroge": false,
+    "page": 46
+   },
+   {
+    "numero": "136.11",
+    "intitule": "",
+    "section": "CHAPITRE VIII.1 LE FONDS DE LA SANTÉ ET DE LA SÉCURITÉ DU TRAVAIL",
+    "sousSection": "",
+    "abroge": false,
+    "page": 46
+   },
+   {
+    "numero": "136.12",
+    "intitule": "",
+    "section": "CHAPITRE VIII.1 LE FONDS DE LA SANTÉ ET DE LA SÉCURITÉ DU TRAVAIL",
+    "sousSection": "",
+    "abroge": false,
+    "page": 46
+   },
+   {
+    "numero": "136.13",
+    "intitule": "",
+    "section": "CHAPITRE VIII.1 LE FONDS DE LA SANTÉ ET DE LA SÉCURITÉ DU TRAVAIL",
+    "sousSection": "",
+    "abroge": false,
+    "page": 46
+   },
+   {
+    "numero": "137",
+    "intitule": "",
+    "section": "SECTION I CONSTITUTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 46
+   },
+   {
+    "numero": "138",
+    "intitule": "",
+    "section": "SECTION I CONSTITUTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 46
+   },
+   {
+    "numero": "139",
+    "intitule": "",
+    "section": "SECTION I CONSTITUTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 47
+   },
+   {
+    "numero": "140",
+    "intitule": "",
+    "section": "SECTION I CONSTITUTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 47
+   },
+   {
+    "numero": "141",
+    "intitule": "",
+    "section": "SECTION I CONSTITUTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 47
+   },
+   {
+    "numero": "141.1",
+    "intitule": "",
+    "section": "SECTION I CONSTITUTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 47
+   },
+   {
+    "numero": "142",
+    "intitule": "",
+    "section": "SECTION I CONSTITUTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 47
+   },
+   {
+    "numero": "142.1",
+    "intitule": "",
+    "section": "SECTION I CONSTITUTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 47
+   },
+   {
+    "numero": "143",
+    "intitule": "",
+    "section": "SECTION I CONSTITUTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 47
+   },
+   {
+    "numero": "144",
+    "intitule": "",
+    "section": "SECTION I CONSTITUTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 48
+   },
+   {
+    "numero": "145",
+    "intitule": "",
+    "section": "SECTION I CONSTITUTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 48
+   },
+   {
+    "numero": "146",
+    "intitule": "",
+    "section": "SECTION I CONSTITUTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 48
+   },
+   {
+    "numero": "147",
+    "intitule": "",
+    "section": "SECTION I CONSTITUTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 48
+   },
+   {
+    "numero": "148",
+    "intitule": "",
+    "section": "SECTION I CONSTITUTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 48
+   },
+   {
+    "numero": "149",
+    "intitule": "",
+    "section": "SECTION I CONSTITUTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 48
+   },
+   {
+    "numero": "150",
+    "intitule": "",
+    "section": "SECTION I CONSTITUTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 48
+   },
+   {
+    "numero": "151",
+    "intitule": "",
+    "section": "SECTION I CONSTITUTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 48
+   },
+   {
+    "numero": "152",
+    "intitule": "",
+    "section": "SECTION I CONSTITUTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 48
+   },
+   {
+    "numero": "153",
+    "intitule": "",
+    "section": "SECTION I CONSTITUTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 49
+   },
+   {
+    "numero": "153.1",
+    "intitule": "",
+    "section": "SECTION I CONSTITUTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 49
+   },
+   {
+    "numero": "154",
+    "intitule": "",
+    "section": "SECTION I CONSTITUTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 49
+   },
+   {
+    "numero": "154.1",
+    "intitule": "",
+    "section": "SECTION I CONSTITUTION",
+    "sousSection": "",
+    "abroge": true,
+    "page": 49
+   },
+   {
+    "numero": "154.2",
+    "intitule": "",
+    "section": "SECTION I CONSTITUTION",
+    "sousSection": "",
+    "abroge": true,
+    "page": 49
+   },
+   {
+    "numero": "155",
+    "intitule": "",
+    "section": "SECTION I CONSTITUTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 49
+   },
+   {
+    "numero": "155.1",
+    "intitule": "",
+    "section": "SECTION I CONSTITUTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 49
+   },
+   {
+    "numero": "156",
+    "intitule": "",
+    "section": "SECTION I CONSTITUTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 49
+   },
+   {
+    "numero": "156.1",
+    "intitule": "",
+    "section": "SECTION I CONSTITUTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 50
+   },
+   {
+    "numero": "157",
+    "intitule": "",
+    "section": "SECTION I CONSTITUTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 50
+   },
+   {
+    "numero": "158",
+    "intitule": "",
+    "section": "SECTION I CONSTITUTION",
+    "sousSection": "",
+    "abroge": true,
+    "page": 50
+   },
+   {
+    "numero": "158.1",
+    "intitule": "",
+    "section": "SECTION I CONSTITUTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 50
+   },
+   {
+    "numero": "159",
+    "intitule": "",
+    "section": "SECTION I CONSTITUTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 50
+   },
+   {
+    "numero": "160",
+    "intitule": "",
+    "section": "SECTION I CONSTITUTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 50
+   },
+   {
+    "numero": "161",
+    "intitule": "",
+    "section": "SECTION I CONSTITUTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 50
+   },
+   {
+    "numero": "161.0.1",
+    "intitule": "",
+    "section": "SECTION I.0.1 DÉCISIONS INDIVIDUELLES EN MATIÈRE D’ÉQUITÉ SALARIALE",
+    "sousSection": "",
+    "abroge": false,
+    "page": 51
+   },
+   {
+    "numero": "161.0.2",
+    "intitule": "",
+    "section": "SECTION I.0.1 DÉCISIONS INDIVIDUELLES EN MATIÈRE D’ÉQUITÉ SALARIALE",
+    "sousSection": "",
+    "abroge": false,
+    "page": 51
+   },
+   {
+    "numero": "161.0.3",
+    "intitule": "",
+    "section": "SECTION I.0.1 DÉCISIONS INDIVIDUELLES EN MATIÈRE D’ÉQUITÉ SALARIALE",
+    "sousSection": "",
+    "abroge": false,
+    "page": 51
+   },
+   {
+    "numero": "161.0.4",
+    "intitule": "",
+    "section": "SECTION I.0.1 DÉCISIONS INDIVIDUELLES EN MATIÈRE D’ÉQUITÉ SALARIALE",
+    "sousSection": "",
+    "abroge": false,
+    "page": 51
+   },
+   {
+    "numero": "161.0.5",
+    "intitule": "",
+    "section": "SECTION I.0.1 DÉCISIONS INDIVIDUELLES EN MATIÈRE D’ÉQUITÉ SALARIALE",
+    "sousSection": "",
+    "abroge": false,
+    "page": 51
+   },
+   {
+    "numero": "161.0.6",
+    "intitule": "",
+    "section": "SECTION I.0.1 DÉCISIONS INDIVIDUELLES EN MATIÈRE D’ÉQUITÉ SALARIALE",
+    "sousSection": "",
+    "abroge": false,
+    "page": 51
+   },
+   {
+    "numero": "161.0.7",
+    "intitule": "",
+    "section": "SECTION I.0.1 DÉCISIONS INDIVIDUELLES EN MATIÈRE D’ÉQUITÉ SALARIALE",
+    "sousSection": "",
+    "abroge": false,
+    "page": 51
+   },
+   {
+    "numero": "161.1",
+    "intitule": "",
+    "section": "SECTION I.1 DÉCLARATION DE SERVICES ET PLAN STRATÉGIQUE",
+    "sousSection": "",
+    "abroge": false,
+    "page": 51
+   },
+   {
+    "numero": "161.2",
+    "intitule": "",
+    "section": "SECTION I.1 DÉCLARATION DE SERVICES ET PLAN STRATÉGIQUE",
+    "sousSection": "",
+    "abroge": false,
+    "page": 52
+   },
+   {
+    "numero": "161.3",
+    "intitule": "",
+    "section": "SECTION I.1 DÉCLARATION DE SERVICES ET PLAN STRATÉGIQUE",
+    "sousSection": "",
+    "abroge": false,
+    "page": 52
+   },
+   {
+    "numero": "161.4",
+    "intitule": "",
+    "section": "SECTION I.1 DÉCLARATION DE SERVICES ET PLAN STRATÉGIQUE",
+    "sousSection": "",
+    "abroge": false,
+    "page": 52
+   },
+   {
+    "numero": "161.5",
+    "intitule": "",
+    "section": "SECTION I.1 DÉCLARATION DE SERVICES ET PLAN STRATÉGIQUE",
+    "sousSection": "",
+    "abroge": false,
+    "page": 52
+   },
+   {
+    "numero": "162",
+    "intitule": "",
+    "section": "SECTION I.2 REDDITION DE COMPTES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 52
+   },
+   {
+    "numero": "162.1",
+    "intitule": "",
+    "section": "SECTION I.2 REDDITION DE COMPTES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 52
+   },
+   {
+    "numero": "163",
+    "intitule": "",
+    "section": "SECTION I.2 REDDITION DE COMPTES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 52
+   },
+   {
+    "numero": "163.1",
+    "intitule": "",
+    "section": "SECTION I.2 REDDITION DE COMPTES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 53
+   },
+   {
+    "numero": "164",
+    "intitule": "",
+    "section": "SECTION I.2 REDDITION DE COMPTES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 53
+   },
+   {
+    "numero": "165",
+    "intitule": "",
+    "section": "SECTION I.2 REDDITION DE COMPTES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 53
+   },
+   {
+    "numero": "166",
+    "intitule": "",
+    "section": "SECTION II LES FONCTIONS DE LA COMMISSION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 54
+   },
+   {
+    "numero": "167",
+    "intitule": "",
+    "section": "SECTION II LES FONCTIONS DE LA COMMISSION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 54
+   },
+   {
+    "numero": "167.1",
+    "intitule": "",
+    "section": "SECTION II LES FONCTIONS DE LA COMMISSION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 55
+   },
+   {
+    "numero": "167.2",
+    "intitule": "",
+    "section": "SECTION II LES FONCTIONS DE LA COMMISSION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 55
+   },
+   {
+    "numero": "168",
+    "intitule": "",
+    "section": "SECTION II LES FONCTIONS DE LA COMMISSION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 55
+   },
+   {
+    "numero": "169",
+    "intitule": "",
+    "section": "SECTION II LES FONCTIONS DE LA COMMISSION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 55
+   },
+   {
+    "numero": "170",
+    "intitule": "",
+    "section": "SECTION II LES FONCTIONS DE LA COMMISSION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 56
+   },
+   {
+    "numero": "170.1",
+    "intitule": "",
+    "section": "SECTION II LES FONCTIONS DE LA COMMISSION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 56
+   },
+   {
+    "numero": "171",
+    "intitule": "",
+    "section": "SECTION II LES FONCTIONS DE LA COMMISSION",
+    "sousSection": "",
+    "abroge": true,
+    "page": 56
+   },
+   {
+    "numero": "172",
+    "intitule": "",
+    "section": "SECTION II LES FONCTIONS DE LA COMMISSION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 56
+   },
+   {
+    "numero": "172.1",
+    "intitule": "",
+    "section": "SECTION II LES FONCTIONS DE LA COMMISSION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 56
+   },
+   {
+    "numero": "173",
+    "intitule": "",
+    "section": "SECTION II LES FONCTIONS DE LA COMMISSION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 56
+   },
+   {
+    "numero": "173.1",
+    "intitule": "",
+    "section": "SECTION II LES FONCTIONS DE LA COMMISSION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 57
+   },
+   {
+    "numero": "174",
+    "intitule": "",
+    "section": "SECTION II LES FONCTIONS DE LA COMMISSION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 57
+   },
+   {
+    "numero": "174.1",
+    "intitule": "",
+    "section": "SECTION II LES FONCTIONS DE LA COMMISSION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 57
+   },
+   {
+    "numero": "174.2",
+    "intitule": "",
+    "section": "SECTION II LES FONCTIONS DE LA COMMISSION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 57
+   },
+   {
+    "numero": "174.3",
+    "intitule": "",
+    "section": "SECTION II LES FONCTIONS DE LA COMMISSION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 57
+   },
+   {
+    "numero": "175",
+    "intitule": "",
+    "section": "SECTION II LES FONCTIONS DE LA COMMISSION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 57
+   },
+   {
+    "numero": "176",
+    "intitule": "",
+    "section": "SECTION II LES FONCTIONS DE LA COMMISSION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 58
+   },
+   {
+    "numero": "176.0.0.1",
+    "intitule": "",
+    "section": "SECTION II.1 DÉCISIONS DE LA COMMISSION EN MATIÈRE DE MESURES ÉQUIVALENTES ET DIFFÉRENTES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 58
+   },
+   {
+    "numero": "176.0.0.2",
+    "intitule": "",
+    "section": "SECTION II.1 DÉCISIONS DE LA COMMISSION EN MATIÈRE DE MESURES ÉQUIVALENTES ET DIFFÉRENTES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 58
+   },
+   {
+    "numero": "176.0.0.3",
+    "intitule": "",
+    "section": "SECTION II.1 DÉCISIONS DE LA COMMISSION EN MATIÈRE DE MESURES ÉQUIVALENTES ET DIFFÉRENTES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 58
+   },
+   {
+    "numero": "176.0.0.4",
+    "intitule": "",
+    "section": "SECTION II.1 DÉCISIONS DE LA COMMISSION EN MATIÈRE DE MESURES ÉQUIVALENTES ET DIFFÉRENTES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 58
+   },
+   {
+    "numero": "176.0.1",
+    "intitule": "",
+    "section": "SECTION III DISPOSITIONS NON APPLICABLES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 58
+   },
+   {
+    "numero": "176.0.2",
+    "intitule": "",
+    "section": "SECTION III DISPOSITIONS NON APPLICABLES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 59
+   },
+   {
+    "numero": "176.0.3",
+    "intitule": "",
+    "section": "SECTION III DISPOSITIONS NON APPLICABLES",
+    "sousSection": "",
+    "abroge": true,
+    "page": 59
+   },
+   {
+    "numero": "176.1",
+    "intitule": "",
+    "section": "CHAPITRE IX.1 Abrogé, 1997, c. 27, a. 42.",
+    "sousSection": "",
+    "abroge": true,
+    "page": 59
+   },
+   {
+    "numero": "176.1.1",
+    "intitule": "",
+    "section": "CHAPITRE IX.1 Abrogé, 1997, c. 27, a. 42.",
+    "sousSection": "",
+    "abroge": true,
+    "page": 59
+   },
+   {
+    "numero": "176.1.2",
+    "intitule": "",
+    "section": "CHAPITRE IX.1 Abrogé, 1997, c. 27, a. 42.",
+    "sousSection": "",
+    "abroge": true,
+    "page": 59
+   },
+   {
+    "numero": "176.1.3",
+    "intitule": "",
+    "section": "CHAPITRE IX.1 Abrogé, 1997, c. 27, a. 42.",
+    "sousSection": "",
+    "abroge": true,
+    "page": 59
+   },
+   {
+    "numero": "176.1.4",
+    "intitule": "",
+    "section": "CHAPITRE IX.1 Abrogé, 1997, c. 27, a. 42.",
+    "sousSection": "",
+    "abroge": true,
+    "page": 59
+   },
+   {
+    "numero": "176.2",
+    "intitule": "",
+    "section": "CHAPITRE IX.1 Abrogé, 1997, c. 27, a. 42.",
+    "sousSection": "",
+    "abroge": true,
+    "page": 59
+   },
+   {
+    "numero": "176.2.1",
+    "intitule": "",
+    "section": "CHAPITRE IX.1 Abrogé, 1997, c. 27, a. 42.",
+    "sousSection": "",
+    "abroge": true,
+    "page": 59
+   },
+   {
+    "numero": "176.3",
+    "intitule": "",
+    "section": "CHAPITRE IX.1 Abrogé, 1997, c. 27, a. 42.",
+    "sousSection": "",
+    "abroge": true,
+    "page": 59
+   },
+   {
+    "numero": "176.4",
+    "intitule": "",
+    "section": "CHAPITRE IX.1 Abrogé, 1997, c. 27, a. 42.",
+    "sousSection": "",
+    "abroge": true,
+    "page": 59
+   },
+   {
+    "numero": "176.5",
+    "intitule": "",
+    "section": "CHAPITRE IX.1 Abrogé, 1997, c. 27, a. 42.",
+    "sousSection": "",
+    "abroge": true,
+    "page": 59
+   },
+   {
+    "numero": "176.5.1",
+    "intitule": "",
+    "section": "CHAPITRE IX.1 Abrogé, 1997, c. 27, a. 42.",
+    "sousSection": "",
+    "abroge": true,
+    "page": 59
+   },
+   {
+    "numero": "176.5.2",
+    "intitule": "",
+    "section": "CHAPITRE IX.1 Abrogé, 1997, c. 27, a. 42.",
+    "sousSection": "",
+    "abroge": true,
+    "page": 60
+   },
+   {
+    "numero": "176.5.3",
+    "intitule": "",
+    "section": "CHAPITRE IX.1 Abrogé, 1997, c. 27, a. 42.",
+    "sousSection": "",
+    "abroge": true,
+    "page": 60
+   },
+   {
+    "numero": "176.6",
+    "intitule": "",
+    "section": "CHAPITRE IX.1 Abrogé, 1997, c. 27, a. 42.",
+    "sousSection": "",
+    "abroge": true,
+    "page": 60
+   },
+   {
+    "numero": "176.7",
+    "intitule": "",
+    "section": "CHAPITRE IX.1 Abrogé, 1997, c. 27, a. 42.",
+    "sousSection": "",
+    "abroge": true,
+    "page": 60
+   },
+   {
+    "numero": "176.7.1",
+    "intitule": "",
+    "section": "CHAPITRE IX.1 Abrogé, 1997, c. 27, a. 42.",
+    "sousSection": "",
+    "abroge": true,
+    "page": 60
+   },
+   {
+    "numero": "176.7.2",
+    "intitule": "",
+    "section": "CHAPITRE IX.1 Abrogé, 1997, c. 27, a. 42.",
+    "sousSection": "",
+    "abroge": true,
+    "page": 60
+   },
+   {
+    "numero": "176.7.3",
+    "intitule": "",
+    "section": "CHAPITRE IX.1 Abrogé, 1997, c. 27, a. 42.",
+    "sousSection": "",
+    "abroge": true,
+    "page": 60
+   },
+   {
+    "numero": "176.7.4",
+    "intitule": "",
+    "section": "CHAPITRE IX.1 Abrogé, 1997, c. 27, a. 42.",
+    "sousSection": "",
+    "abroge": true,
+    "page": 60
+   },
+   {
+    "numero": "176.8",
+    "intitule": "",
+    "section": "CHAPITRE IX.1 Abrogé, 1997, c. 27, a. 42.",
+    "sousSection": "",
+    "abroge": true,
+    "page": 60
+   },
+   {
+    "numero": "176.9",
+    "intitule": "",
+    "section": "CHAPITRE IX.1 Abrogé, 1997, c. 27, a. 42.",
+    "sousSection": "",
+    "abroge": true,
+    "page": 60
+   },
+   {
+    "numero": "176.10",
+    "intitule": "",
+    "section": "CHAPITRE IX.1 Abrogé, 1997, c. 27, a. 42.",
+    "sousSection": "",
+    "abroge": true,
+    "page": 60
+   },
+   {
+    "numero": "176.11",
+    "intitule": "",
+    "section": "CHAPITRE IX.1 Abrogé, 1997, c. 27, a. 42.",
+    "sousSection": "",
+    "abroge": true,
+    "page": 60
+   },
+   {
+    "numero": "176.12",
+    "intitule": "",
+    "section": "CHAPITRE IX.1 Abrogé, 1997, c. 27, a. 42.",
+    "sousSection": "",
+    "abroge": true,
+    "page": 60
+   },
+   {
+    "numero": "176.13",
+    "intitule": "",
+    "section": "CHAPITRE IX.1 Abrogé, 1997, c. 27, a. 42.",
+    "sousSection": "",
+    "abroge": true,
+    "page": 60
+   },
+   {
+    "numero": "176.14",
+    "intitule": "",
+    "section": "CHAPITRE IX.1 Abrogé, 1997, c. 27, a. 42.",
+    "sousSection": "",
+    "abroge": true,
+    "page": 60
+   },
+   {
+    "numero": "176.15",
+    "intitule": "",
+    "section": "CHAPITRE IX.1 Abrogé, 1997, c. 27, a. 42.",
+    "sousSection": "",
+    "abroge": true,
+    "page": 61
+   },
+   {
+    "numero": "176.16",
+    "intitule": "",
+    "section": "CHAPITRE IX.1 Abrogé, 1997, c. 27, a. 42.",
+    "sousSection": "",
+    "abroge": true,
+    "page": 61
+   },
+   {
+    "numero": "176.16.1",
+    "intitule": "",
+    "section": "CHAPITRE IX.1 Abrogé, 1997, c. 27, a. 42.",
+    "sousSection": "",
+    "abroge": true,
+    "page": 61
+   },
+   {
+    "numero": "176.17",
+    "intitule": "",
+    "section": "CHAPITRE IX.1 Abrogé, 1997, c. 27, a. 42.",
+    "sousSection": "",
+    "abroge": true,
+    "page": 61
+   },
+   {
+    "numero": "176.18",
+    "intitule": "",
+    "section": "CHAPITRE IX.1 Abrogé, 1997, c. 27, a. 42.",
+    "sousSection": "",
+    "abroge": true,
+    "page": 61
+   },
+   {
+    "numero": "176.19",
+    "intitule": "",
+    "section": "CHAPITRE IX.1 Abrogé, 1997, c. 27, a. 42.",
+    "sousSection": "",
+    "abroge": true,
+    "page": 61
+   },
+   {
+    "numero": "176.20",
+    "intitule": "",
+    "section": "CHAPITRE IX.1 Abrogé, 1997, c. 27, a. 42.",
+    "sousSection": "",
+    "abroge": true,
+    "page": 61
+   },
+   {
+    "numero": "177",
+    "intitule": "",
+    "section": "CHAPITRE X INSPECTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 61
+   },
+   {
+    "numero": "178",
+    "intitule": "",
+    "section": "CHAPITRE X INSPECTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 61
+   },
+   {
+    "numero": "179",
+    "intitule": "",
+    "section": "CHAPITRE X INSPECTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 61
+   },
+   {
+    "numero": "179.1",
+    "intitule": "",
+    "section": "CHAPITRE X INSPECTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 61
+   },
+   {
+    "numero": "180",
+    "intitule": "",
+    "section": "CHAPITRE X INSPECTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 62
+   },
+   {
+    "numero": "181",
+    "intitule": "",
+    "section": "CHAPITRE X INSPECTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 62
+   },
+   {
+    "numero": "182",
+    "intitule": "",
+    "section": "CHAPITRE X INSPECTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 62
+   },
+   {
+    "numero": "183",
+    "intitule": "",
+    "section": "CHAPITRE X INSPECTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 62
+   },
+   {
+    "numero": "184",
+    "intitule": "",
+    "section": "CHAPITRE X INSPECTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 63
+   },
+   {
+    "numero": "185",
+    "intitule": "",
+    "section": "CHAPITRE X INSPECTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 63
+   },
+   {
+    "numero": "186",
+    "intitule": "",
+    "section": "CHAPITRE X INSPECTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 63
+   },
+   {
+    "numero": "187",
+    "intitule": "",
+    "section": "CHAPITRE X INSPECTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 63
+   },
+   {
+    "numero": "188",
+    "intitule": "",
+    "section": "CHAPITRE X INSPECTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 63
+   },
+   {
+    "numero": "189",
+    "intitule": "",
+    "section": "CHAPITRE X INSPECTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 63
+   },
+   {
+    "numero": "190",
+    "intitule": "",
+    "section": "CHAPITRE X INSPECTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 63
+   },
+   {
+    "numero": "191",
+    "intitule": "",
+    "section": "CHAPITRE X INSPECTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 64
+   },
+   {
+    "numero": "191.1",
+    "intitule": "",
+    "section": "CHAPITRE X INSPECTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 64
+   },
+   {
+    "numero": "191.2",
+    "intitule": "",
+    "section": "CHAPITRE X INSPECTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 64
+   },
+   {
+    "numero": "192",
+    "intitule": "",
+    "section": "CHAPITRE X INSPECTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 64
+   },
+   {
+    "numero": "193",
+    "intitule": "",
+    "section": "CHAPITRE X INSPECTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 64
+   },
+   {
+    "numero": "194",
+    "intitule": "",
+    "section": "SECTION I DÉFINITIONS ET APPLICATION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 64
+   },
+   {
+    "numero": "195",
+    "intitule": "",
+    "section": "SECTION I DÉFINITIONS ET APPLICATION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 65
+   },
+   {
+    "numero": "196",
+    "intitule": "",
+    "section": "SECTION II LE MAÎTRE D’OEUVRE ET L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 65
+   },
+   {
+    "numero": "197",
+    "intitule": "",
+    "section": "SECTION II LE MAÎTRE D’OEUVRE ET L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 65
+   },
+   {
+    "numero": "198",
+    "intitule": "",
+    "section": "SECTION II LE MAÎTRE D’OEUVRE ET L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 65
+   },
+   {
+    "numero": "199",
+    "intitule": "",
+    "section": "SECTION II LE MAÎTRE D’OEUVRE ET L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 65
+   },
+   {
+    "numero": "200",
+    "intitule": "",
+    "section": "SECTION II LE MAÎTRE D’OEUVRE ET L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 65
+   },
+   {
+    "numero": "201",
+    "intitule": "",
+    "section": "SECTION II LE MAÎTRE D’OEUVRE ET L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 65
+   },
+   {
+    "numero": "202",
+    "intitule": "",
+    "section": "SECTION II LE MAÎTRE D’OEUVRE ET L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 66
+   },
+   {
+    "numero": "203",
+    "intitule": "",
+    "section": "SECTION II LE MAÎTRE D’OEUVRE ET L’EMPLOYEUR",
+    "sousSection": "",
+    "abroge": false,
+    "page": 66
+   },
+   {
+    "numero": "204",
+    "intitule": "",
+    "section": "SECTION III LE COMITÉ DE CHANTIER",
+    "sousSection": "",
+    "abroge": false,
+    "page": 66
+   },
+   {
+    "numero": "205",
+    "intitule": "",
+    "section": "SECTION III LE COMITÉ DE CHANTIER",
+    "sousSection": "",
+    "abroge": false,
+    "page": 66
+   },
+   {
+    "numero": "206",
+    "intitule": "",
+    "section": "SECTION III LE COMITÉ DE CHANTIER",
+    "sousSection": "",
+    "abroge": false,
+    "page": 66
+   },
+   {
+    "numero": "207",
+    "intitule": "",
+    "section": "SECTION III LE COMITÉ DE CHANTIER",
+    "sousSection": "",
+    "abroge": false,
+    "page": 67
+   },
+   {
+    "numero": "207.1",
+    "intitule": "",
+    "section": "SECTION III LE COMITÉ DE CHANTIER",
+    "sousSection": "",
+    "abroge": false,
+    "page": 67
+   },
+   {
+    "numero": "208",
+    "intitule": "",
+    "section": "SECTION III LE COMITÉ DE CHANTIER",
+    "sousSection": "",
+    "abroge": false,
+    "page": 67
+   },
+   {
+    "numero": "209",
+    "intitule": "",
+    "section": "SECTION IV LE REPRÉSENTANT EN SANTÉ ET EN SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 67
+   },
+   {
+    "numero": "210",
+    "intitule": "",
+    "section": "SECTION IV LE REPRÉSENTANT EN SANTÉ ET EN SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 67
+   },
+   {
+    "numero": "211",
+    "intitule": "",
+    "section": "SECTION IV LE REPRÉSENTANT EN SANTÉ ET EN SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 68
+   },
+   {
+    "numero": "212",
+    "intitule": "",
+    "section": "SECTION IV LE REPRÉSENTANT EN SANTÉ ET EN SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 68
+   },
+   {
+    "numero": "212.1",
+    "intitule": "",
+    "section": "SECTION IV LE REPRÉSENTANT EN SANTÉ ET EN SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 68
+   },
+   {
+    "numero": "213",
+    "intitule": "",
+    "section": "SECTION IV LE REPRÉSENTANT EN SANTÉ ET EN SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 68
+   },
+   {
+    "numero": "214",
+    "intitule": "",
+    "section": "SECTION IV LE REPRÉSENTANT EN SANTÉ ET EN SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 68
+   },
+   {
+    "numero": "215",
+    "intitule": "",
+    "section": "SECTION IV LE REPRÉSENTANT EN SANTÉ ET EN SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 69
+   },
+   {
+    "numero": "215.1",
+    "intitule": "",
+    "section": "SECTION IV.1 LE COORDONNATEUR EN SANTÉ ET EN SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 69
+   },
+   {
+    "numero": "215.2",
+    "intitule": "",
+    "section": "SECTION IV.1 LE COORDONNATEUR EN SANTÉ ET EN SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 69
+   },
+   {
+    "numero": "215.3",
+    "intitule": "",
+    "section": "SECTION IV.1 LE COORDONNATEUR EN SANTÉ ET EN SÉCURITÉ",
+    "sousSection": "",
+    "abroge": false,
+    "page": 69
+   },
+   {
+    "numero": "216",
+    "intitule": "",
+    "section": "SECTION V L’INSPECTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 70
+   },
+   {
+    "numero": "217",
+    "intitule": "",
+    "section": "SECTION V L’INSPECTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 70
+   },
+   {
+    "numero": "218",
+    "intitule": "",
+    "section": "SECTION V L’INSPECTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 70
+   },
+   {
+    "numero": "219",
+    "intitule": "",
+    "section": "SECTION V L’INSPECTION",
+    "sousSection": "",
+    "abroge": false,
+    "page": 70
+   },
+   {
+    "numero": "220",
+    "intitule": "",
+    "section": "SECTION VI LES CHANTIERS DE CONSTRUCTION DE GRANDE IMPORTANCE",
+    "sousSection": "",
+    "abroge": false,
+    "page": 70
+   },
+   {
+    "numero": "221",
+    "intitule": "",
+    "section": "SECTION VI LES CHANTIERS DE CONSTRUCTION DE GRANDE IMPORTANCE",
+    "sousSection": "",
+    "abroge": false,
+    "page": 70
+   },
+   {
+    "numero": "222",
+    "intitule": "",
+    "section": "SECTION VI LES CHANTIERS DE CONSTRUCTION DE GRANDE IMPORTANCE",
+    "sousSection": "",
+    "abroge": false,
+    "page": 71
+   },
+   {
+    "numero": "223",
+    "intitule": "",
+    "section": "CHAPITRE XII RÈGLEMENTS",
+    "sousSection": "",
+    "abroge": false,
+    "page": 71
+   },
+   {
+    "numero": "223.1",
+    "intitule": "",
+    "section": "CHAPITRE XII RÈGLEMENTS",
+    "sousSection": "",
+    "abroge": false,
+    "page": 75
+   },
+   {
+    "numero": "223.2",
+    "intitule": "",
+    "section": "CHAPITRE XII RÈGLEMENTS",
+    "sousSection": "",
+    "abroge": true,
+    "page": 75
+   },
+   {
+    "numero": "224",
+    "intitule": "",
+    "section": "CHAPITRE XII RÈGLEMENTS",
+    "sousSection": "",
+    "abroge": false,
+    "page": 75
+   },
+   {
+    "numero": "225",
+    "intitule": "",
+    "section": "CHAPITRE XII RÈGLEMENTS",
+    "sousSection": "",
+    "abroge": false,
+    "page": 75
+   },
+   {
+    "numero": "226",
+    "intitule": "",
+    "section": "CHAPITRE XII RÈGLEMENTS",
+    "sousSection": "",
+    "abroge": true,
+    "page": 76
+   },
+   {
+    "numero": "227",
+    "intitule": "",
+    "section": "CHAPITRE XIII RECOURS",
+    "sousSection": "",
+    "abroge": false,
+    "page": 76
+   },
+   {
+    "numero": "228",
+    "intitule": "",
+    "section": "CHAPITRE XIII RECOURS",
+    "sousSection": "",
+    "abroge": false,
+    "page": 76
+   },
+   {
+    "numero": "228.1",
+    "intitule": "",
+    "section": "CHAPITRE XIII RECOURS",
+    "sousSection": "",
+    "abroge": false,
+    "page": 76
+   },
+   {
+    "numero": "229",
+    "intitule": "",
+    "section": "CHAPITRE XIII RECOURS",
+    "sousSection": "",
+    "abroge": false,
+    "page": 76
+   },
+   {
+    "numero": "230",
+    "intitule": "",
+    "section": "CHAPITRE XIII RECOURS",
+    "sousSection": "",
+    "abroge": false,
+    "page": 76
+   },
+   {
+    "numero": "231",
+    "intitule": "",
+    "section": "CHAPITRE XIII RECOURS",
+    "sousSection": "",
+    "abroge": false,
+    "page": 76
+   },
+   {
+    "numero": "232",
+    "intitule": "",
+    "section": "CHAPITRE XIII RECOURS",
+    "sousSection": "",
+    "abroge": false,
+    "page": 76
+   },
+   {
+    "numero": "233",
+    "intitule": "",
+    "section": "CHAPITRE XIII RECOURS",
+    "sousSection": "",
+    "abroge": false,
+    "page": 76
+   },
+   {
+    "numero": "234",
+    "intitule": "",
+    "section": "CHAPITRE XIV DISPOSITIONS PÉNALES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 77
+   },
+   {
+    "numero": "235",
+    "intitule": "",
+    "section": "CHAPITRE XIV DISPOSITIONS PÉNALES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 77
+   },
+   {
+    "numero": "236",
+    "intitule": "",
+    "section": "CHAPITRE XIV DISPOSITIONS PÉNALES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 77
+   },
+   {
+    "numero": "237",
+    "intitule": "",
+    "section": "CHAPITRE XIV DISPOSITIONS PÉNALES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 77
+   },
+   {
+    "numero": "237.1",
+    "intitule": "",
+    "section": "CHAPITRE XIV DISPOSITIONS PÉNALES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 77
+   },
+   {
+    "numero": "238",
+    "intitule": "",
+    "section": "CHAPITRE XIV DISPOSITIONS PÉNALES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 77
+   },
+   {
+    "numero": "239",
+    "intitule": "",
+    "section": "CHAPITRE XIV DISPOSITIONS PÉNALES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 78
+   },
+   {
+    "numero": "240",
+    "intitule": "",
+    "section": "CHAPITRE XIV DISPOSITIONS PÉNALES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 78
+   },
+   {
+    "numero": "241",
+    "intitule": "",
+    "section": "CHAPITRE XIV DISPOSITIONS PÉNALES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 78
+   },
+   {
+    "numero": "242",
+    "intitule": "",
+    "section": "CHAPITRE XIV DISPOSITIONS PÉNALES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 78
+   },
+   {
+    "numero": "243",
+    "intitule": "",
+    "section": "CHAPITRE XIV DISPOSITIONS PÉNALES",
+    "sousSection": "",
+    "abroge": true,
+    "page": 78
+   },
+   {
+    "numero": "243.1",
+    "intitule": "",
+    "section": "CHAPITRE XIV DISPOSITIONS PÉNALES",
+    "sousSection": "",
+    "abroge": true,
+    "page": 78
+   },
+   {
+    "numero": "243.2",
+    "intitule": "",
+    "section": "CHAPITRE XIV DISPOSITIONS PÉNALES",
+    "sousSection": "",
+    "abroge": true,
+    "page": 78
+   },
+   {
+    "numero": "244",
+    "intitule": "",
+    "section": "CHAPITRE XIV DISPOSITIONS PÉNALES",
+    "sousSection": "",
+    "abroge": true,
+    "page": 78
+   },
+   {
+    "numero": "245",
+    "intitule": "",
+    "section": "CHAPITRE XIV DISPOSITIONS PÉNALES",
+    "sousSection": "",
+    "abroge": true,
+    "page": 78
+   },
+   {
+    "numero": "246",
+    "intitule": "",
+    "section": "CHAPITRE XIV DISPOSITIONS PÉNALES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 78
+   },
+   {
+    "numero": "247",
+    "intitule": "",
+    "section": "CHAPITRE XV FINANCEMENT",
+    "sousSection": "",
+    "abroge": false,
+    "page": 79
+   },
+   {
+    "numero": "248",
+    "intitule": "",
+    "section": "CHAPITRE XV FINANCEMENT",
+    "sousSection": "",
+    "abroge": false,
+    "page": 79
+   },
+   {
+    "numero": "249",
+    "intitule": "",
+    "section": "CHAPITRE XV FINANCEMENT",
+    "sousSection": "",
+    "abroge": true,
+    "page": 79
+   },
+   {
+    "numero": "250",
+    "intitule": "",
+    "section": "CHAPITRE XV FINANCEMENT",
+    "sousSection": "",
+    "abroge": true,
+    "page": 79
+   },
+   {
+    "numero": "251",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 79
+   },
+   {
+    "numero": "252",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 79
+   },
+   {
+    "numero": "253",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 79
+   },
+   {
+    "numero": "254",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": true,
+    "page": 79
+   },
+   {
+    "numero": "255",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 79
+   },
+   {
+    "numero": "256",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 79
+   },
+   {
+    "numero": "257",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 79
+   },
+   {
+    "numero": "258",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 79
+   },
+   {
+    "numero": "259",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 80
+   },
+   {
+    "numero": "260",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 80
+   },
+   {
+    "numero": "261",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 80
+   },
+   {
+    "numero": "262",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 80
+   },
+   {
+    "numero": "263",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 80
+   },
+   {
+    "numero": "264",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 80
+   },
+   {
+    "numero": "265",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 80
+   },
+   {
+    "numero": "266",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 80
+   },
+   {
+    "numero": "267",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 80
+   },
+   {
+    "numero": "268",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 80
+   },
+   {
+    "numero": "269",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 80
+   },
+   {
+    "numero": "270",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 80
+   },
+   {
+    "numero": "271",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 80
+   },
+   {
+    "numero": "272",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 80
+   },
+   {
+    "numero": "273",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 80
+   },
+   {
+    "numero": "274",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 81
+   },
+   {
+    "numero": "275",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 81
+   },
+   {
+    "numero": "276",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 81
+   },
+   {
+    "numero": "277",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 81
+   },
+   {
+    "numero": "278",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 81
+   },
+   {
+    "numero": "279",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 81
+   },
+   {
+    "numero": "280",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 81
+   },
+   {
+    "numero": "281",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 81
+   },
+   {
+    "numero": "282",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 81
+   },
+   {
+    "numero": "283",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 81
+   },
+   {
+    "numero": "284",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 81
+   },
+   {
+    "numero": "285",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 81
+   },
+   {
+    "numero": "286",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 81
+   },
+   {
+    "numero": "287",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 81
+   },
+   {
+    "numero": "288",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 82
+   },
+   {
+    "numero": "289",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 82
+   },
+   {
+    "numero": "290",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 82
+   },
+   {
+    "numero": "291",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 82
+   },
+   {
+    "numero": "292",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 82
+   },
+   {
+    "numero": "293",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 82
+   },
+   {
+    "numero": "294",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 82
+   },
+   {
+    "numero": "295",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 82
+   },
+   {
+    "numero": "296",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 82
+   },
+   {
+    "numero": "297",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 82
+   },
+   {
+    "numero": "298",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 82
+   },
+   {
+    "numero": "299",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 82
+   },
+   {
+    "numero": "300",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 82
+   },
+   {
+    "numero": "301",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 83
+   },
+   {
+    "numero": "302",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 83
+   },
+   {
+    "numero": "303",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 83
+   },
+   {
+    "numero": "304",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 83
+   },
+   {
+    "numero": "305",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 83
+   },
+   {
+    "numero": "306",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 83
+   },
+   {
+    "numero": "307",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 83
+   },
+   {
+    "numero": "308",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 83
+   },
+   {
+    "numero": "309",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 83
+   },
+   {
+    "numero": "310",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 83
+   },
+   {
+    "numero": "311",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 83
+   },
+   {
+    "numero": "312",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 83
+   },
+   {
+    "numero": "313",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 84
+   },
+   {
+    "numero": "314",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 84
+   },
+   {
+    "numero": "315",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 84
+   },
+   {
+    "numero": "316",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 84
+   },
+   {
+    "numero": "317",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 84
+   },
+   {
+    "numero": "318",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 84
+   },
+   {
+    "numero": "319",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 84
+   },
+   {
+    "numero": "320",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 84
+   },
+   {
+    "numero": "321",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 84
+   },
+   {
+    "numero": "322",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 84
+   },
+   {
+    "numero": "323",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 84
+   },
+   {
+    "numero": "324",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 84
+   },
+   {
+    "numero": "325",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 84
+   },
+   {
+    "numero": "326",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 84
+   },
+   {
+    "numero": "327",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 84
+   },
+   {
+    "numero": "328",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 85
+   },
+   {
+    "numero": "329",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 85
+   },
+   {
+    "numero": "330",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 85
+   },
+   {
+    "numero": "331",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 85
+   },
+   {
+    "numero": "332",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 85
+   },
+   {
+    "numero": "333",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 85
+   },
+   {
+    "numero": "334",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": true,
+    "page": 85
+   },
+   {
+    "numero": "335",
+    "intitule": "",
+    "section": "CHAPITRE XVI DISPOSITIONS TRANSITOIRES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 86
+   },
+   {
+    "numero": "335.1",
+    "intitule": "",
+    "section": "CHAPITRE XVI.1 DISPOSITIONS PARTICULIÈRES APPLICABLES DANS CERTAINS ÉTABLISSEMENTS DES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 86
+   },
+   {
+    "numero": "335.2",
+    "intitule": "",
+    "section": "CHAPITRE XVI.1 DISPOSITIONS PARTICULIÈRES APPLICABLES DANS CERTAINS ÉTABLISSEMENTS DES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 86
+   },
+   {
+    "numero": "335.3",
+    "intitule": "",
+    "section": "CHAPITRE XVI.1 DISPOSITIONS PARTICULIÈRES APPLICABLES DANS CERTAINS ÉTABLISSEMENTS DES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 87
+   },
+   {
+    "numero": "335.4",
+    "intitule": "",
+    "section": "CHAPITRE XVI.1 DISPOSITIONS PARTICULIÈRES APPLICABLES DANS CERTAINS ÉTABLISSEMENTS DES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 87
+   },
+   {
+    "numero": "335.5",
+    "intitule": "",
+    "section": "CHAPITRE XVI.1 DISPOSITIONS PARTICULIÈRES APPLICABLES DANS CERTAINS ÉTABLISSEMENTS DES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 88
+   },
+   {
+    "numero": "336",
+    "intitule": "",
+    "section": "CHAPITRE XVII DISPOSITIONS FINALES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 88
+   },
+   {
+    "numero": "337",
+    "intitule": "",
+    "section": "CHAPITRE XVII DISPOSITIONS FINALES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 88
+   },
+   {
+    "numero": "338",
+    "intitule": "",
+    "section": "CHAPITRE XVII DISPOSITIONS FINALES",
+    "sousSection": "",
+    "abroge": false,
+    "page": 88
+   }
+  ],
+  "annexes": []
+ },
  "RSST": {
   "chapitre": "RLRQ c. S-2.1, r. 13",
   "source": "S-2.1, R. 13.pdf",

@@ -13,11 +13,10 @@ CE QUE CE SCRIPT EMPÊCHE
 
 LA RÈGLE APPLIQUÉE
     Un article ne se cite que s'il figure, EN VIGUEUR, dans l'index extrait du
-    texte officiel — ou, pour un instrument sans index, s'il est corroboré par
-    le renvoi d'un texte consulté. Les listes viennent de
-    `src/lib/articlesCitables.genere.ts`, produit depuis les PDF de LégisQuébec ;
-    les corroborations, de `src/lib/instruments.ts`. Ce script les lit plutôt
-    que de les redéclarer.
+    texte officiel — ou, pour un instrument sans index, si son texte a été
+    travaillé article par article. Les listes viennent de
+    `src/lib/articlesCitables.genere.ts`, produit depuis les PDF de LégisQuébec.
+    Ce script les lit plutôt que de les redéclarer.
 
 CE QU'IL NE CONTRÔLE PAS
     Les commentaires. Ils servent à discuter la règle — l'en-tête de
@@ -81,16 +80,12 @@ def lire_instruments() -> dict[str, dict]:
             continue
         nom = sigle.group(1)
         consulte = re.search(r"texteConsulte:\s*(true|false)", corps)
-        corrobores = re.search(r"articlesCorrobores:\s*\[([^\]]*)\]", corps)
         # Le nom de la constante générée n'est pas accentué : RMPPÉ -> RMPPE.
         cle_index = nom.replace("É", "E")
         instruments[nom] = {
             "consulte": bool(consulte and consulte.group(1) == "true"),
             "vigueur": articles.get(cle_index, {}).get("vigueur", set()),
             "abroges": articles.get(cle_index, {}).get("abroges", set()),
-            "corrobores": set(re.findall(r"'([^']+)'", corrobores.group(1)))
-            if corrobores
-            else set(),
         }
 
     return instruments
@@ -118,10 +113,8 @@ def main() -> int:
             etat = f"{len(i['vigueur'])} articles en vigueur, {len(i['abroges'])} abrogés"
         elif i["consulte"]:
             etat = "sans index, texte travaillé article par article"
-        elif i["corrobores"]:
-            etat = f"sans index — corroborés : {', '.join(sorted(i['corrobores']))}"
         else:
-            etat = "sans index ni corroboration — aucune citation admise"
+            etat = "sans index ni texte travaillé — aucune citation admise"
         print(f"  {sigle:<6} {etat}")
     print()
 
@@ -156,10 +149,10 @@ def main() -> int:
                             f"{fichier}:{ligne} — « {sigle} art. {article} » : "
                             f"absent du texte officiel"
                         )
-                elif not instrument["consulte"] and article not in instrument["corrobores"]:
+                elif not instrument["consulte"]:
                     anomalies.append(
                         f"{fichier}:{ligne} — « {sigle} art. {article} » : instrument "
-                        f"sans index, texte non travaillé et numéro non corroboré"
+                        f"sans index et texte non travaillé"
                     )
 
     print(f"{len(fichiers)} fichier(s) parcouru(s), {citations} citation(s) d'article.")

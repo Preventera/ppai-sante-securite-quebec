@@ -217,7 +217,7 @@ ${contextTable}
 
 ---
 
-## 1. Identification des principales sources de risques (LSST)
+## 1. Identification des principales sources de risques (LSST art. 59)
 
 L'identification s'appuie sur le registre des risques de l'établissement, qui recense **${sorted.length} risques** répartis sur ${categories.length} catégorie(s) : ${categories.join(', ') || 'non catégorisés'}.
 
@@ -377,7 +377,7 @@ _Référence : ${mecanismes.reference}_
 ### Participation des travailleurs
 
 - Consultation du comité de santé et de sécurité sur le présent programme et ses révisions.
-- Mécanisme de signalement des situations dangereuses accessible à tous les travailleurs (LSST).
+- Mécanisme de signalement des situations dangereuses accessible à tous les travailleurs (LSST art. 49).
 - Participation des travailleurs concernés à l'analyse des risques de leur poste.
 - Diffusion des comptes rendus et du suivi des actions correctives.
 

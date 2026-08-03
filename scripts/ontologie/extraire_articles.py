@@ -51,6 +51,7 @@ SORTIE = Path("data/reglementation/articles-index.json")
 SORTIE_RUNTIME = Path("src/lib/articlesCitables.genere.ts")
 
 TEXTES = [
+    ("LSST", "S-2.1.pdf", "RLRQ c. S-2.1"),
     ("RSST", "S-2.1, R. 13.pdf", "RLRQ c. S-2.1, r. 13"),
     ("CSTC", "S-2.1, R. 4.pdf", "RLRQ c. S-2.1, r. 4"),
 ]

@@ -17,9 +17,9 @@
  *
  *   Les listes d'articles proviennent des PDF officiels eux-mêmes, dépouillés
  *   par `scripts/ontologie/extraire_articles.py` et contrôlés par
- *   `valider_articles.py` : chacun des renvois internes que les règlements
- *   font à leurs propres articles doit résoudre dans l'index, sans quoi le
- *   contrôle échoue. La LSST n'a pas encore été traitée ainsi.
+ *   `valider_articles.py` : chacun des renvois internes que les textes font à
+ *   leurs propres articles doit résoudre dans l'index, sans quoi le contrôle
+ *   échoue — 164 renvois pour la LSST, 124 pour le RSST, 83 pour le CSTC.
  *
  * DE LA FORME À L'APPARTENANCE
  *   Ce module validait d'abord les citations sur la FORME du numéro : entiers
@@ -34,25 +34,26 @@
  *   figure, faux sinon.
  *
  * LES ARTICLES ABROGÉS SONT REFUSÉS
- *   28 articles du RSST et 135 du CSTC sont abrogés. Ils existent au texte,
- *   donc une vérification naïve les accepterait — mais ils ne fondent plus
- *   aucune obligation. Les citer serait pire qu'inventer un numéro : celui-ci
- *   se vérifie et donne le change.
+ *   69 articles de la LSST, 28 du RSST et 135 du CSTC sont abrogés. Ils
+ *   existent au texte, donc une vérification naïve les accepterait — mais ils
+ *   ne fondent plus aucune obligation. Les citer serait pire qu'inventer un
+ *   numéro : celui-ci se vérifie et donne le change.
  */
 
 import {
+  ARTICLES_LSST, ABROGES_LSST,
   ARTICLES_RSST, ABROGES_RSST,
   ARTICLES_CSTC, ABROGES_CSTC
 } from '@/lib/articlesCitables.genere'
 
 /**
- * Date de mise à jour RELEVÉE sur la page officielle, texte par texte.
+ * Date de mise à jour RELEVÉE dans le pied de page des PDF officiels.
  *
- * Elle n'est pas globale : dater un texte dont on n'a pas vu la page reviendrait
- * à affirmer une actualité qu'on n'a pas constatée. Un instrument sans date
- * s'affiche sans date.
+ * Les trois textes dépouillés portent la même — ce qui se constate, et ne se
+ * suppose pas : un instrument dont la date n'a pas été lue s'affiche sans date
+ * plutôt qu'avec celle du voisin.
  */
-export const DATE_RELEVEE_RSST_CSTC = '1er avril 2026'
+export const DATE_RELEVEE = '1er avril 2026'
 
 export interface Instrument {
   /** Sigle d'usage, tel qu'employé dans les libellés de mesures. */
@@ -65,7 +66,7 @@ export interface Instrument {
   habilitation?: string
   /**
    * Articles en vigueur, extraits du texte officiel. Absent tant que le PDF
-   * n'a pas été traité — la LSST est dans ce cas.
+   * n'a pas été déposé — le RMPPÉ est dans ce cas.
    */
   articles?: ReadonlySet<string>
   /** Articles abrogés : présents au texte, sans portée normative. */
@@ -79,27 +80,17 @@ export interface Instrument {
    * donc être cités au numéro. Faux tant que seule la page de garde l'a été.
    */
   texteConsulte: boolean
-  /**
-   * Articles citables bien que le texte intégral n'ait pas été consulté, parce
-   * qu'un AUTRE texte consulté y renvoie explicitement. Un renvoi dans un texte
-   * officiel vaut vérification du numéro — pas de son contenu intégral.
-   */
-  articlesCorrobores?: readonly string[]
 }
 
 export const LSST: Instrument = {
   sigle: 'LSST',
   titre: 'Loi sur la santé et la sécurité du travail',
   chapitre: 'RLRQ c. S-2.1',
+  articles: ARTICLES_LSST,
+  abroges: ABROGES_LSST,
   url: 'https://www.legisquebec.gouv.qc.ca/fr/document/lc/S-2.1',
-  texteConsulte: false,
-  // Le RMPPÉ — dont le texte a été travaillé — renvoie à l'article 51 pour
-  // l'obligation que ses mesures viennent concrétiser, et au 3e alinéa de
-  // l'article 90 pour les libérations qui s'ajoutent au barème de son
-  // article 33. Le RSST et le CSTC nomment l'article 223 comme habilitation.
-  // Ces trois numéros-là sont donc corroborés ; les autres articles de la Loi
-  // cités ailleurs dans le produit ne le sont pas et restent à vérifier.
-  articlesCorrobores: ['51', '90', '223']
+  aJourAu: DATE_RELEVEE,
+  texteConsulte: true
 }
 
 export const RSST: Instrument = {
@@ -110,7 +101,7 @@ export const RSST: Instrument = {
   articles: ARTICLES_RSST,
   abroges: ABROGES_RSST,
   url: 'https://www.legisquebec.gouv.qc.ca/fr/document/rc/S-2.1,%20r.%2013',
-  aJourAu: DATE_RELEVEE_RSST_CSTC,
+  aJourAu: DATE_RELEVEE,
   texteConsulte: true
 }
 
@@ -122,7 +113,7 @@ export const CSTC: Instrument = {
   articles: ARTICLES_CSTC,
   abroges: ABROGES_CSTC,
   url: 'https://www.legisquebec.gouv.qc.ca/fr/document/rc/S-2.1,%20r.%204',
-  aJourAu: DATE_RELEVEE_RSST_CSTC,
+  aJourAu: DATE_RELEVEE,
   texteConsulte: true
 }
 
@@ -132,7 +123,7 @@ export const RMPPE: Instrument = {
     'Règlement sur les mécanismes de prévention et de participation en établissement',
   chapitre: 'RLRQ c. S-2.1, r. 8.3',
   url: 'https://www.legisquebec.gouv.qc.ca/fr/document/rc/S-2.1,%20r.%208.3',
-  aJourAu: '1er avril 2026',
+  aJourAu: DATE_RELEVEE,
   // Seul instrument dont le texte a été travaillé article par article : c'est
   // pourquoi `rmppe.ts` cite ses articles 6, 7, 18-20 et 33-39, et que les
   // autres modules s'en abstiennent.
@@ -183,21 +174,20 @@ export function articleAbroge(instrument: Instrument, article: string): boolean 
 /**
  * Dit si une mesure peut légitimement citer cet article.
  *
- * Trois voies, par ordre de force.
+ * Deux voies.
  *
  * 1. L'instrument a un index : l'article doit y figurer EN VIGUEUR. C'est le
- *    cas du RSST et du CSTC, dont les textes ont été dépouillés. Un article
- *    abrogé est refusé par construction, puisqu'il n'entre pas dans l'index.
+ *    cas de la LSST, du RSST et du CSTC, dont les textes ont été dépouillés.
+ *    Un article abrogé est refusé par construction, n'entrant pas dans l'index.
  * 2. Pas d'index, mais le texte a été travaillé article par article : le
  *    RMPPÉ, dont `rmppe.ts` porte les valeurs supplétives. Son PDF n'a pas été
  *    déposé, mais son contenu a été établi.
- * 3. Ni l'un ni l'autre : seuls les numéros corroborés par le renvoi d'un texte
- *    consulté passent. C'est le cas de la LSST, dont le RMPPÉ cite les articles
- *    51 et 90, et dont le RSST et le CSTC nomment l'article 223.
+ *
+ * Une troisième voie a existé — les numéros corroborés par le renvoi d'un
+ * texte consulté — le temps que la LSST n'ait pas d'index. Elle n'a plus
+ * d'utilisateur et a été retirée plutôt que laissée à dormir.
  */
 export function citationAutorisee(instrument: Instrument, article: string): boolean {
-  const n = article.trim()
-  if (instrument.articles) return instrument.articles.has(n)
-  if (instrument.texteConsulte) return true
-  return instrument.articlesCorrobores?.includes(n) ?? false
+  if (instrument.articles) return instrument.articles.has(article.trim())
+  return instrument.texteConsulte
 }
