@@ -15,6 +15,7 @@
  *   transite par le navigateur — tout ce qui est préfixé VITE_ est public.
  */
 
+import { FunctionsHttpError } from '@supabase/supabase-js'
 import { supabase } from '@/integrations/supabase/client'
 import { verifierExtraction, type ExtractionVerifiee } from '@/lib/extraction'
 
@@ -91,9 +92,25 @@ export async function extraireDocument(
   })
 
   if (error) {
+    // La fonction renvoie un corps JSON détaillé même en cas d'échec (clé
+    // absente, Anthropic en erreur, réponse illisible) — mais tout statut
+    // non-2xx fait atterrir ce corps ici, dans `error.context`, plutôt que
+    // dans `data`. Sans ce détour, l'utilisateur ne voit qu'un message
+    // générique qui ne dit pas ce qui a réellement échoué.
+    let detail: string | undefined
+    let messageServeur: string | undefined
+    if (error instanceof FunctionsHttpError) {
+      try {
+        const corps = await error.context.json()
+        messageServeur = corps?.error
+        detail = corps?.details ?? corps?.apercu
+      } catch {
+        // Corps non-JSON : on retombe sur le message générique ci-dessous.
+      }
+    }
     throw new ErreurExtraction(
-      "Le moteur d'extraction n'a pas répondu.",
-      "Vérifiez que la fonction « extraire-document » est déployée et que ANTHROPIC_API_KEY figure dans ses secrets.",
+      messageServeur ?? "Le moteur d'extraction n'a pas répondu.",
+      detail ?? "Vérifiez que la fonction « extraire-document » est déployée et que ANTHROPIC_API_KEY figure dans ses secrets.",
     )
   }
   if (data?.error) {
