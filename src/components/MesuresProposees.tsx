@@ -16,6 +16,50 @@ import {
 // `reference` est déjà le nom de la catégorie de référence dans ce composant :
 // importer sous alias, sinon l'appel vise la variable locale.
 import { INSTRUMENTS, reference as referenceInstrument } from '@/lib/instruments'
+import { apportDuFondement } from '@/lib/fondement'
+
+/**
+ * Ce que l'article impose en propre : le seuil à partir duquel il s'applique,
+ * la norme technique qu'il incorpore.
+ *
+ * L'EXTRAIT N'EST PAS DÉCORATIF
+ *   « 3 m » seul ne dit rien — trois mètres de quoi, mesurés d'où ? Le fragment
+ *   de phrase du texte officiel accompagne donc chaque valeur, en infobulle.
+ *
+ * CE QUI N'EST PAS AFFIRMÉ
+ *   Qu'une valeur relevée s'applique à l'établissement. Un seuil est une
+ *   condition énoncée par le texte ; c'est l'employeur qui juge si son poste y
+ *   entre. Le libellé dit « au texte », pas « chez vous ».
+ */
+function ConditionsDeLArticle({ fondement }: { fondement?: string }) {
+  const apport = useMemo(() => apportDuFondement(fondement), [fondement])
+  if (apport.seuils.length === 0 && apport.normes.length === 0) return null
+
+  return (
+    <span className="mt-1 flex flex-wrap items-center gap-1">
+      {apport.seuils.map(s => (
+        <span
+          key={`${s.valeur}-${s.unite}`}
+          title={`Au texte : « …${s.extrait}… »`}
+          className="inline-flex items-center rounded bg-sst-blue/10 px-1.5 py-0.5 text-[11px] text-sst-blue cursor-help"
+        >
+          {/* Le point décimal sert à comparer, la virgule à lire : le texte
+              officiel écrit « 1,5 m » et l'affichage doit le suivre. */}
+          {s.valeur.replace('.', ',')} {s.unite}
+        </span>
+      ))}
+      {apport.normes.map(n => (
+        <span
+          key={n}
+          title="Norme technique incorporée par renvoi dans l'article"
+          className="inline-flex items-center rounded border border-gray-300 px-1.5 py-0.5 text-[11px] text-gray-600"
+        >
+          {n}
+        </span>
+      ))}
+    </span>
+  )
+}
 
 /**
  * Propose les moyens de prévention applicables à la catégorie d'un risque.
@@ -168,6 +212,7 @@ export function MesuresProposees({
                         )}
                       </span>
                     )}
+                    <ConditionsDeLArticle fondement={m.fondement} />
                   </label>
                 </li>
               ))}

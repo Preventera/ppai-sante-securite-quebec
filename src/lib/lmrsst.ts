@@ -35,14 +35,28 @@ import {
   REFERENCE_RMPPE
 } from '@/lib/rmppe'
 
-/** Seuil d'effectif séparant les deux régimes. */
+/**
+ * Seuil d'effectif séparant les deux régimes.
+ *
+ * Vérifié au texte : la LSST l'énonce deux fois, à l'article 58 pour le
+ * programme de prévention et à l'article 68 pour le comité de santé et de
+ * sécurité — « un établissement groupant au moins 20 travailleurs au cours de
+ * l'année ». L'article 88 le reprend en creux pour le représentant en santé et
+ * en sécurité des établissements plus petits.
+ *
+ * @seuil LSST art. 58 · 20 travailleurs
+ */
 export const SEUIL_EFFECTIF = 20
 
 /**
  * Nombre de jours d'atteinte du seuil déclenchant le comité de santé et de
- * sécurité : « les établissements groupant 20 travailleuses et travailleurs ou
- * plus pendant au moins 21 jours au cours de l'année doivent créer un CSS »
- * (DC200-7107-1, p. 8).
+ * sécurité. La synthèse de la CNESST l'énonçait déjà — « pendant au moins
+ * 21 jours au cours de l'année » (DC200-7107-1, p. 8) — et le texte le
+ * confirme : l'article 68 de la LSST écarte le comité lorsque l'établissement
+ * groupe au moins 20 travailleurs « pour moins de 21 jours au cours de
+ * l'année ».
+ *
+ * @seuil LSST art. 68 · 21 jours
  */
 export const SEUIL_JOURS_PRESENCE_CSS = 21
 
@@ -52,7 +66,16 @@ export const SEUIL_JOURS_PRESENCE_CSS = 21
  */
 export const DUREE_MAX_DEPASSEMENT_TEMPORAIRE_JOURS = SEUIL_JOURS_PRESENCE_CSS - 1
 
-/** Effectif à partir duquel un chantier de construction relève de mesures distinctes. */
+/**
+ * Effectif à partir duquel un chantier de construction relève de mesures
+ * distinctes.
+ *
+ * Vérifié au texte : l'article 209 de la LSST et l'article 2.8.1 du CSTC
+ * emploient la même formule — « au moins 10 travailleurs de la construction à
+ * un moment donné des travaux ».
+ *
+ * @seuil LSST art. 209 · 10 travailleurs
+ */
 export const SEUIL_CHANTIER_CONSTRUCTION = 10
 
 /** Délai d'élaboration et de mise en application, à partir du 1er octobre 2025. */
