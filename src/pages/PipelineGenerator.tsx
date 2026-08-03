@@ -228,7 +228,7 @@ export default function PipelineGenerator() {
       {/* Header */}
       <div className="text-center space-y-2">
         <h1 className="text-3xl font-bold text-sst-blue">Pipeline Générateur PPAI</h1>
-        <p className="text-gray-600">Configuration et upload pour génération automatique conforme CNESST 2025</p>
+        <p className="text-gray-600">Configuration et téléversement — documents composés selon la structure attendue par la CNESST</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

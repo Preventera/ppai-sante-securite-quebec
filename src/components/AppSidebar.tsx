@@ -18,6 +18,7 @@ import {
   SidebarFooter,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
+import { INSTRUMENTS, DATE_RELEVEE, reference as referenceInstrument } from '@/lib/instruments'
 
 /**
  * Navigation composée sur deux axes.
@@ -186,8 +187,16 @@ export function AppSidebar() {
             </Button>
           </div>
         )}
+        {/* « Conforme CNESST » figurait ici. La CNESST ne certifie aucun
+            logiciel, et la conformité se juge sur un établissement, pas sur un
+            outil. Ce qui est vrai et vérifiable, c'est l'alignement sur les
+            textes — leurs numéros de chapitre et leur date sont ceux que
+            `instruments.ts` tient à jour depuis les PDF officiels. */}
         <div className="text-xs text-gray-500">
-          <p>Conforme CNESST</p>
+          <p title={INSTRUMENTS.map(referenceInstrument).join('\n')}>
+            Aligné sur {INSTRUMENTS.map(i => i.sigle).join(' · ')}
+          </p>
+          <p>Textes à jour au {DATE_RELEVEE}</p>
           <p>© 2026 Preventera · AgenticX5 — Tous droits réservés</p>
         </div>
       </SidebarFooter>

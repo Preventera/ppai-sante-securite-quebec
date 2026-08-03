@@ -13,6 +13,7 @@ import { programService } from "@/services/programService";
 import type { ContexteEtablissement } from "@/lib/lmrsst";
 import { niveauPourCode } from "@/lib/scianNiveaux";
 import { AIConfigurationModal } from "@/components/AIConfigurationModal";
+import { LSST, RSST, RMPPE, reference } from "@/lib/instruments";
 
 const templates = {
   "template-1": {
@@ -115,7 +116,7 @@ export function PrototypeGenerator({ selectedGroup, cnessData, registryRisks }: 
       // Persistance pour retrouver le programme dans l'onglet « Programmes enregistrés ».
       await programService.save({
         title: `${template.title} — ${companyInfo.companyName}`,
-        description: `Groupe ${selectedGroup} · ${companyInfo.scianDescription || template.description}`,
+        description: companyInfo.scianDescription || template.description,
         documentType: template.title,
         sector: companyInfo.scianDescription || template.description,
         responsibleActor: companyInfo.responsibleTitle || "Coordonnateur SST",
@@ -236,7 +237,10 @@ export function PrototypeGenerator({ selectedGroup, cnessData, registryRisks }: 
         ? ['## INFORMATIONS ADDITIONNELLES', '', filled(info.additionalInfo), '', '---', '']
         : []),
       `*Document généré automatiquement par PPAI (Prevention Program AI) — ${new Date().toLocaleDateString('fr-CA')}*`,
-      `*Conforme aux exigences CNESST/LMRSST — Groupe ${selectedGroup}*`
+      `*Composé selon le contenu minimal attendu par la CNESST. La conformité de`,
+      `l'établissement relève de l'employeur : ce document l'outille, il ne l'atteste pas.*`,
+      '',
+      `*Textes de référence — ${[LSST, RSST, RMPPE].map(reference).join(' ; ')}.*`
     ];
 
     return sections.join('\n');
@@ -253,7 +257,9 @@ export function PrototypeGenerator({ selectedGroup, cnessData, registryRisks }: 
 Ce document a été généré pour ${companyInfo.companyName}, établissement de ${companyInfo.employeeCount} employés dans le secteur ${companyInfo.scianDescription || template.description}.
 
 ## 2. CADRE RÉGLEMENTAIRE
-Conforme aux exigences CNESST Groupe ${selectedGroup} et aux articles pertinents de la LSST.
+Document composé au regard de la ${LSST.titre} (${LSST.chapitre}) et de ses règlements
+d'application. Depuis le 1er octobre 2025, le document exigé découle de l'effectif de
+l'établissement et non plus du « groupe prioritaire » du régime antérieur.
 
 ## 3. CONTENU PRINCIPAL
 ${template.content}

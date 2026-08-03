@@ -260,7 +260,7 @@ export function PredictiveEngine({ cnessData }: PredictiveEngineProps) {
       }
     }
 
-    return `Tu es l'Assistant IA du système PPAI (Prevention Program AI), expert en santé et sécurité au travail conforme aux normes CNESST/LMRSST.
+    return `Tu es l'Assistant IA du système PPAI (Prevention Program AI), expert en santé et sécurité au travail au Québec, qui s'appuie sur la LSST, le RSST, le CSTC et le RMPPÉ.
 
 📋 ANALYSE PRÉDICTIVE ENRICHIE CNESST - ${predictions.couleur} PRIORITÉ ${predictions.priorite}
 

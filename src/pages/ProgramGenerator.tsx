@@ -507,7 +507,7 @@ export default function ProgramGenerator() {
                 Générateur de Programmes SST
               </CardTitle>
               <p className="text-gray-600 mt-2">
-                Créez des programmes de prévention conformes aux exigences CNESST avec l'orchestrateur PPAI
+                Composez des programmes de prévention selon le contenu minimal attendu par la CNESST — leur conformité relève de l'employeur
               </p>
             </div>
             
