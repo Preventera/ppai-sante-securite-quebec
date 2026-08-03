@@ -140,7 +140,10 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         model: Deno.env.get('ANTHROPIC_MODEL') ?? 'claude-sonnet-5',
-        max_tokens: 8000,
+        // Un programme de prévention réel énumère souvent des dizaines de
+        // risques avec extrait verbatim : 8000 jetons coupait la réponse en
+        // plein milieu d'une chaîne, produisant un JSON tronqué invalide.
+        max_tokens: 16000,
         // Extraction structurée : la réflexion étendue n'apporte rien ici et
         // décale la réponse JSON derrière un bloc "thinking" — désactivée.
         thinking: { type: 'disabled' },
@@ -183,10 +186,18 @@ serve(async (req) => {
     try {
       extraction = JSON.parse(nettoye);
     } catch {
+      const tronque = data?.stop_reason === 'max_tokens';
       return new Response(
         JSON.stringify({
-          error: "La réponse du modèle n'est pas du JSON exploitable.",
-          apercu: nettoye.slice(0, 500),
+          error: tronque
+            ? "Le document contient plus de risques et de mesures que l'extraction ne peut en tenir dans une seule réponse : la réponse a été coupée en cours de génération."
+            : "La réponse du modèle n'est pas du JSON exploitable.",
+          details: tronque
+            ? 'Essayez avec un document plus court, ou signalez ce cas pour augmenter la limite.'
+            : undefined,
+          // Tronqué : la coupure est à la fin. Sinon : la malformation est
+          // plus probablement près du début (préambule, clôture Markdown).
+          apercu: tronque ? nettoye.slice(-500) : nettoye.slice(0, 500),
         }),
         { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
       );
