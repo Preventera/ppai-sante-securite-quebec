@@ -1,4 +1,4 @@
-import { Home, Shield, AlertTriangle, Wand2, LogOut, KeyRound, Users as UsersIcon, Handshake, Megaphone, Inbox } from "lucide-react";
+import { Home, Shield, AlertTriangle, Wand2, LogOut, KeyRound, Users as UsersIcon, Handshake, Megaphone, Inbox, FileUp } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
@@ -49,6 +49,7 @@ const navigationItems = [
   { title: "Tableau de bord", url: "/", icon: Home, roles: TOUS },
   { title: "Signaler un risque", url: "/signaler", icon: Megaphone, roles: TOUS },
   { title: "Registre des risques", url: "/risks", icon: AlertTriangle, roles: CONSULTATION },
+  { title: "Importer un document", url: "/importer", icon: FileUp, roles: REDACTEURS },
   { title: "Signalements", url: "/signalements", icon: Inbox, roles: REDACTEURS },
   { title: "Générer un document", url: "/generer", icon: Wand2, roles: REDACTEURS },
   { title: "Programmes SST", url: "/programs", icon: Shield, roles: TOUS },

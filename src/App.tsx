@@ -25,6 +25,7 @@ import Generer from "./pages/Generer";
 import Signaler from "./pages/Signaler";
 import Signalements from "./pages/Signalements";
 import NotFound from "./pages/NotFound";
+import ImporterDocument from "./pages/ImporterDocument";
 
 const queryClient = new QueryClient();
 
@@ -68,6 +69,7 @@ const App = () => (
 
             <Route path="/" element={<AppShell><Index /></AppShell>} />
             <Route path="/risks" element={<AppShell><RiskRegistry /></AppShell>} />
+            <Route path="/importer" element={<AppShell><RequireRole roles={["admin", "preventionniste"]}><ImporterDocument /></RequireRole></AppShell>} />
             <Route path="/generator" element={<AppShell><ProgramGenerator /></AppShell>} />
             <Route path="/sector-generator" element={<AppShell><SectorGenerator /></AppShell>} />
             <Route path="/pipeline-generator" element={<AppShell><PipelineGenerator /></AppShell>} />
