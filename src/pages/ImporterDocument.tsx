@@ -8,6 +8,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
+import { Input } from '@/components/ui/input'
 import { useToast } from '@/hooks/use-toast'
 import { FileUp, Quote, AlertTriangle, Info, Loader2, ArrowRight } from 'lucide-react'
 import {
@@ -51,6 +52,30 @@ interface Cotation {
   secteur: RiskSector
 }
 
+/**
+ * Champs modifiables avant l'écriture au registre.
+ *
+ * POURQUOI CES TROIS-LÀ
+ *   Ce sont les seuls, parmi ce que le registre écrit, susceptibles de porter
+ *   un nom d'entreprise, de personne ou de lieu : `nom` et `phase` sont parfois
+ *   paraphrasés à partir d'une phrase qui les cite, `responsable` peut être une
+ *   fonction (« Contremaître ») ou un nom propre selon ce que le document
+ *   écrit. Les autres champs écrits (catégorie, secteur, mesures) ne
+ *   reprennent jamais de texte libre du document.
+ *
+ * CE QUE ÇA NE COUVRE PAS
+ *   Le PDF est déjà transmis, tel quel, au moteur d'extraction avant que cet
+ *   écran n'existe : aucune modification ici ne retire une information déjà
+ *   envoyée à l'API. Pour un document dont le contenu même ne doit transiter
+ *   par aucun tiers, le caviardage doit se faire sur le PDF avant de le
+ *   déposer.
+ */
+interface Edition {
+  nom: string
+  phase: string
+  responsable: string
+}
+
 export default function ImporterDocument() {
   const navigate = useNavigate()
   const { toast } = useToast()
@@ -66,6 +91,7 @@ export default function ImporterDocument() {
   const [erreur, setErreur] = useState<{ message: string; detail?: string } | null>(null)
   const [resultat, setResultat] = useState<ResultatExtraction | null>(null)
   const [cotations, setCotations] = useState<Record<string, Cotation>>({})
+  const [editions, setEditions] = useState<Record<string, Edition>>({})
   const [enregistrement, setEnregistrement] = useState(false)
 
   const extraction = resultat?.extraction
@@ -107,6 +133,16 @@ export default function ImporterDocument() {
           ]),
         ),
       )
+      // Les champs modifiables partent des valeurs extraites : l'utilisateur
+      // corrige ou vide, il ne repart jamais d'une page blanche.
+      setEditions(
+        Object.fromEntries(
+          r.extraction.risques.map(risque => [
+            risque.cle,
+            { nom: risque.nom, phase: risque.phase, responsable: risque.responsable },
+          ]),
+        ),
+      )
       if (r.extraction.risques.length === 0) {
         toast({
           title: 'Aucun risque retenu',
@@ -124,6 +160,26 @@ export default function ImporterDocument() {
   const majCotation = (cle: string, champ: keyof Cotation, valeur: number | boolean | string) =>
     setCotations(prev => ({ ...prev, [cle]: { ...prev[cle], [champ]: valeur } as Cotation }))
 
+  const majEdition = (cle: string, champ: keyof Edition, valeur: string) =>
+    setEditions(prev => ({ ...prev, [cle]: { ...prev[cle], [champ]: valeur } }))
+
+  /**
+   * Vide le champ le plus exposé — un nom de personne — sur tous les risques
+   * d'un coup. `nom` et `phase` restent volontairement intacts : ils décrivent
+   * le risque, pas qui y répond, et les vider perdrait l'information utile
+   * sans gain de confidentialité proportionné. Un geste groupé pour le seul
+   * champ à risque systématique ; le reste se corrige au cas par cas.
+   */
+  const depersonnaliserResponsables = () => {
+    setEditions(prev =>
+      Object.fromEntries(Object.entries(prev).map(([cle, e]) => [cle, { ...e, responsable: '' }])),
+    )
+    toast({
+      title: 'Responsables vidés',
+      description: 'Un nom de personne, si le document en citait, ne partira pas au registre.',
+    })
+  }
+
   /** Un risque n'est écrivable que coté sur les deux axes. */
   const cotationComplete = (cle: string) => {
     const c = cotations[cle]
@@ -139,6 +195,15 @@ export default function ImporterDocument() {
     try {
       for (const risque of retenus) {
         const c = cotations[risque.cle]
+        // Ce qui part au registre, ce sont les champs ÉDITÉS — jamais
+        // directement ceux de l'extraction. C'est ce qui rend la
+        // dépersonnalisation réelle plutôt que cosmétique : le nom, la phase
+        // et le responsable peuvent avoir été corrigés ou vidés à l'écran, et
+        // c'est cette version-là qui s'écrit.
+        const edition = editions[risque.cle] ?? {
+          nom: risque.nom, phase: risque.phase, responsable: risque.responsable,
+        }
+
         // Les mesures reprennent l'ordre de la hiérarchie du RMPPÉ, et portent
         // leur fondement quand il a survécu à la vérification.
         const mesures = mesuresDuRisque(extraction, risque.nom)
@@ -150,8 +215,8 @@ export default function ImporterDocument() {
           .join('\n')
 
         await riskService.createRisk({
-          name: risque.nom,
-          phase: risque.phase,
+          name: edition.nom,
+          phase: edition.phase,
           category: risque.categorie,
           probability: c.probabilite,
           gravity: c.gravite,
@@ -159,7 +224,7 @@ export default function ImporterDocument() {
             mesures ||
             `Repris de « ${resultat!.metadonnees.document} », page ${risque.ancrage.page}. Mesures à décrire.`,
           status: 'En surveillance',
-          responsible: risque.responsable,
+          responsible: edition.responsable,
           sector: c.secteur,
         })
         ecrits++
@@ -233,6 +298,20 @@ export default function ImporterDocument() {
             </AlertDescription>
           </Alert>
 
+          <Alert variant="destructive">
+            <AlertTriangle className="w-4 h-4" />
+            <AlertDescription className="text-sm">
+              <p className="font-medium">Le PDF est transmis tel quel au moteur de lecture</p>
+              <p className="mt-1">
+                Nom d'entreprise, adresses, noms de personnes : ce qui figure dans le document
+                voyage avec lui jusqu'au moteur d'extraction. Les champs <em>nom</em>,{' '}
+                <em>phase</em> et <em>responsable</em> seront modifiables avant l'ajout au
+                registre — mais pour un document dont le contenu même ne doit transiter par
+                aucun tiers, caviardez-le avant de le déposer ici.
+              </p>
+            </AlertDescription>
+          </Alert>
+
           <Button onClick={lancer} disabled={!fichier || enCours}>
             {enCours ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Lecture en cours…</> : 'Lire le document'}
           </Button>
@@ -279,13 +358,20 @@ export default function ImporterDocument() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">
-                {extraction.risques.length} risque(s) proposé(s)
-              </CardTitle>
-              <p className="text-sm text-gray-500">
-                Cochez ce que vous retenez, puis cotez la probabilité et la gravité.
-                La probabilité n'est jamais extraite : elle vous appartient.
-              </p>
+              <div className="flex items-start justify-between gap-3 flex-wrap">
+                <div>
+                  <CardTitle className="text-lg">
+                    {extraction.risques.length} risque(s) proposé(s)
+                  </CardTitle>
+                  <p className="text-sm text-gray-500">
+                    Cochez ce que vous retenez, puis cotez la probabilité et la gravité.
+                    La probabilité n'est jamais extraite : elle vous appartient.
+                  </p>
+                </div>
+                <Button type="button" variant="outline" size="sm" onClick={depersonnaliserResponsables}>
+                  Vider tous les responsables
+                </Button>
+              </div>
             </CardHeader>
             <CardContent className="space-y-4">
               {extraction.risques.map(risque => (
@@ -294,7 +380,9 @@ export default function ImporterDocument() {
                   risque={risque}
                   mesures={mesuresDuRisque(extraction, risque.nom)}
                   cotation={cotations[risque.cle]}
+                  edition={editions[risque.cle]}
                   onChange={(champ, valeur) => majCotation(risque.cle, champ, valeur)}
+                  onEdit={(champ, valeur) => majEdition(risque.cle, champ, valeur)}
                 />
               ))}
 
@@ -344,15 +432,18 @@ export default function ImporterDocument() {
 }
 
 function FicheRisque({
-  risque, mesures, cotation, onChange,
+  risque, mesures, cotation, edition, onChange, onEdit,
 }: {
   risque: RisqueExtrait
   mesures: ReturnType<typeof mesuresDuRisque>
   cotation?: Cotation
+  edition?: Edition
   onChange: (champ: keyof Cotation, valeur: number | boolean | string) => void
+  onEdit: (champ: keyof Edition, valeur: string) => void
 }) {
   const retenu = cotation?.retenu ?? false
   const indice = (cotation?.probabilite ?? 0) * (cotation?.gravite ?? 0)
+  const e = edition ?? { nom: risque.nom, phase: risque.phase, responsable: risque.responsable }
 
   return (
     <div className={`rounded-lg border p-4 space-y-3 ${retenu ? 'border-sst-blue bg-sst-blue/5' : ''}`}>
@@ -364,14 +455,36 @@ function FicheRisque({
           className="mt-1"
         />
         <div className="flex-1 min-w-0">
-          <label htmlFor={risque.cle} className="font-medium cursor-pointer">{risque.nom}</label>
-          <p className="text-xs text-gray-500 mt-0.5">
-            {risque.categorie}
-            {risque.phase && ` · ${risque.phase}`}
-            {risque.responsable && ` · ${risque.responsable}`}
-          </p>
+          {/* Modifiables : c'est ce qui part au registre, pas le texte de
+              l'extraction. Vider un champ ici n'affecte que ce qui s'écrit —
+              l'extrait ci-dessous reste la preuve, inchangée. */}
+          <Input
+            value={e.nom}
+            onChange={ev => onEdit('nom', ev.target.value)}
+            className="h-8 font-medium"
+            aria-label="Nom du risque"
+          />
+          <div className="grid gap-2 sm:grid-cols-2 mt-1.5">
+            <Input
+              value={e.phase}
+              onChange={ev => onEdit('phase', ev.target.value)}
+              placeholder="Phase ou secteur (facultatif)"
+              className="h-7 text-xs"
+              aria-label="Phase"
+            />
+            <Input
+              value={e.responsable}
+              onChange={ev => onEdit('responsable', ev.target.value)}
+              placeholder="Responsable (facultatif)"
+              className="h-7 text-xs"
+              aria-label="Responsable"
+            />
+          </div>
+          <p className="text-xs text-gray-400 mt-1">{risque.categorie}</p>
 
-          {/* L'ancrage est ce qui rend l'élément vérifiable : il ne se replie pas. */}
+          {/* L'ancrage est ce qui rend l'élément vérifiable : il ne se replie pas,
+              et n'est jamais écrit au registre — modifier les champs ci-dessus
+              ne le fait pas mentir sur ce que le document dit réellement. */}
           <blockquote className="mt-2 border-l-2 border-gray-300 pl-3 text-sm text-gray-600 italic">
             <Quote className="w-3 h-3 inline mr-1 opacity-50" />
             {risque.ancrage.extrait}
